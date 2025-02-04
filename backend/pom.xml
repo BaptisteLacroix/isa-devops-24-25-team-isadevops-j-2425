@@ -10,12 +10,12 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <groupId>fr.univ-cotedazur</groupId>
-    <artifactId>simpleTCFS</artifactId>
+    <groupId>fr.univ-cotedazur.teamj</groupId>
+    <artifactId>kiwicard</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>simpleTCFS</name>
-    <description>simpleTCFS</description>
+    <name>KiwiCard</name>
+    <description>KiwiCard Spring Boot backend application</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
