@@ -26,42 +26,19 @@ public class BankProxy implements Bank {
 
     private final String bankHostandPort;
 
-    private final WebClient webClient;
+    private WebClient webClient;
 
     @Autowired
     public BankProxy(@Value("${bank.host.baseurl}") String bankHostandPort) {
         this.bankHostandPort = bankHostandPort;
-        this.webClient = WebClient.builder()
-                .baseUrl(this.bankHostandPort)
-                .build();
+//        this.webClient = WebClient.builder()
+//                .baseUrl(this.bankHostandPort)
+//                .build();
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
     public Optional<String> pay(Customer customer, double value) {
-        return webClient.post()
-                .uri("/cctransactions")
-                .bodyValue(new PaymentRequestDTO(customer.getCreditCard(), value))
-                .retrieve()
-                .onStatus(HttpStatusCode::is2xxSuccessful,
-                        clientResponse -> clientResponse.statusCode().equals(HttpStatus.CREATED) ?
-                                Mono.empty() : // no Error raised, we let the flow continue
-                                Mono.error(new EmptyResponseException("Unexpected status code: " + clientResponse.statusCode())))
-                .onStatus(HttpStatusCode::isError,
-                        clientResponse -> clientResponse.statusCode().equals(HttpStatus.BAD_REQUEST) ?
-                                Mono.error(new EmptyResponseException("Unexpected status code: " + clientResponse.statusCode())) :
-                                clientResponse.createException().flatMap(Mono::error)) // return an error with the predefined exception
-                .bodyToMono(PaymentReceiptDTO.class)
-                .switchIfEmpty(Mono.error(new EmptyResponseException("Empty response body from the bank")))
-                .timeout(Duration.ofSeconds(5))
-                .map(PaymentReceiptDTO::payReceiptId)
-                .onErrorResume(error -> {
-                    if (error instanceof EmptyResponseException) { // this is our exception, for cases where we cant to return an empty optional
-                        LOG.warn("Unexpected behavior while processing payment (no exception thrown): {}", error.getMessage());
-                        return Mono.empty();
-                    }
-                    return Mono.error(error); // other errors, we want to propagate
-                })
-                .blockOptional();
+        return null;
     }
 
     private static class EmptyResponseException extends RuntimeException {

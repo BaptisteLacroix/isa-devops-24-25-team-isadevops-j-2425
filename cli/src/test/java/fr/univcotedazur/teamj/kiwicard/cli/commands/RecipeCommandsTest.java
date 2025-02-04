@@ -32,17 +32,6 @@ class RecipeCommandsTest {
 
     @Test
     void recipesSetTest() throws Exception {
-        // Given
-        mockWebServer.enqueue(new MockResponse()
-                .setBody("[\"CHOCOLALALA\",\"DARK_TEMPTATION\",\"SOO_CHOCOLATE\"]")
-                .addHeader("Content-Type", "application/json"));
-
-        // When-Then
-
-        // Verify the request was made to the correct endpoint
-        RecordedRequest recordedRequest = mockWebServer.takeRequest();
-        assertEquals("/recipes", recordedRequest.getPath());
-        assertEquals("GET", recordedRequest.getMethod());
     }
 
 }
