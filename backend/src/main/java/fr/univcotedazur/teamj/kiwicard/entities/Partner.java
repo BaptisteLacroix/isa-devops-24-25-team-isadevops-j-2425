@@ -5,23 +5,20 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotNull;
-
-import java.util.Objects;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
-public class Item {
+public class Partner {
 
     @Id
     @GeneratedValue
-    private Long itemId;
+    private Long partnerId;
 
-    @NotNull
+    @NotBlank
     @Column
-    private String label;
+    private String name;
 
-    @NotNull
+    @NotBlank
     @Column
-    private double price;
-
+    private String address;
 }
