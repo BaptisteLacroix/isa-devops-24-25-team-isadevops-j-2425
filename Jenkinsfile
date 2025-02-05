@@ -1,8 +1,8 @@
-pipeline{
-    agent{ label 'agenthost' }
-    stages{
+pipeline {
+    agent { label 'agenthost' }
+    stages {
         stage('Clean') {
-            steps{
+            steps {
                 sh 'pwd'
                 dir('backend') {
                     sh 'pwd'
@@ -14,7 +14,7 @@ pipeline{
         stage('Verify') {
             steps {
                 dir('backend') {
-                    echo "We are launching the unit tests !"
+                    echo 'Pipeline is launching the unit tests !'
                     sh 'mvn test'
                 }
             }
