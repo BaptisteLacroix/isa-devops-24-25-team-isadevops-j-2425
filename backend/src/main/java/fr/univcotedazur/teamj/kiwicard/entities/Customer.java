@@ -41,6 +41,60 @@ public class Customer {
 
     }
 
+    public Customer(String firstName, String surname, String address, String email, boolean vfp) {
+        this.firstName = firstName;
+        this.surname = surname;
+        this.address = address;
+        this.email = email;
+        this.vfp = vfp;
+    }
 
+    public Long getCustomerId() {
+        return customerId;
+    }
 
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
+
+    public @NotBlank String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(@NotBlank String firstName) {
+        this.firstName = firstName;
+    }
+
+    public @NotBlank String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(@NotBlank String surname) {
+        this.surname = surname;
+    }
+
+    public @NotBlank String getAddress() {
+        return address;
+    }
+
+    public void setAddress(@NotBlank String address) {
+        this.address = address;
+    }
+
+    public @NotBlank String getEmail() {
+        return email;
+    }
+
+    public void setEmail(@NotBlank String email) {
+        this.email = email;
+    }
+
+    @NotBlank
+    public boolean isVfp() {
+        return vfp;
+    }
+
+    public void setVfp(@NotBlank boolean vfp) {
+        this.vfp = vfp;
+    }
 }

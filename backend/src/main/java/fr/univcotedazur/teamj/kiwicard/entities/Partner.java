@@ -21,4 +21,36 @@ public class Partner {
     @NotBlank
     @Column
     private String address;
+
+    public Partner() {
+    }
+
+    public Partner(String name, String address) {
+        this.name = name;
+        this.address = address;
+    }
+
+    public Long getPartnerId() {
+        return partnerId;
+    }
+
+    public void setPartnerId(Long partnerId) {
+        this.partnerId = partnerId;
+    }
+
+    public @NotBlank String getName() {
+        return name;
+    }
+
+    public void setName(@NotBlank String name) {
+        this.name = name;
+    }
+
+    public @NotBlank String getAddress() {
+        return address;
+    }
+
+    public void setAddress(@NotBlank String address) {
+        this.address = address;
+    }
 }

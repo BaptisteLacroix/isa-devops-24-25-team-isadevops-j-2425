@@ -11,4 +11,14 @@ public abstract class AbstractPerk {
     @GeneratedValue
     private Long perkId;
 
+    public AbstractPerk() {
+    }
+
+    public Long getPerkId() {
+        return perkId;
+    }
+
+    public void setPerkId(Long perkId) {
+        this.perkId = perkId;
+    }
 }

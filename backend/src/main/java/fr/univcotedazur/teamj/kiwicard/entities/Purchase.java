@@ -8,7 +8,22 @@ import jakarta.persistence.Id;
 @Entity
 public class Purchase {
 
+
     @Id
     @GeneratedValue
     private Long purchaseId;
+
+    public Purchase() {
+    }
+
+    public Long getPurchaseId() {
+        return purchaseId;
+    }
+
+
+    public void setPurchaseId(Long purchaseId) {
+        this.purchaseId = purchaseId;
+    }
+
+
 }
