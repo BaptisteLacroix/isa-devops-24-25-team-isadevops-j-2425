@@ -7,6 +7,6 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceExce
 /**
  * Création et réglement d'un paiment
  */
-public interface Payment {
+public interface IPayment {
     PaymentDTO makePay(CartDTO cartToPay) throws UnreachableExternalServiceException;
 }

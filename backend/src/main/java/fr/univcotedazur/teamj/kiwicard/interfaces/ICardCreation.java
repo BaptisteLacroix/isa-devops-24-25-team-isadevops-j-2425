@@ -7,7 +7,7 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceExce
 /**
  * Demande de création et d'envoi de carte multi-fidélité
  */
-public interface CardCreation {
+public interface ICardCreation {
     CardDTO orderACard(CardCreationDTO cardInfo) throws UnreachableExternalServiceException;
 
 }

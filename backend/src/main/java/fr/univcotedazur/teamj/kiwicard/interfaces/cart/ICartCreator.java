@@ -9,6 +9,6 @@ import java.util.List;
 /**
  * Création de panier lors d'un achat chez un partenaire
  */
-public interface CartCreator {
+public interface ICartCreator {
     CartDTO createCart(String customerEmail, List<ItemDTO> items) throws UnknownCustomerEmailException;
 }

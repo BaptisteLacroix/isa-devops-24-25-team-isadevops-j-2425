@@ -8,7 +8,7 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 /**
  * Modification de panier lros de l'application d'un avantage
  */
-public interface CartModifier {
+public interface ICartModifier {
     CartDTO updateCart(String cartOwnerEmail, CartDTO newCart, UsedPerkDTO usedPerk) throws UnknownCustomerEmailException;
     PurchaseDTO validateCart(String cartOwnerEmail) throws UnknownCustomerEmailException;
 }

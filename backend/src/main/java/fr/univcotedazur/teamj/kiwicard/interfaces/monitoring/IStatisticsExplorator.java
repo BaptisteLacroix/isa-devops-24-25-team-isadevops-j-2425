@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 /**
  * Consultation des statistiques d'un partenaire
  */
-public interface StatisticsExplorator{
+public interface IStatisticsExplorator {
     StatisticsDTO getStatisticsFromUserAndPartner (long partnerId, String customerEmail) throws UnknownPartnerIdException, UnknownCustomerEmailException;
     StatisticsDTO getStatisticsFromPartnerAndDate (long partnerId, LocalDateTime date) throws UnknownPartnerIdException;
 }

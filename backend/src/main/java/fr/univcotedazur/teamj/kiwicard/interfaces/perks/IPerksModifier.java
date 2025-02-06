@@ -6,7 +6,7 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPerkIdException;
 /**
  * Modification ou suppression d'un avatange
  */
-public interface PerksModifier{
+public interface IPerksModifier {
     void udpatePerk(long perkId, PerkDTO newPerk) throws UnknownPerkIdException;
     void deletePerk(long perkId) throws UnknownPerkIdException;
 }

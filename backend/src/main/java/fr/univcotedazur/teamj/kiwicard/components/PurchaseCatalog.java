@@ -5,14 +5,14 @@ import fr.univcotedazur.teamj.kiwicard.dto.PaymentDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
-import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.PurchaseConsumer;
-import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.PurchaseCreator;
-import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.PurchaseFinder;
+import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseConsumer;
+import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseCreator;
+import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseFinder;
 
 import java.util.List;
 import java.util.Optional;
 
-public class PurchaseCatalog implements PurchaseConsumer, PurchaseCreator, PurchaseFinder {
+public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPurchaseFinder {
 
     @Override
     public void consumeNLastPurchaseoOfCustomer(int nbPurchasesToConsume, String customerEmail) throws UnknownCustomerEmailException {

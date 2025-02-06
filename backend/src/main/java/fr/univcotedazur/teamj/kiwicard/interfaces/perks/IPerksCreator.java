@@ -5,6 +5,6 @@ import fr.univcotedazur.teamj.kiwicard.dto.PerkDTO;
 /**
  * Permet aux partenaires de créer des avantages
  */
-public interface PerksCreator{
+public interface IPerksCreator {
     PerkDTO createPerk(PerkDTO perkToCreate);
 }

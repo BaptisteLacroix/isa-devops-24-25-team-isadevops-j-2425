@@ -8,6 +8,6 @@ import java.time.LocalDateTime;
 /**
  * Vérification de la disponibilité d'une réduction chez HappyKids
  */
-public interface HappyKids{
+public interface IHappyKids {
     HappyKidsDiscountDTO computeDiscount(LocalDateTime wantedSlot) throws ClosedTimeException;
 }

@@ -5,16 +5,16 @@ import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyUsedEMmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCardNumberException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
-import fr.univcotedazur.teamj.kiwicard.interfaces.customer.CustomerCartSaver;
-import fr.univcotedazur.teamj.kiwicard.interfaces.customer.CustomerFinder;
-import fr.univcotedazur.teamj.kiwicard.interfaces.customer.CustomerRegistration;
+import fr.univcotedazur.teamj.kiwicard.interfaces.customer.ICustomerCartSaver;
+import fr.univcotedazur.teamj.kiwicard.interfaces.customer.ICustomerFinder;
+import fr.univcotedazur.teamj.kiwicard.interfaces.customer.ICustomerRegistration;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class CustomerCatalog implements CustomerRegistration, CustomerFinder, CustomerCartSaver {
+public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, ICustomerCartSaver {
 
 
     @Override

@@ -11,7 +11,7 @@ import java.util.Optional;
 /**
  * Recherche et récupération de client
  */
-public interface CustomerFinder {
+public interface ICustomerFinder {
     Optional<CustomerDTO> findCustomerByEmail(String customerEMail) throws UnknownCustomerEmailException;
     Optional<CustomerDTO> findCustomerByCartNum(String cardNumber) throws UnknownCardNumberException;
     List<CustomerDTO> findAll();

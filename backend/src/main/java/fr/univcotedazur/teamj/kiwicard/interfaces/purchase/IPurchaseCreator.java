@@ -7,6 +7,6 @@ import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
 /**
  * Création d'achat lors du règlement d'un panier
  */
-public interface PurchaseCreator {
+public interface IPurchaseCreator {
     PurchaseDTO createPurchase(CartDTO cart, PaymentDTO payment);
 }

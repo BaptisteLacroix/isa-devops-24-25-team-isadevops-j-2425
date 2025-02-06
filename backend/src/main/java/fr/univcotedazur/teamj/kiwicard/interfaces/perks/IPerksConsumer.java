@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Application d'un avantage sur un panier
  */
-public interface PerksConsumer {
+public interface IPerksConsumer {
     boolean applyPerk(long perkId, String cartOwnerEmail) throws UnknownPerkIdException, UnknownCustomerEmailException;
     List<PerkDTO> findConsumablePerksForConsumerAtPartner(String consumerEmail, long partnerId) throws UnknownCartIdException, UnknownPartnerIdException;
 }

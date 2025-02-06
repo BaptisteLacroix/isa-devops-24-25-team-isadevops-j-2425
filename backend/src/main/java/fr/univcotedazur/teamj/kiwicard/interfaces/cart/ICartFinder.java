@@ -8,6 +8,6 @@ import java.util.Optional;
 /**
  * Recherche et récupération de panier
  */
-public interface CartFinder {
+public interface ICartFinder {
     Optional<CartDTO> findCustomerCart(String cartOwnerEmail) throws UnknownCustomerEmailException;
 }

@@ -10,7 +10,7 @@ import java.util.Optional;
 /**
  * Recherche et récupération d'avantage
  */
-public interface PerksFinder{
+public interface IPerksFinder {
     Optional<PerkDTO> findPerkById(long perkId) throws UnknownPerkIdException;
     List<PerkDTO> findPerkByPartner(long partnerId) throws UnknownPartnerIdException;
     List<PerkDTO> findAllPerks();

@@ -3,14 +3,14 @@ package fr.univcotedazur.teamj.kiwicard.components;
 import fr.univcotedazur.teamj.kiwicard.dto.PerkDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPerkIdException;
-import fr.univcotedazur.teamj.kiwicard.interfaces.perks.PerksCreator;
-import fr.univcotedazur.teamj.kiwicard.interfaces.perks.PerksFinder;
-import fr.univcotedazur.teamj.kiwicard.interfaces.perks.PerksModifier;
+import fr.univcotedazur.teamj.kiwicard.interfaces.perks.IPerksCreator;
+import fr.univcotedazur.teamj.kiwicard.interfaces.perks.IPerksFinder;
+import fr.univcotedazur.teamj.kiwicard.interfaces.perks.IPerksModifier;
 
 import java.util.List;
 import java.util.Optional;
 
-public class PerksCatalog implements PerksCreator, PerksFinder, PerksModifier {
+public class PerksCatalog implements IPerksCreator, IPerksFinder, IPerksModifier {
     @Override
     public PerkDTO createPerk(PerkDTO perkToCreate) {
         return null;

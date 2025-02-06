@@ -7,7 +7,7 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyUsedEMmailException;
 /**
  * Recherche et récupération de client
  */
-public interface CustomerRegistration {
+public interface ICustomerRegistration {
     CustomerDTO register(String surname, String firstname, String email, String address) throws AlreadyUsedEMmailException;
 
 }

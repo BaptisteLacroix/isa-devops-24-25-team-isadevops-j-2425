@@ -5,16 +5,16 @@ import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.UsedPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
-import fr.univcotedazur.teamj.kiwicard.interfaces.cart.CartCreator;
-import fr.univcotedazur.teamj.kiwicard.interfaces.cart.CartFinder;
-import fr.univcotedazur.teamj.kiwicard.interfaces.cart.CartModifier;
+import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartCreator;
+import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartFinder;
+import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartModifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class CartService implements CartModifier, CartFinder, CartCreator {
+public class CartService implements ICartModifier, ICartFinder, ICartCreator {
 
 
     @Override

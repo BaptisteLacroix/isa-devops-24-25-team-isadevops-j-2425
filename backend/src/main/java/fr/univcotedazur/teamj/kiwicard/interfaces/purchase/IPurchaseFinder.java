@@ -10,7 +10,7 @@ import java.util.Optional;
 /**
  * Recherche et récupération d'achat lors de l'application d'avantage
  */
-public interface PurchaseFinder {
+public interface IPurchaseFinder {
     Optional<PurchaseDTO> findPurchaseById(long purchaseId) throws UnknownPartnerIdException;
     List<PurchaseDTO> findPurchasesByCustomerAndPartner(String customerEmail, long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException;
 }

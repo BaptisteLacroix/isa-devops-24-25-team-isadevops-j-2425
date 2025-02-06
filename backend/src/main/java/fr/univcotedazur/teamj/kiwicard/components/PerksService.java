@@ -5,11 +5,11 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCartIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPerkIdException;
-import fr.univcotedazur.teamj.kiwicard.interfaces.perks.PerksConsumer;
+import fr.univcotedazur.teamj.kiwicard.interfaces.perks.IPerksConsumer;
 
 import java.util.List;
 
-public class PerksService implements PerksConsumer {
+public class PerksService implements IPerksConsumer {
     @Override
     public boolean applyPerk(long perkId, String cartOwnerEmail) throws UnknownPerkIdException, UnknownCustomerEmailException {
         return false;

@@ -10,6 +10,10 @@ import java.time.LocalDateTime;
 @Entity
 public class CartItem {
 
+    @Id
+    @GeneratedValue
+    private Long cartItemId;
+
     @Column
     private int quantity;
 
