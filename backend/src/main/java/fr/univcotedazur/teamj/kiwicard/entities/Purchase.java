@@ -1,9 +1,7 @@
 package fr.univcotedazur.teamj.kiwicard.entities;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
 public class Purchase {
@@ -12,6 +10,14 @@ public class Purchase {
     @Id
     @GeneratedValue
     private Long purchaseId;
+
+    @OneToOne
+    @PrimaryKeyJoinColumn
+    private Payment payment;
+
+    @OneToOne
+    @PrimaryKeyJoinColumn
+    private Cart cart;
 
     public Purchase() {
     }

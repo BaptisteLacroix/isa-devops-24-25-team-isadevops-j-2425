@@ -2,6 +2,10 @@ package fr.univcotedazur.teamj.kiwicard.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
+import java.util.List;
 
 @Entity
 public class Customer {
@@ -30,6 +34,14 @@ public class Customer {
     @Column
     public boolean vfp;
 
+    @OneToMany
+    @Column
+    private List<Purchase> purchaseList;
+
+    @OneToOne
+    @PrimaryKeyJoinColumn
+    @NotFound(action = NotFoundAction.IGNORE) //  1 to 0 ou 1
+    private Cart cart;
 
     // Fait pour faire passer les tests, à refaire !!
     public Customer(String firstName, String id) {

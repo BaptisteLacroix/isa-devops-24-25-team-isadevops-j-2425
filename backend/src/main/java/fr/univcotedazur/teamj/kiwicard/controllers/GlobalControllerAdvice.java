@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice(assignableTypes = {CustomerCareController.class, CartController.class})
+@RestControllerAdvice(assignableTypes = {CustomerController.class, CartController.class})
 public class GlobalControllerAdvice {
 
     @ExceptionHandler({NegativeQuantityException.class})

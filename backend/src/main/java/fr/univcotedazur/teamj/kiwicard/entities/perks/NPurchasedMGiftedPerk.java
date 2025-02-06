@@ -1,7 +1,9 @@
 package fr.univcotedazur.teamj.kiwicard.entities.perks;
 
 
+import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import jakarta.persistence.Column;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDateTime;
@@ -15,6 +17,10 @@ public class NPurchasedMGiftedPerk extends AbstractPerk{
     @NotBlank
     @Column
     private int nbGifted;
+
+    @OneToOne
+    @Column
+    private Item item;
 
     public NPurchasedMGiftedPerk() {
     }

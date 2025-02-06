@@ -1,8 +1,9 @@
 package fr.univcotedazur.teamj.kiwicard.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
+import jakarta.persistence.*;
+
+import java.util.List;
 
 
 @Entity
@@ -14,6 +15,16 @@ public class Cart {
 
     public Cart() {
     }
+
+    @ManyToOne
+    @JoinColumn
+    private Partner partner;
+
+    @ManyToMany
+    @Column
+    private List<AbstractPerk> perksList;
+
+
 
 
     public Long getCartId() {

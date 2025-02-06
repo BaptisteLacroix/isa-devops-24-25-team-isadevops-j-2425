@@ -1,11 +1,11 @@
 package fr.univcotedazur.teamj.kiwicard.entities;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+
+import java.util.List;
 
 @Entity
 public class Partner {
@@ -21,6 +21,18 @@ public class Partner {
     @NotBlank
     @Column
     private String address;
+
+    @OneToMany
+    @Column
+    private List<Purchase> purchaseList;
+
+    @OneToMany
+    @Column
+    private List<AbstractPerk> perkList;
+
+    @OneToMany
+    @Column
+    private List<Item> itemList;
 
     public Partner() {
     }
