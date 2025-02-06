@@ -10,4 +10,8 @@ import org.springframework.stereotype.Component;
 public class Cashier implements Payment {
 
 
+    @Override
+    public PaymentDTO makePay(CartDTO cartToPay) throws UnreachableExternalServiceException {
+        return null;
+    }
 }

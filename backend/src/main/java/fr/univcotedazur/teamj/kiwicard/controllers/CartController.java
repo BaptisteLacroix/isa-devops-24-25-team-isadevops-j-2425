@@ -1,13 +1,8 @@
 package fr.univcotedazur.teamj.kiwicard.controllers;
 
-import fr.univcotedazur.teamj.kiwicard.entities.Item;
-import fr.univcotedazur.teamj.kiwicard.exceptions.NegativeQuantityException;
-import fr.univcotedazur.teamj.kiwicard.interfaces.CartModifier;
+import fr.univcotedazur.teamj.kiwicard.interfaces.cart.CartModifier;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Set;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 

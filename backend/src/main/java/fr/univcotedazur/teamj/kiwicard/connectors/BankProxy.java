@@ -2,7 +2,9 @@ package fr.univcotedazur.teamj.kiwicard.connectors;
 
 import fr.univcotedazur.teamj.kiwicard.connectors.externaldto.PaymentReceiptDTO;
 import fr.univcotedazur.teamj.kiwicard.connectors.externaldto.PaymentRequestDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.PaymentDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.Bank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,15 +38,10 @@ public class BankProxy implements Bank {
 //                .build();
     }
 
-    @Transactional(propagation = Propagation.MANDATORY)
-    public Optional<String> pay(Customer customer, double value) {
+    @Override
+    public PaymentDTO askPayment(PaymentRequestDTO paymentInfo) throws UnreachableExternalServiceException {
         return null;
     }
 
-    private static class EmptyResponseException extends RuntimeException {
-        public EmptyResponseException(String message) {
-            super(message);
-        }
-    }
 
 }
