@@ -5,9 +5,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
-import java.util.Objects;
 
 @Entity
 public class Item {
@@ -23,6 +22,19 @@ public class Item {
     @NotNull
     @Column
     private double price;
+
+    @NotBlank
+    public boolean isAlreadyConsumedInAPerk() {
+        return alreadyConsumedInAPerk;
+    }
+
+    public void setAlreadyConsumedInAPerk(@NotBlank boolean alreadyConsumedInAPerk) {
+        this.alreadyConsumedInAPerk = alreadyConsumedInAPerk;
+    }
+
+    @NotBlank
+    @Column
+    private boolean alreadyConsumedInAPerk;
 
     public Item() {
     }

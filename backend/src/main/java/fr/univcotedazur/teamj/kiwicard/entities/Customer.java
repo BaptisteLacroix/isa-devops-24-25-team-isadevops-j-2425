@@ -39,8 +39,7 @@ public class Customer {
     private List<Purchase> purchaseList;
 
     @OneToOne
-    @PrimaryKeyJoinColumn
-    @NotFound(action = NotFoundAction.IGNORE) //  1 to 0 ou 1
+    @NotFound(action = NotFoundAction.IGNORE)
     private Cart cart;
 
     // Fait pour faire passer les tests, à refaire !!

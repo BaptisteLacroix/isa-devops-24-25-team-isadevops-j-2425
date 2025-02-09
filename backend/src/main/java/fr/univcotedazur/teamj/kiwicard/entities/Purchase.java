@@ -2,6 +2,7 @@ package fr.univcotedazur.teamj.kiwicard.entities;
 
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 public class Purchase {
@@ -12,12 +13,23 @@ public class Purchase {
     private Long purchaseId;
 
     @OneToOne
-    @PrimaryKeyJoinColumn
     private Payment payment;
 
     @OneToOne
-    @PrimaryKeyJoinColumn
     private Cart cart;
+
+    @NotBlank
+    public boolean isAlreadyConsumedInAPerk() {
+        return alreadyConsumedInAPerk;
+    }
+
+    public void setAlreadyConsumedInAPerk(@NotBlank boolean alreadyConsumedInAPerk) {
+        this.alreadyConsumedInAPerk = alreadyConsumedInAPerk;
+    }
+
+    @NotBlank
+    @Column
+    private boolean alreadyConsumedInAPerk;
 
     public Purchase() {
     }
