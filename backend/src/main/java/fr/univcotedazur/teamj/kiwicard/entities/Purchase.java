@@ -3,6 +3,7 @@ package fr.univcotedazur.teamj.kiwicard.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class Purchase {
@@ -18,16 +19,16 @@ public class Purchase {
     @OneToOne
     private Cart cart;
 
-    @NotBlank
+    @NotNull
     public boolean isAlreadyConsumedInAPerk() {
         return alreadyConsumedInAPerk;
     }
 
-    public void setAlreadyConsumedInAPerk(@NotBlank boolean alreadyConsumedInAPerk) {
+    public void setAlreadyConsumedInAPerk(@NotNull boolean alreadyConsumedInAPerk) {
         this.alreadyConsumedInAPerk = alreadyConsumedInAPerk;
     }
 
-    @NotBlank
+    @NotNull
     @Column
     private boolean alreadyConsumedInAPerk;
 

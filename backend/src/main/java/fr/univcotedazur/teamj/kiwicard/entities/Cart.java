@@ -25,8 +25,9 @@ public class Cart {
     private List<AbstractPerk> perksList;
 
 
-
-
+    public void setPartner(Partner partner) {
+        this.partner = partner;
+    }
     public Long getCartId() {
         return cartId;
     }

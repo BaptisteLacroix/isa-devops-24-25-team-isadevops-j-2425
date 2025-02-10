@@ -2,6 +2,7 @@ package fr.univcotedazur.teamj.kiwicard.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
@@ -30,7 +31,7 @@ public class Customer {
     @Column
     private String email;
 
-    @NotBlank
+    @NotNull
     @Column
     public boolean vfp;
 
@@ -42,14 +43,18 @@ public class Customer {
     @NotFound(action = NotFoundAction.IGNORE)
     private Cart cart;
 
+    public Customer() {
+    }
+
     // Fait pour faire passer les tests, à refaire !!
     public Customer(String firstName, String id) {
         this.firstName = firstName;
         this.surname = id;
     }
 
-    public Customer() {
 
+    public void setCart(Cart cart) {
+        this.cart = cart;
     }
 
     public Customer(String firstName, String surname, String address, String email, boolean vfp) {
@@ -96,16 +101,16 @@ public class Customer {
         return email;
     }
 
-    public void setEmail(@NotBlank String email) {
+    public void setEmail(@NotNull String email) {
         this.email = email;
     }
 
-    @NotBlank
+    @NotNull
     public boolean isVfp() {
         return vfp;
     }
 
-    public void setVfp(@NotBlank boolean vfp) {
+    public void setVfp(@NotNull boolean vfp) {
         this.vfp = vfp;
     }
 }

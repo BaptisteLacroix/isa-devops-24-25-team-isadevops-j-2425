@@ -28,6 +28,14 @@ public class CartItem {
     @JoinColumn
     private Item item;
 
+    public void setCart(Cart cart) {
+        this.cart = cart;
+    }
+
+    public void setItem(Item item) {
+        this.item = item;
+    }
+
     public CartItem() {
     }
 

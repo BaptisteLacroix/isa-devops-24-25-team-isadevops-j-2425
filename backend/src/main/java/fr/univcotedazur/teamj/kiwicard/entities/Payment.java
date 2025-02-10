@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
@@ -15,11 +16,11 @@ public class Payment {
     @GeneratedValue
     private Long paymentId;
 
-    @NotBlank
+    @NotNull
     @Column
     private double amount;
 
-    @NotBlank
+    @NotNull
     @Column
     LocalDateTime timestamp;
 
@@ -39,20 +40,20 @@ public class Payment {
         this.paymentId = paymentId;
     }
 
-    @NotBlank
+    @NotNull
     public double getAmount() {
         return amount;
     }
 
-    public void setAmount(@NotBlank double amount) {
+    public void setAmount(@NotNull double amount) {
         this.amount = amount;
     }
 
-    public @NotBlank LocalDateTime getTimestamp() {
+    public @NotNull LocalDateTime getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(@NotBlank LocalDateTime timestamp) {
+    public void setTimestamp(@NotNull LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
 }

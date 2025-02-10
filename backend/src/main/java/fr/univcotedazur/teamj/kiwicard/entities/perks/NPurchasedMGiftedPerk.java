@@ -6,17 +6,18 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
 @Entity
 public class NPurchasedMGiftedPerk extends AbstractPerk{
 
-    @NotBlank
+    @NotNull
     @Column
     private int nbPurchased;
 
-    @NotBlank
+    @NotNull
     @Column
     private int nbGifted;
 
@@ -32,21 +33,21 @@ public class NPurchasedMGiftedPerk extends AbstractPerk{
         this.nbGifted = nbGifted;
     }
 
-    @NotBlank
+    @NotNull
     public int getNbPurchased() {
         return nbPurchased;
     }
 
-    public void setNbPurchased(@NotBlank int nbPurchased) {
+    public void setNbPurchased(@NotNull int nbPurchased) {
         this.nbPurchased = nbPurchased;
     }
 
-    @NotBlank
+    @NotNull
     public int getNbGifted() {
         return nbGifted;
     }
 
-    public void setNbGifted(@NotBlank int nbGifted) {
+    public void setNbGifted(@NotNull int nbGifted) {
         this.nbGifted = nbGifted;
     }
 }

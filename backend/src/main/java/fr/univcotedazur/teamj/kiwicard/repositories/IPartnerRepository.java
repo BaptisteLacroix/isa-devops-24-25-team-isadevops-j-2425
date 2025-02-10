@@ -1,9 +1,9 @@
 package fr.univcotedazur.teamj.kiwicard.repositories;
 
-import fr.univcotedazur.teamj.kiwicard.entities.Customer;
+import fr.univcotedazur.teamj.kiwicard.entities.Partner;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ICustomerRepository extends JpaRepository<Customer, Long> {
+public interface IPartnerRepository extends JpaRepository<Partner, Long> {
 }
