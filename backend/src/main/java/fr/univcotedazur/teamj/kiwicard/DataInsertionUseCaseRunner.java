@@ -31,10 +31,12 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
     }
 
     private void deleteAllData() {
+        purchaseRepository.deleteAll();
+        paymentRepository.deleteAll();
         cartRepository.deleteAll();
+        perkRepository.deleteAll();
         partnerRepository.deleteAll();
         customerRepository.deleteAll();
-        perkRepository.deleteAll();
     }
 
     @Override
