@@ -15,15 +15,19 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
     private final IPartnerRepository partnerRepository;
     private final ICartRepository cartRepository;
     private final IPerkRepository perkRepository;
+    private final IPurchaseRepository purchaseRepository;
+    private final IPaymentRepository paymentRepository;
 
 
     private final boolean deleteAllData = true;
 
-    public DataInsertionUseCaseRunner(ICustomerRepository customerRepository, IPartnerRepository partnerRepository, ICartRepository cartRepository, IPerkRepository perkRepository) {
+    public DataInsertionUseCaseRunner(ICustomerRepository customerRepository, IPartnerRepository partnerRepository, ICartRepository cartRepository, IPerkRepository perkRepository, IPurchaseRepository purchaseRepository, IPaymentRepository paymentRepository) {
         this.customerRepository = customerRepository;
         this.partnerRepository = partnerRepository;
         this.cartRepository = cartRepository;
         this.perkRepository = perkRepository;
+        this.purchaseRepository = purchaseRepository;
+        this.paymentRepository = paymentRepository;
     }
 
     private void deleteAllData() {
@@ -58,6 +62,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         // Cart with Partner and Customer
         Cart cart = new Cart();
         cart.setPartner(partner);
+        cartRepository.save(cart);
         customer.setCart(cart);
 
         // Item
@@ -72,18 +77,16 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
 
         // Perk (Vfp discount in %)
         VfpDiscountInPercentPerk perk = new VfpDiscountInPercentPerk(LocalDateTime.now(), 5);
+        perkRepository.save(perk);
         cart.addPerk(perk);
 
         // Payment
         Payment payment = new Payment(40, LocalDateTime.now());
+        paymentRepository.save(payment);
 
         // Purchase
-        Purchase purchase = new Purchase(1L, payment, cart, false);
+        Purchase purchase = new Purchase(payment, cart, false);
+        purchaseRepository.save(purchase);
         customer.addPurchase(purchase);
-
-        perkRepository.save(perk);
-        cartRepository.save(cart);
-        partnerRepository.save(partner);
-        customerRepository.save(customer);
     }
 }

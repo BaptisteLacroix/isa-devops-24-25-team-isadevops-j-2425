@@ -17,6 +17,10 @@ public class VfpDiscountInPercentPerk extends AbstractPerk{
     @Column
     private double quantity;
 
+    @Column
+    @NotNull
+    private final double percentage=0;
+
     public VfpDiscountInPercentPerk() {
     }
 
