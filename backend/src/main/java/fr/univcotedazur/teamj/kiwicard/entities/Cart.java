@@ -3,6 +3,7 @@ package fr.univcotedazur.teamj.kiwicard.entities;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -22,7 +23,7 @@ public class Cart {
 
     @ManyToMany
     @Column
-    private List<AbstractPerk> perksList;
+    private List<AbstractPerk> perksList = new ArrayList<>();
 
 
     public void setPartner(Partner partner) {
@@ -34,5 +35,8 @@ public class Cart {
 
     public void setCartId(Long cartId) {
         this.cartId = cartId;
+    }
+    public void addPerk(AbstractPerk perk) {
+        this.perksList.add(perk);
     }
 }

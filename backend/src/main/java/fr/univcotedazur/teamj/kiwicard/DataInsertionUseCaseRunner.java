@@ -1,15 +1,12 @@
 package fr.univcotedazur.teamj.kiwicard;
 
-import fr.univcotedazur.teamj.kiwicard.entities.Customer;
-import fr.univcotedazur.teamj.kiwicard.entities.Partner;
-import fr.univcotedazur.teamj.kiwicard.entities.Cart;
-import fr.univcotedazur.teamj.kiwicard.entities.Item;
-import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
+import fr.univcotedazur.teamj.kiwicard.entities.*;
+import fr.univcotedazur.teamj.kiwicard.entities.perks.VfpDiscountInPercentPerk;
 import fr.univcotedazur.teamj.kiwicard.repositories.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Component
 public class DataInsertionUseCaseRunner implements CommandLineRunner {
@@ -17,19 +14,23 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
     private final ICustomerRepository customerRepository;
     private final IPartnerRepository partnerRepository;
     private final ICartRepository cartRepository;
+    private final IPerkRepository perkRepository;
+
 
     private final boolean deleteAllData = true;
 
-    public DataInsertionUseCaseRunner(ICustomerRepository customerRepository, IPartnerRepository partnerRepository, ICartRepository cartRepository) {
+    public DataInsertionUseCaseRunner(ICustomerRepository customerRepository, IPartnerRepository partnerRepository, ICartRepository cartRepository, IPerkRepository perkRepository) {
         this.customerRepository = customerRepository;
         this.partnerRepository = partnerRepository;
         this.cartRepository = cartRepository;
+        this.perkRepository = perkRepository;
     }
 
     private void deleteAllData() {
         cartRepository.deleteAll();
         partnerRepository.deleteAll();
         customerRepository.deleteAll();
+        perkRepository.deleteAll();
     }
 
     @Override
@@ -43,7 +44,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
                 "bob",
                 "blabliblou",
                 "alice.bob@gmail.com",
-                false
+                true
         );
         customerRepository.save(customer);
 
@@ -58,7 +59,6 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         Cart cart = new Cart();
         cart.setPartner(partner);
         customer.setCart(cart);
-        cartRepository.save(cart);
 
         // Item
         Item item = new Item();
@@ -70,6 +70,19 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         cartItem.setCart(cart);
         cartItem.setItem(item);
 
+        // Perk (Vfp discount in %)
+        VfpDiscountInPercentPerk perk = new VfpDiscountInPercentPerk(LocalDateTime.now(), 5);
+        cart.addPerk(perk);
+
+        // Payment
+        Payment payment = new Payment(40, LocalDateTime.now());
+
+        // Purchase
+        Purchase purchase = new Purchase(1L, payment, cart, false);
+        customer.addPurchase(purchase);
+
+        perkRepository.save(perk);
+        cartRepository.save(cart);
         partnerRepository.save(partner);
         customerRepository.save(customer);
     }

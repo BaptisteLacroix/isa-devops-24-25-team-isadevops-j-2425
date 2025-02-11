@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -37,7 +38,12 @@ public class Customer {
 
     @OneToMany
     @Column
-    private List<Purchase> purchaseList;
+    private List<Purchase> purchaseList = new ArrayList<>();
+
+    public void addPurchase(Purchase purchase) {
+        this.purchaseList.add(purchase);
+    }
+
 
     @OneToOne
     @NotFound(action = NotFoundAction.IGNORE)
