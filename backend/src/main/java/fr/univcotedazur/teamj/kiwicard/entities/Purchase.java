@@ -36,6 +36,7 @@ public class Purchase {
     }
 
     public Purchase(Payment payment, Cart cart, boolean alreadyConsumedInAPerk) {
+        this.purchaseId = purchaseId;
         this.payment = payment;
         this.cart = cart;
         this.alreadyConsumedInAPerk = alreadyConsumedInAPerk;
