@@ -15,7 +15,8 @@ public class Purchase {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Payment payment;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "cart_id", unique = true)
     private Cart cart;
 
     @NotNull

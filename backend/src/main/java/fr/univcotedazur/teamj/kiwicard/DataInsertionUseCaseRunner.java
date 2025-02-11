@@ -13,27 +13,24 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
 
     private final ICustomerRepository customerRepository;
     private final IPartnerRepository partnerRepository;
-    private final ICartRepository cartRepository;
     private final IPerkRepository perkRepository;
     private final IPurchaseRepository purchaseRepository;
 
 
     private final boolean deleteAllData = true;
 
-    public DataInsertionUseCaseRunner(ICustomerRepository customerRepository, IPartnerRepository partnerRepository, ICartRepository cartRepository, IPerkRepository perkRepository, IPurchaseRepository purchaseRepository) {
+    public DataInsertionUseCaseRunner(ICustomerRepository customerRepository, IPartnerRepository partnerRepository, IPerkRepository perkRepository, IPurchaseRepository purchaseRepository) {
         this.customerRepository = customerRepository;
         this.partnerRepository = partnerRepository;
-        this.cartRepository = cartRepository;
         this.perkRepository = perkRepository;
         this.purchaseRepository = purchaseRepository;
     }
 
     private void deleteAllData() {
+        customerRepository.deleteAll();
         purchaseRepository.deleteAll();
-        cartRepository.deleteAll();
         perkRepository.deleteAll();
         partnerRepository.deleteAll();
-        customerRepository.deleteAll();
     }
 
     @Override
@@ -61,8 +58,9 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         // Cart with Partner and Customer
         Cart cart = new Cart();
         cart.setPartner(partner);
-        cartRepository.save(cart);
         customer.setCart(cart);
+        customerRepository.save(customer);
+        cart = customer.getCart();
 
         // Item
         Item item = new Item();
@@ -86,5 +84,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         Purchase purchase = new Purchase(payment, cart);
         purchaseRepository.save(purchase);
         customer.addPurchase(purchase);
+        customer.removeCart();
+        customerRepository.save(customer);
     }
 }

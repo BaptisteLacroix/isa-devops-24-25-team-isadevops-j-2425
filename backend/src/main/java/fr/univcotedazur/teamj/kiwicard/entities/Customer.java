@@ -38,10 +38,10 @@ public class Customer {
 
     @OneToMany
     @Column
-    private List<Purchase> purchaseList = new ArrayList<>();
+    private final List<Purchase> purchaseList = new ArrayList<>();
 
-    @OneToOne
-    @NotFound(action = NotFoundAction.IGNORE)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "cart_id", unique = true)
     private Cart cart;
 
     public Customer() {
@@ -63,6 +63,14 @@ public class Customer {
 
     public void setCart(Cart cart) {
         this.cart = cart;
+    }
+
+    public Cart getCart() {
+        return cart;
+    }
+
+    public void removeCart() {
+        this.cart = null;
     }
 
     public Long getCustomerId() {
