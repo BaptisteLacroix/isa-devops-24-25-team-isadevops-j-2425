@@ -16,23 +16,20 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
     private final ICartRepository cartRepository;
     private final IPerkRepository perkRepository;
     private final IPurchaseRepository purchaseRepository;
-    private final IPaymentRepository paymentRepository;
 
 
     private final boolean deleteAllData = true;
 
-    public DataInsertionUseCaseRunner(ICustomerRepository customerRepository, IPartnerRepository partnerRepository, ICartRepository cartRepository, IPerkRepository perkRepository, IPurchaseRepository purchaseRepository, IPaymentRepository paymentRepository) {
+    public DataInsertionUseCaseRunner(ICustomerRepository customerRepository, IPartnerRepository partnerRepository, ICartRepository cartRepository, IPerkRepository perkRepository, IPurchaseRepository purchaseRepository) {
         this.customerRepository = customerRepository;
         this.partnerRepository = partnerRepository;
         this.cartRepository = cartRepository;
         this.perkRepository = perkRepository;
         this.purchaseRepository = purchaseRepository;
-        this.paymentRepository = paymentRepository;
     }
 
     private void deleteAllData() {
         purchaseRepository.deleteAll();
-        paymentRepository.deleteAll();
         cartRepository.deleteAll();
         perkRepository.deleteAll();
         partnerRepository.deleteAll();
@@ -84,10 +81,9 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
 
         // Payment
         Payment payment = new Payment(40, LocalDateTime.now());
-        paymentRepository.save(payment);
 
         // Purchase
-        Purchase purchase = new Purchase(payment, cart, false);
+        Purchase purchase = new Purchase(payment, cart);
         purchaseRepository.save(purchase);
         customer.addPurchase(purchase);
     }

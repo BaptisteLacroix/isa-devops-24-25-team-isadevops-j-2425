@@ -12,7 +12,7 @@ public class Purchase {
     @GeneratedValue
     private Long purchaseId;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Payment payment;
 
     @OneToOne
@@ -25,22 +25,19 @@ public class Purchase {
     public Purchase() {
     }
 
-    public Purchase(Payment payment, Cart cart, boolean alreadyConsumedInAPerk) {
-        this.purchaseId = purchaseId;
+    public Purchase(Payment payment, Cart cart) {
         this.payment = payment;
         this.cart = cart;
-        this.alreadyConsumedInAPerk = alreadyConsumedInAPerk;
+        this.alreadyConsumedInAPerk = false;
     }
 
     public Long getPurchaseId() {
         return purchaseId;
     }
 
-
     public void setPurchaseId(Long purchaseId) {
         this.purchaseId = purchaseId;
     }
-
 
 
     @NotNull
@@ -50,5 +47,21 @@ public class Purchase {
 
     public void setAlreadyConsumedInAPerk(@NotNull boolean alreadyConsumedInAPerk) {
         this.alreadyConsumedInAPerk = alreadyConsumedInAPerk;
+    }
+
+    public Cart getCart() {
+        return cart;
+    }
+
+    public void setCart(Cart cart) {
+        this.cart = cart;
+    }
+
+    public Payment getPayment() {
+        return payment;
+    }
+
+    public void setPayment(Payment payment) {
+        this.payment = payment;
     }
 }
