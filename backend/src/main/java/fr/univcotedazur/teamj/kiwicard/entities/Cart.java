@@ -14,9 +14,6 @@ public class Cart {
     @GeneratedValue
     private Long cartId;
 
-    public Cart() {
-    }
-
     @ManyToOne
     @JoinColumn
     private Partner partner;
@@ -25,6 +22,8 @@ public class Cart {
     @Column
     private List<AbstractPerk> perksList = new ArrayList<>();
 
+    public Cart() {
+    }
 
     public void setPartner(Partner partner) {
         this.partner = partner;

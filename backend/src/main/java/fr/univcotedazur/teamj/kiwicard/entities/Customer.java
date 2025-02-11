@@ -40,27 +40,11 @@ public class Customer {
     @Column
     private List<Purchase> purchaseList = new ArrayList<>();
 
-    public void addPurchase(Purchase purchase) {
-        this.purchaseList.add(purchase);
-    }
-
-
     @OneToOne
     @NotFound(action = NotFoundAction.IGNORE)
     private Cart cart;
 
     public Customer() {
-    }
-
-    // Fait pour faire passer les tests, à refaire !!
-    public Customer(String firstName, String email) {
-        this.firstName = firstName;
-        this.email = email;
-    }
-
-
-    public void setCart(Cart cart) {
-        this.cart = cart;
     }
 
     public Customer(String firstName, String surname, String address, String email, boolean vfp) {
@@ -71,12 +55,26 @@ public class Customer {
         this.vfp = vfp;
     }
 
+    // Fait pour faire passer les tests, à refaire !!
+    public Customer(String firstName, String email) {
+        this.firstName = firstName;
+        this.email = email;
+    }
+
+    public void setCart(Cart cart) {
+        this.cart = cart;
+    }
+
     public Long getCustomerId() {
         return customerId;
     }
 
     public void setCustomerId(Long customerId) {
         this.customerId = customerId;
+    }
+
+    public void addPurchase(Purchase purchase) {
+        this.purchaseList.add(purchase);
     }
 
     public @NotBlank String getFirstName() {
@@ -119,4 +117,5 @@ public class Customer {
     public void setVfp(@NotNull boolean vfp) {
         this.vfp = vfp;
     }
+
 }

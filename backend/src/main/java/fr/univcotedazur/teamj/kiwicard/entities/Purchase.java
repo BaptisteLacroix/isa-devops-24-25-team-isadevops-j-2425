@@ -8,7 +8,6 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 public class Purchase {
 
-
     @Id
     @GeneratedValue
     private Long purchaseId;
@@ -18,15 +17,6 @@ public class Purchase {
 
     @OneToOne
     private Cart cart;
-
-    @NotNull
-    public boolean isAlreadyConsumedInAPerk() {
-        return alreadyConsumedInAPerk;
-    }
-
-    public void setAlreadyConsumedInAPerk(@NotNull boolean alreadyConsumedInAPerk) {
-        this.alreadyConsumedInAPerk = alreadyConsumedInAPerk;
-    }
 
     @NotNull
     @Column
@@ -52,4 +42,13 @@ public class Purchase {
     }
 
 
+
+    @NotNull
+    public boolean isAlreadyConsumedInAPerk() {
+        return alreadyConsumedInAPerk;
+    }
+
+    public void setAlreadyConsumedInAPerk(@NotNull boolean alreadyConsumedInAPerk) {
+        this.alreadyConsumedInAPerk = alreadyConsumedInAPerk;
+    }
 }
