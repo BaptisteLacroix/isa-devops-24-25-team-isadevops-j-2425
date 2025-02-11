@@ -12,13 +12,13 @@ class EqualityTest {
 
     @BeforeEach
     void setup() {
-        john = new Customer("john", "1234567890");
+        john = new Customer("john", "john@gmail.com");
     }
 
     @Test
     void testCustomerEquals() {
         assertEquals(john, john);
-        Customer otherJohn = new Customer("john", "1234567890");
+        Customer otherJohn = new Customer("john", "john@gmail.com");
         assertEquals(john, otherJohn);
         assertEquals(otherJohn, john);
     }
@@ -26,10 +26,10 @@ class EqualityTest {
     @Test
     void testCustomerNotEquals() {
         assertEquals(john, john);
-        Customer otherJohn = new Customer("johnn", "1234567890");
+        Customer otherJohn = new Customer("johnn", "john@gmail.com");
         assertNotEquals(john, otherJohn);
         assertNotEquals(otherJohn, john);
-        Customer anotherJohn = new Customer("john", "1234567891");
+        Customer anotherJohn = new Customer("john", "john@gmail.com");
         assertNotEquals(john, anotherJohn);
         assertNotEquals(anotherJohn, john);
     }

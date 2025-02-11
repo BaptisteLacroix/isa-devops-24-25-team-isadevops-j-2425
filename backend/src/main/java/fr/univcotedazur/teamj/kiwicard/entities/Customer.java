@@ -53,9 +53,9 @@ public class Customer {
     }
 
     // Fait pour faire passer les tests, à refaire !!
-    public Customer(String firstName, String id) {
+    public Customer(String firstName, String email) {
         this.firstName = firstName;
-        this.surname = id;
+        this.email = email;
     }
 
 

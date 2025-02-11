@@ -78,7 +78,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         Payment payment = new Payment(40, LocalDateTime.now());
 
         // Purchase
-        Purchase purchase = new Purchase(1L, payment, cart, false);
+        Purchase purchase = new Purchase(payment, cart, false);
         customer.addPurchase(purchase);
 
         perkRepository.save(perk);
