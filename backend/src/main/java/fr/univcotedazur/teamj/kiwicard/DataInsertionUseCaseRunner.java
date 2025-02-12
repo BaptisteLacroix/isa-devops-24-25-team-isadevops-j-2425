@@ -18,6 +18,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
 
 
     private final boolean deleteAllData = true;
+    private long customerId;
 
     public DataInsertionUseCaseRunner(ICustomerRepository customerRepository, IPartnerRepository partnerRepository, IPerkRepository perkRepository, IPurchaseRepository purchaseRepository) {
         this.customerRepository = customerRepository;
@@ -35,6 +36,22 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        tryToInsert();
+        tryToRetrieve();
+    }
+
+    private void tryToRetrieve() {
+        Customer customer = customerRepository.findById(customerId).get();
+        System.out.println("Customer name: " + customer.getFirstName());
+        Cart cart = customer.getCart();
+        System.out.println("Cart partner: " + cart.getPartner().getName());
+        System.out.println("Cart items: ");
+        for (CartItem item : cart.getItemList()) {
+            System.out.println("Item: " + item.getItem().getLabel() + " - Quantity: " + item.getQuantity());
+        }
+    }
+
+    private void tryToInsert() {
         if (deleteAllData) {
             this.deleteAllData();
         }
@@ -60,17 +77,20 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         cart.setPartner(partner);
         customer.setCart(cart);
         customerRepository.save(customer);
+        customerId = customer.getCustomerId();
         cart = customer.getCart();
 
         // Item
         Item item = new Item();
-        item.setLabel("ItemLabel");
+        item.setLabel("croissant");
         item.setPrice(10.0);
 
         // CartItem with cart and item
         CartItem cartItem = new CartItem();
-        cartItem.setCart(cart);
         cartItem.setItem(item);
+        cartItem.setQuantity(2);
+        cart.addItem(cartItem);
+        customerRepository.save(customer);
 
         // Perk (Vfp discount in %)
         VfpDiscountInPercentPerk perk = new VfpDiscountInPercentPerk(LocalDateTime.now(), 5);
@@ -80,11 +100,11 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         // Payment
         Payment payment = new Payment(40, LocalDateTime.now());
 
-        // Purchase
-        Purchase purchase = new Purchase(payment, cart);
-        purchaseRepository.save(purchase);
-        customer.addPurchase(purchase);
-        customer.removeCart();
-        customerRepository.save(customer);
+//        // Purchase
+//        Purchase purchase = new Purchase(payment, cart);
+//        purchaseRepository.save(purchase);
+//        customer.addPurchase(purchase);
+//        customer.removeCart();
+//        customerRepository.save(customer);
     }
 }

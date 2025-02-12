@@ -3,8 +3,6 @@ package fr.univcotedazur.teamj.kiwicard.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +58,8 @@ public class Customer {
         this.firstName = firstName;
         this.email = email;
     }
+
+
 
     public void setCart(Cart cart) {
         this.cart = cart;

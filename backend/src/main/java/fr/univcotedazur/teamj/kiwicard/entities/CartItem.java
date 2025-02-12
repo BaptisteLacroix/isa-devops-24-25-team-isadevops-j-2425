@@ -21,17 +21,11 @@ public class CartItem {
     private LocalDateTime endTime;
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name = "cart_id", insertable = false, updatable = false)
     private Cart cart;
 
-    @ManyToOne
-    @JoinColumn
+    @ManyToOne(cascade = CascadeType.ALL)
     private Item item;
-
-    public void setCart(Cart cart) {
-        this.cart = cart;
-    }
-
     public void setItem(Item item) {
         this.item = item;
     }
@@ -75,6 +69,10 @@ public class CartItem {
 
     public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
+    }
+
+    public Item getItem() {
+        return item;
     }
 }
 
