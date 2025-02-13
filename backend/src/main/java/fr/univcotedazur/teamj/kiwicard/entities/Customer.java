@@ -71,11 +71,11 @@ public class Customer {
         this.email = email;
     }
 
-    public Customer(CustomerSubscribeDTO customerSubsbribeDTO) throws UnreachableExternalServiceException {
-        this.firstName = customerSubsbribeDTO.firstName();
-        this.surname = customerSubsbribeDTO.surname();
-        this.address = customerSubsbribeDTO.address();
-        this.email = customerSubsbribeDTO.email();
+    public Customer(CustomerSubscribeDTO customerSubscribeDTO) throws UnreachableExternalServiceException {
+        this.firstName = customerSubscribeDTO.firstName();
+        this.surname = customerSubscribeDTO.surname();
+        this.address = customerSubscribeDTO.address();
+        this.email = customerSubscribeDTO.email();
         this.vfp = false;
         // TODO : ajouter un numéro de carte via CardEditorProxy
         this.cardNumber = cardEditorProxy().orderACard(new CardCreationDTO(email)).cardNumber();
