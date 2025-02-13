@@ -37,7 +37,7 @@ public class PartnerCatalog implements IPartnerManager, IItemManager {
 
     @Override
     public List<PartnerDTO> findAllPartner() {
-        return List.of();
+        return partnerRepository.findAll().stream().map(PartnerDTO::new).toList();
     }
 
     @Override
