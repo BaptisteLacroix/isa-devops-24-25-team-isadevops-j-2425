@@ -24,11 +24,11 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
     ICustomerRepository customerRepository;
 
     @Override
-    public CustomerDTO register(CustomerSubscribeDTO customerSubsbribeDTO) throws AlreadyUsedEmailException, UnreachableExternalServiceException {
-        if (customerRepository.findByEmail(customerSubsbribeDTO.email()) != null) {
+    public CustomerDTO register(CustomerSubscribeDTO customerSubscribeDTO) throws AlreadyUsedEmailException, UnreachableExternalServiceException {
+        if (customerRepository.findByEmail(customerSubscribeDTO.email()) != null) {
             throw new AlreadyUsedEmailException();
         }
-        Customer customer = new Customer(customerSubsbribeDTO.firstName(), customerSubsbribeDTO.surname(), customerSubsbribeDTO.address(), customerSubsbribeDTO.email(), false);
+        Customer customer = new Customer(customerSubscribeDTO.firstName(), customerSubscribeDTO.surname(), customerSubscribeDTO.address(), customerSubscribeDTO.email(), false);
         customerRepository.save(customer);
         return new CustomerDTO(customer);
     }
