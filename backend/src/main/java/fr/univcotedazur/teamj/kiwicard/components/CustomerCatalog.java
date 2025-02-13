@@ -1,5 +1,7 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
+import fr.univcotedazur.teamj.kiwicard.connectors.CardEditorProxy;
+import fr.univcotedazur.teamj.kiwicard.dto.CardDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
@@ -23,12 +25,15 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
 
     ICustomerRepository customerRepository;
 
+    CardEditorProxy cardEditorProxy;
+
     @Override
     public CustomerDTO register(CustomerSubscribeDTO customerSubscribeDTO) throws AlreadyUsedEmailException, UnreachableExternalServiceException {
         if (customerRepository.findByEmail(customerSubscribeDTO.email()) != null) {
             throw new AlreadyUsedEmailException();
         }
-        Customer customer = new Customer(customerSubscribeDTO);
+        CardDTO cardDto = cardEditorProxy.orderACard(customerSubscribeDTO.email(), customerSubscribeDTO.address());
+        Customer customer = new Customer(customerSubscribeDTO, cardDto.cardNumber());
         customerRepository.save(customer);
         return new CustomerDTO(customer);
     }

@@ -2,6 +2,7 @@ package fr.univcotedazur.teamj.kiwicard.entities;
 
 import fr.univcotedazur.teamj.kiwicard.connectors.CardEditorProxy;
 import fr.univcotedazur.teamj.kiwicard.dto.CardCreationDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.CardDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import jakarta.persistence.*;
@@ -72,14 +73,14 @@ public class Customer {
         this.email = email;
     }
 
-    public Customer(CustomerSubscribeDTO customerSubscribeDTO) throws UnreachableExternalServiceException {
+    public Customer(CustomerSubscribeDTO customerSubscribeDTO, String cardNumber) {
         this.firstName = customerSubscribeDTO.firstName();
         this.surname = customerSubscribeDTO.surname();
         this.address = customerSubscribeDTO.address();
         this.email = customerSubscribeDTO.email();
         this.vfp = false;
         // TODO : ajouter un numéro de carte via CardEditorProxy
-        this.cardNumber = cardEditorProxy().orderACard(this.email, this.address).cardNumber();
+        this.cardNumber = cardNumber;
     }
 
     public void setCart(Cart cart) {
