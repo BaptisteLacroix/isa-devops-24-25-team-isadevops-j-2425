@@ -10,6 +10,4 @@ public interface IItemManager {
     Item createItem(Item ItemToCreate);
     Item findItemById(long itemId) throws UnknownItemIdException;
     List<Item> findAllItem();
-    void udpateItem(long itemId, Item newItem) throws UnknownItemIdException;
-    void deleteItem(long itemId) throws UnknownItemIdException;
 }

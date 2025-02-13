@@ -9,6 +9,4 @@ public interface IPartnerManager {
     PartnerDTO createPartner(PartnerDTO partnerToCreate);
     PartnerDTO findPartnerById(long partnerId) throws UnknownPartnerIdException;
     List<PartnerDTO> findAllPartner();
-    void udpatePartner(long partnerId, PartnerDTO newPartner) throws UnknownPartnerIdException;
-    void deletePartner(long partnerId) throws UnknownPartnerIdException;
 }
