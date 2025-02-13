@@ -2,7 +2,7 @@ package fr.univcotedazur.teamj.kiwicard.components;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubsbribeDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Cart;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyUsedEmailException;
@@ -24,7 +24,7 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
     ICustomerRepository customerRepository;
 
     @Override
-    public CustomerDTO register(CustomerSubsbribeDTO customerSubsbribeDTO) throws AlreadyUsedEmailException, UnreachableExternalServiceException {
+    public CustomerDTO register(CustomerSubscribeDTO customerSubsbribeDTO) throws AlreadyUsedEmailException, UnreachableExternalServiceException {
         if (customerRepository.findByEmail(customerSubsbribeDTO.email()) != null) {
             throw new AlreadyUsedEmailException();
         }

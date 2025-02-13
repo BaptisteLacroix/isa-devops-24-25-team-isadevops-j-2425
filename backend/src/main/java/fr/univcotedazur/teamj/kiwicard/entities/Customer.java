@@ -2,7 +2,7 @@ package fr.univcotedazur.teamj.kiwicard.entities;
 
 import fr.univcotedazur.teamj.kiwicard.connectors.CardEditorProxy;
 import fr.univcotedazur.teamj.kiwicard.dto.CardCreationDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubsbribeDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -71,7 +71,7 @@ public class Customer {
         this.email = email;
     }
 
-    public Customer(CustomerSubsbribeDTO customerSubsbribeDTO) throws UnreachableExternalServiceException {
+    public Customer(CustomerSubscribeDTO customerSubsbribeDTO) throws UnreachableExternalServiceException {
         this.firstName = customerSubsbribeDTO.firstName();
         this.surname = customerSubsbribeDTO.surname();
         this.address = customerSubsbribeDTO.address();

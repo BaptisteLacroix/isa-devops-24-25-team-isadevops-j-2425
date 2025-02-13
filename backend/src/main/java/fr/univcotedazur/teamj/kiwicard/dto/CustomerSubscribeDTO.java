@@ -1,6 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.dto;
 
-public record CustomerSubsbribeDTO(
+public record CustomerSubscribeDTO(
         String email,
         String firstName,
         String surname,

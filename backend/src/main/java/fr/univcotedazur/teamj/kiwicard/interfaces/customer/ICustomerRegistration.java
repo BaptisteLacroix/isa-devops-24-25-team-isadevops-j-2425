@@ -1,7 +1,7 @@
 package fr.univcotedazur.teamj.kiwicard.interfaces.customer;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubsbribeDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyUsedEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 
@@ -10,6 +10,6 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceExce
  * Recherche et récupération de client
  */
 public interface ICustomerRegistration {
-    CustomerDTO register(CustomerSubsbribeDTO customerSubsbribeDTO) throws AlreadyUsedEmailException, UnreachableExternalServiceException;
+    CustomerDTO register(CustomerSubscribeDTO customerSubsbribeDTO) throws AlreadyUsedEmailException, UnreachableExternalServiceException;
 
 }
