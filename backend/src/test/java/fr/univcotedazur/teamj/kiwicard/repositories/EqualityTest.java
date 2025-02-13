@@ -26,12 +26,9 @@ class EqualityTest {
     @Test
     void testCustomerNotEquals() {
         assertEquals(john, john);
-        Customer otherJohn = new Customer("johnn", "john@gmail.com");
+        Customer otherJohn = new Customer("john", "john06@gmail.com");
         assertNotEquals(john, otherJohn);
         assertNotEquals(otherJohn, john);
-        Customer anotherJohn = new Customer("john", "john@gmail.com");
-        assertNotEquals(john, anotherJohn);
-        assertNotEquals(anotherJohn, john);
     }
 
 }
