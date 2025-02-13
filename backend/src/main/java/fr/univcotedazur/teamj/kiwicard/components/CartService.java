@@ -1,7 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.UsedPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
@@ -10,15 +9,15 @@ import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartModifier;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class CartService implements ICartModifier, ICartFinder, ICartCreator {
 
 
     @Override
-    public CartDTO createCart(String customerEmail, List<ItemDTO> items) throws UnknownCustomerEmailException {
+    public CartDTO createCart(String customerEmail, Set<Long> itemIds) throws UnknownCustomerEmailException {
         return null;
     }
 
