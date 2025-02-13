@@ -1,16 +1,11 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
 import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyExistingCustomerException;
-import fr.univcotedazur.teamj.kiwicard.repositories.CustomerRepository;
+import fr.univcotedazur.teamj.kiwicard.repositories.ICustomerRepository;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.Optional;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -21,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class CartServiceTest {
 
     @Autowired
-    private CustomerRepository customerRepository;
+    private ICustomerRepository ICustomerRepository;
 
     private Long johnId;
 

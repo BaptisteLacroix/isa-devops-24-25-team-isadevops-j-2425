@@ -2,79 +2,128 @@ package fr.univcotedazur.teamj.kiwicard.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.NotNull;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Customer {
 
     @Id
     @GeneratedValue
-    private Long id; // Whether Long/Int or UUID are better primary keys, exposable outside is a vast issue, keep it simple here
+    private Long customerId;
 
     @NotBlank
-    @Column(unique = true)
-    private String name;
+    @Column
+    private String firstName;
 
-    @Pattern(regexp = "\\d{10}+", message = "Invalid creditCardNumber")
-    private String creditCard;
+    @NotBlank
+    @Column
+    private String surname;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    private Set<Item> cart = new HashSet<>();
+    @NotBlank
+    @Column
+    private String address;
+
+    @NotBlank
+    @Column
+    private String email;
+
+    @NotNull
+    @Column
+    public boolean vfp;
+
+    @OneToMany
+    @Column
+    private final List<Purchase> purchaseList = new ArrayList<>();
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "cart_id", unique = true)
+    private Cart cart;
 
     public Customer() {
     }
 
-    public Customer(String n, String c) {
-        this.name = n;
-        this.creditCard = c;
+    public Customer(String firstName, String surname, String address, String email, boolean vfp) {
+        this.firstName = firstName;
+        this.surname = surname;
+        this.address = address;
+        this.email = email;
+        this.vfp = vfp;
     }
 
-    public Long getId() {
-        return id;
+    // Fait pour faire passer les tests, à refaire !!
+    public Customer(String firstName, String email) {
+        this.firstName = firstName;
+        this.email = email;
     }
 
-    public String getName() {
-        return name;
-    }
 
-    public void setName(String name) {
-        this.name = name;
-    }
 
-    public String getCreditCard() {
-        return creditCard;
-    }
-
-    public void setCreditCard(String creditCard) {
-        this.creditCard = creditCard;
-    }
-
-    public Set<Item> getCart() {
-        return cart;
-    }
-
-    public void setCart(Set<Item> cart) {
+    public void setCart(Cart cart) {
         this.cart = cart;
     }
 
-    public void clearCart() {
-        this.cart.clear();
+    public Cart getCart() {
+        return cart;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Customer customer)) return false;
-        return Objects.equals(name, customer.name) && Objects.equals(creditCard, customer.creditCard);
+    public void removeCart() {
+        this.cart = null;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, creditCard);
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
+
+    public void addPurchase(Purchase purchase) {
+        this.purchaseList.add(purchase);
+    }
+
+    public @NotBlank String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(@NotBlank String firstName) {
+        this.firstName = firstName;
+    }
+
+    public @NotBlank String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(@NotBlank String surname) {
+        this.surname = surname;
+    }
+
+    public @NotBlank String getAddress() {
+        return address;
+    }
+
+    public void setAddress(@NotBlank String address) {
+        this.address = address;
+    }
+
+    public @NotBlank String getEmail() {
+        return email;
+    }
+
+    public void setEmail(@NotNull String email) {
+        this.email = email;
+    }
+
+    @NotNull
+    public boolean isVfp() {
+        return vfp;
+    }
+
+    public void setVfp(@NotNull boolean vfp) {
+        this.vfp = vfp;
     }
 
 }
