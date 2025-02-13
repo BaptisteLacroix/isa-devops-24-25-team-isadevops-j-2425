@@ -28,7 +28,7 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
         if (customerRepository.findByEmail(customerSubscribeDTO.email()) != null) {
             throw new AlreadyUsedEmailException();
         }
-        Customer customer = new Customer(customerSubscribeDTO.firstName(), customerSubscribeDTO.surname(), customerSubscribeDTO.address(), customerSubscribeDTO.email(), false);
+        Customer customer = new Customer(customerSubscribeDTO);
         customerRepository.save(customer);
         return new CustomerDTO(customer);
     }
@@ -55,17 +55,19 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
     public List<CustomerDTO> findAll() {
         return customerRepository.findAll()
                 .stream()
-                .map(customer -> new CustomerDTO(customer.getEmail(), customer.getFirstName(), customer.getSurname(), customer.isVfp() ? "true" : "false"))
-                .collect(Collectors.toList());
+                .map(CustomerDTO::new)
+                .toList();
+
     }
 
     @Override
-    public void setCart(String customerEmail, CartDTO cart) throws UnknownCustomerEmailException {
+    public void setCart(String customerEmail, CartDTO cartDto) throws UnknownCustomerEmailException {
         Customer customer = customerRepository.findByEmail(customerEmail);
         if (customer == null) {
             throw new UnknownCustomerEmailException();
         }
-        customer.setCart(new Cart(cart));
+        customer.setCart(new Cart(cartDto));
+        customerRepository.save(customer);
     }
 
     @Override
@@ -75,5 +77,6 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
             throw new UnknownCustomerEmailException();
         }
         customer.getCart().empty();
+        customerRepository.save(customer);
     }
 }
