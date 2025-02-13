@@ -6,6 +6,7 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceExce
 import fr.univcotedazur.teamj.kiwicard.interfaces.ICardCreation;
 
 public class CardEditorProxy  implements ICardCreation {
+
     @Override
     public CardDTO orderACard(CardCreationDTO cardInfo) throws UnreachableExternalServiceException {
         return null;
