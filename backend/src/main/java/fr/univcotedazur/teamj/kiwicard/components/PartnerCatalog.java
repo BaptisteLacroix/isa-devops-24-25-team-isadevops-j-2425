@@ -1,10 +1,9 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
+import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
-import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IItemManager;
 import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPartnerManager;
 import fr.univcotedazur.teamj.kiwicard.repositories.IItemRepository;
 import fr.univcotedazur.teamj.kiwicard.repositories.IPartnerRepository;
@@ -14,7 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class PartnerCatalog implements IPartnerManager, IItemManager {
+public class PartnerCatalog implements IPartnerManager {
 
     private final IPartnerRepository partnerRepository;
     private final IItemRepository itemRepository;
@@ -41,37 +40,18 @@ public class PartnerCatalog implements IPartnerManager, IItemManager {
     }
 
     @Override
-    public void udpatePartner(long partnerId, PartnerDTO newPartner) throws UnknownPartnerIdException {
+    public void addItemToPartnerCatalog(ItemDTO itemDTO) {
 
     }
 
     @Override
-    public void deletePartner(long partnerId) throws UnknownPartnerIdException {
-
+    public boolean removeItemFromPartnerCatalog(long partnerId, long itemId) throws UnknownPartnerIdException {
+        return false;
     }
 
     @Override
-    public Item createItem(Item ItemToCreate) {
-        return null;
-    }
-
-    @Override
-    public Item findItemById(long itemId) throws UnknownItemIdException {
-        return null;
-    }
-
-    @Override
-    public List<Item> findAllItem() {
+    public List<Item> findAllPartnerItems(long partnerId) throws UnknownPartnerIdException {
         return List.of();
     }
-
-    @Override
-    public void udpateItem(long itemId, Item newItem) throws UnknownItemIdException {
-
-    }
-
-    @Override
-    public void deleteItem(long itemId) throws UnknownItemIdException {
-
-    }
 }
+
