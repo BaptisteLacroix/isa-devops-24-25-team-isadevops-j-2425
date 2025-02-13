@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 public class Customer {
@@ -58,8 +59,6 @@ public class Customer {
         this.firstName = firstName;
         this.email = email;
     }
-
-
 
     public void setCart(Cart cart) {
         this.cart = cart;
@@ -126,4 +125,15 @@ public class Customer {
         this.vfp = vfp;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Customer customer = (Customer) o;
+        return Objects.equals(email, customer.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(email);
+    }
 }
