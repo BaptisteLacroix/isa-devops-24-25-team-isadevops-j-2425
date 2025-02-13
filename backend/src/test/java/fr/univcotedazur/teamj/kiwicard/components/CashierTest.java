@@ -22,8 +22,8 @@ class CashierTest {
     void cleanUpContext() {
     }
 
-    @Test
+   /*@Test
     void identifyPaymentError() {
-    }
+    }*/
 
 }

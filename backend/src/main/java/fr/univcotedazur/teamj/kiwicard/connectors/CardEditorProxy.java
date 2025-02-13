@@ -8,7 +8,8 @@ import fr.univcotedazur.teamj.kiwicard.interfaces.ICardCreation;
 public class CardEditorProxy  implements ICardCreation {
 
     @Override
-    public CardDTO orderACard(CardCreationDTO cardInfo) throws UnreachableExternalServiceException {
+    public CardDTO orderACard(String email, String address) throws UnreachableExternalServiceException {
+        CardCreationDTO cardCreationDto = new CardCreationDTO(email, address);
         return null;
     }
 }

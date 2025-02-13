@@ -78,7 +78,7 @@ public class Customer {
         this.email = customerSubscribeDTO.email();
         this.vfp = false;
         // TODO : ajouter un numéro de carte via CardEditorProxy
-        this.cardNumber = cardEditorProxy().orderACard(new CardCreationDTO(email)).cardNumber();
+        this.cardNumber = cardEditorProxy().orderACard(this.email, this.address).cardNumber();
     }
 
     public void setCart(Cart cart) {
