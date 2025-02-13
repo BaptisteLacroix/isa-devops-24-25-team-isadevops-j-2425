@@ -16,4 +16,4 @@ COPY --from=builder /opt/app/target/${JAR_FILE} ./app.jar
 RUN chown -R dockeruser:dockergroup /opt/app
 # Starting the service (shell form of ENTRYPOINT used for substitution)
 USER dockeruser
-ENTRYPOINT ["java", "-jar", "/opt/app/app.jar", "--tcf.host.baseurl=${SERVER_WITH_PORT}"]
+ENTRYPOINT ["java", "-jar", "/opt/app/app.jar", "--kiwi-card.host.baseurl=${SERVER_WITH_PORT}"]
