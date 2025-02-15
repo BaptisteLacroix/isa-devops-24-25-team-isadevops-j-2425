@@ -58,3 +58,13 @@ services:
       timeout: 3s
       retries: 3
       start_period: 5s
+  wiremock:
+    image: wiremock/wiremock:latest
+    container_name: wiremock
+    ports:
+      - "9090:8080"  # Exposition du port WireMock en tant que service bancaire
+    volumes:
+      - ./wiremock/mappings:/home/wiremock/mappings  # Contient les mocks
+      - ./wiremock/__files:/home/wiremock/__files  # Contient des fichiers statiques (ex: réponses JSON)
+    command: "--verbose --global-response-templating"
+    restart: always

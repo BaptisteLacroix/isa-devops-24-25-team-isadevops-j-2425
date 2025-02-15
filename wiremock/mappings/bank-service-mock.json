@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/api/account/balance"
+  },
+  "response": {
+    "status": 200,
+    "body": "{\"balance\": 1000.50, \"currency\": \"EUR\"}",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
