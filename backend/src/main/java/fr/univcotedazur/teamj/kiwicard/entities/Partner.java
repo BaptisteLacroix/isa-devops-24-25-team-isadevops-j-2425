@@ -1,6 +1,7 @@
 package fr.univcotedazur.teamj.kiwicard.entities;
 
 
+import fr.univcotedazur.teamj.kiwicard.dto.PartnerCreationDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -42,6 +43,10 @@ public class Partner {
         this.address = address;
     }
 
+    public Partner(PartnerCreationDTO partnerDTO) {
+        this(partnerDTO.name(), partnerDTO.address());
+    }
+
     public Long getPartnerId() {
         return partnerId;
     }
@@ -64,5 +69,13 @@ public class Partner {
 
     public void setAddress(@NotBlank String address) {
         this.address = address;
+    }
+
+    public List<Item> getItemList() {
+        return itemList;
+    }
+
+    public List<AbstractPerk> getPerkList() {
+        return perkList;
     }
 }

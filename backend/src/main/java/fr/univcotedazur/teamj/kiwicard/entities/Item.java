@@ -1,11 +1,11 @@
 package fr.univcotedazur.teamj.kiwicard.entities;
 
 
+import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -29,6 +29,10 @@ public class Item {
     public Item(@NotNull String label, @NotNull double price) {
         this.label = label;
         this.price = price;
+    }
+
+    public Item(ItemDTO itemDTO) {
+        this(itemDTO.label(), itemDTO.price());
     }
 
     public Long getItemId() {
