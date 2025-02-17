@@ -4,10 +4,13 @@ import fr.univcotedazur.teamj.kiwicard.entities.*;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.VfpDiscountInPercentPerk;
 import fr.univcotedazur.teamj.kiwicard.repositories.*;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+@Profile("!test")
 @Component
 public class DataInsertionUseCaseRunner implements CommandLineRunner {
 
@@ -15,16 +18,19 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
     private final IPartnerRepository partnerRepository;
     private final IPerkRepository perkRepository;
     private final IPurchaseRepository purchaseRepository;
+    private final IItemRepository itemRepository;
+
 
 
     private final boolean deleteAllData = true;
     private long customerId;
 
-    public DataInsertionUseCaseRunner(ICustomerRepository customerRepository, IPartnerRepository partnerRepository, IPerkRepository perkRepository, IPurchaseRepository purchaseRepository) {
+    public DataInsertionUseCaseRunner(ICustomerRepository customerRepository, IPartnerRepository partnerRepository, IPerkRepository perkRepository, IPurchaseRepository purchaseRepository, IItemRepository itemRepository) {
         this.customerRepository = customerRepository;
         this.partnerRepository = partnerRepository;
         this.perkRepository = perkRepository;
         this.purchaseRepository = purchaseRepository;
+        this.itemRepository = itemRepository;
     }
 
     private void deleteAllData() {
@@ -35,6 +41,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
     }
 
     @Override
+    @Transactional
     public void run(String... args) {
         tryToInsert();
         tryToRetrieve();
@@ -67,7 +74,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
 
         // Partner
         Partner partner = new Partner(
-                "Antoine",
+                "Boulange",
                 "14 rue du trottoir, Draguignan"
         );
 
@@ -81,9 +88,10 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         cart = customer.getCart();
 
         // Item
-        Item item = new Item();
-        item.setLabel("croissant");
-        item.setPrice(10.0);
+        Item item = new Item("croissant", 10.0);
+        itemRepository.save(item);
+        partner.addItem(item);
+        partnerRepository.save(partner);
 
         // CartItem with cart and item
         CartItem cartItem = new CartItem();
