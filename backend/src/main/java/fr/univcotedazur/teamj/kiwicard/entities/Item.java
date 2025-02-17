@@ -39,10 +39,6 @@ public class Item {
         return itemId;
     }
 
-    public void setItemId(Long itemId) {
-        this.itemId = itemId;
-    }
-
     public @NotNull String getLabel() {
         return label;
     }

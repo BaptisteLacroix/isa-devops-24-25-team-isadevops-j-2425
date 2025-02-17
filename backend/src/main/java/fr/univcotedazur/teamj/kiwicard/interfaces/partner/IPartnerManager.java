@@ -13,9 +13,8 @@ public interface IPartnerManager {
     PartnerDTO createPartner(PartnerCreationDTO partnerToCreate);
     PartnerDTO findPartnerById(long partnerId) throws UnknownPartnerIdException;
     List<PartnerDTO> findAllPartner();
-    void addItemToPartnerCatalog(ItemDTO itemDTO);
+    void addItemToPartnerCatalog(long partnerId, ItemDTO itemDTO) throws UnknownPartnerIdException;
     boolean removeItemFromPartnerCatalog(long partnerId, long itemId) throws UnknownPartnerIdException;
     List<Item> findAllPartnerItems(long partnerId) throws UnknownPartnerIdException;
-    boolean removePerkFromPartner(long partnerId, long perkId) throws UnknownPartnerIdException;
     List<AbstractPerk> findAllPartnerPerks(long partnerId) throws UnknownPartnerIdException;
 }
