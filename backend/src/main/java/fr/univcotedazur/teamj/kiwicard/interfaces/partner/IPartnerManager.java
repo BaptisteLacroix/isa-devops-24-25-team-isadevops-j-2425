@@ -3,8 +3,8 @@ package fr.univcotedazur.teamj.kiwicard.interfaces.partner;
 import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerCreationDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.PerkDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
-import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 
 import java.util.List;
@@ -16,5 +16,5 @@ public interface IPartnerManager {
     void addItemToPartnerCatalog(long partnerId, ItemDTO itemDTO) throws UnknownPartnerIdException;
     boolean removeItemFromPartnerCatalog(long partnerId, long itemId) throws UnknownPartnerIdException;
     List<Item> findAllPartnerItems(long partnerId) throws UnknownPartnerIdException;
-    List<AbstractPerk> findAllPartnerPerks(long partnerId) throws UnknownPartnerIdException;
+    List<PerkDTO> findAllPartnerPerks(long partnerId) throws UnknownPartnerIdException;
 }

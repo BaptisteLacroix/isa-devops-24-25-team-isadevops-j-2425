@@ -3,9 +3,9 @@ package fr.univcotedazur.teamj.kiwicard.components;
 import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerCreationDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.PerkDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import fr.univcotedazur.teamj.kiwicard.entities.Partner;
-import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPartnerManager;
 import fr.univcotedazur.teamj.kiwicard.repositories.IItemRepository;
@@ -82,9 +82,10 @@ public class PartnerCatalog implements IPartnerManager {
     }
 
     @Override
-    public List<AbstractPerk> findAllPartnerPerks(long partnerId) throws UnknownPartnerIdException {
+    public List<PerkDTO> findAllPartnerPerks(long partnerId) throws UnknownPartnerIdException {
         return partnerRepository.findById(partnerId)
                 .map(Partner::getPerkList)
+                .map(perks -> perks.stream().map(PerkDTO::new).toList())
                 .orElseThrow(() -> new UnknownPartnerIdException("Partner with id " + partnerId + " not found"));
     }
 }
