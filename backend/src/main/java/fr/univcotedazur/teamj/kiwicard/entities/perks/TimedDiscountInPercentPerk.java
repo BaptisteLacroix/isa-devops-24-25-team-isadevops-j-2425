@@ -2,46 +2,48 @@ package fr.univcotedazur.teamj.kiwicard.entities.perks;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 public class TimedDiscountInPercentPerk extends AbstractPerk{
 
     @NotNull
     @Column
-    private LocalDateTime time;
+    private LocalTime time;
 
     @NotNull
     @Column
-    private double quantity;
+    private double discountRate;
 
     public TimedDiscountInPercentPerk() {
     }
 
-    public TimedDiscountInPercentPerk(LocalDateTime time, double quantity) {
+    public TimedDiscountInPercentPerk(LocalTime time, double discountRate) {
         this.time = time;
-        this.quantity = quantity;
+        this.discountRate = discountRate;
     }
 
-    public @NotNull LocalDateTime getTime() {
+    public @NotNull LocalTime getTime() {
         return time;
     }
 
-    public void setTime(@NotNull LocalDateTime time) {
+    public void setTime(@NotNull LocalTime time) {
         this.time = time;
     }
 
     @NotNull
-    public double getQuantity() {
-        return quantity;
+    public double getDiscountRate() {
+        return discountRate;
     }
 
-    public void setQuantity(@NotNull double quantity) {
-        this.quantity = quantity;
+    public void setDiscountRate(@NotNull double quantity) {
+        this.discountRate = quantity;
     }
 
-
+    @Override
+    public String getDescription() {
+        return "Discount of " + discountRate + "% after " + time + "on all items";
+    }
 }

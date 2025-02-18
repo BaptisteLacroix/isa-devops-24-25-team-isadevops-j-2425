@@ -101,7 +101,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         customerRepository.save(customer);
 
         // Perk (Vfp discount in %)
-        VfpDiscountInPercentPerk perk = new VfpDiscountInPercentPerk(LocalDateTime.now(), 5);
+        VfpDiscountInPercentPerk perk = new VfpDiscountInPercentPerk(0.05);
         perkRepository.save(perk);
         cart.addPerk(perk);
 
