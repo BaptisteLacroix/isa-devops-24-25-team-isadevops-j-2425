@@ -6,6 +6,7 @@ import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PerkDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import fr.univcotedazur.teamj.kiwicard.entities.Partner;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPartnerManager;
 import fr.univcotedazur.teamj.kiwicard.repositories.IItemRepository;
@@ -62,7 +63,7 @@ public class PartnerCatalog implements IPartnerManager {
 
         Partner partner = optionalPartner.get();
         partner.addItem(item);
-        partnerRepository.save(partner);
+//        partnerRepository.save(partner); //TODO: is this necessary?
     }
 
     @Override
@@ -70,7 +71,11 @@ public class PartnerCatalog implements IPartnerManager {
     public boolean removeItemFromPartnerCatalog(long partnerId, long itemId) throws UnknownPartnerIdException {
         Partner partner = partnerRepository.findById(partnerId)
                 .orElseThrow(() -> new UnknownPartnerIdException("Partner with id " + partnerId + " not found"));
-        return partner.getItemList().removeIf(item -> item.getItemId().equals(itemId));
+        boolean removed = partner.getItemList().removeIf(item -> item.getItemId().equals(itemId));
+        if (!removed) {
+            throw new UnknownItemIdException("Item with id " + itemId + " not found in partner " + partner.getName() + " catalog");
+        }
+        return true;
     }
 
     @Override

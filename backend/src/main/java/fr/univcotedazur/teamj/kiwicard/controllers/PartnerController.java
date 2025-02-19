@@ -9,7 +9,6 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPartnerManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,9 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static fr.univcotedazur.teamj.kiwicard.controllers.PartnerController.BASE_URI;
+
 @RestController
-@RequestMapping(path = "/partners")
+@RequestMapping(path = BASE_URI)
 public class PartnerController {
+
+    public static final String BASE_URI = "/partners";
 
     private final IPartnerManager partnerManager;
 
@@ -33,7 +36,7 @@ public class PartnerController {
 
     @PostMapping
     public ResponseEntity<PartnerDTO> createPartner(@RequestBody PartnerCreationDTO partnerCreationDTO) {
-        return ResponseEntity.ok()
+        return ResponseEntity.created(null)
                 .body(partnerManager.createPartner(partnerCreationDTO));
     }
 
@@ -55,10 +58,10 @@ public class PartnerController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{partnerId}/remove-item/{itemId}")
+    @PatchMapping("/{partnerId}/remove-item/{itemId}")
     public ResponseEntity<Boolean> removeItemFromPartnerCatalog(@PathVariable long partnerId, @PathVariable long itemId) throws UnknownPartnerIdException {
-        return ResponseEntity.ok()
-                .body(partnerManager.removeItemFromPartnerCatalog(partnerId, itemId));
+        partnerManager.removeItemFromPartnerCatalog(partnerId, itemId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{partnerId}/items")

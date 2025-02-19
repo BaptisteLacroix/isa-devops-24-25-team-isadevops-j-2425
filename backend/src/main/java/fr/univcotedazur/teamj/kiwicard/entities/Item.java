@@ -35,6 +35,22 @@ public class Item {
         this(itemDTO.label(), itemDTO.price());
     }
 
+    /**
+     * package private constructor for testing purposes
+     * @param id l'id de l'item
+     * @param label le label de l'item
+     * @param price le prix de l'item
+     */
+    private Item(int id, String label, double price) {
+        this.itemId = (long) id;
+        this.label = label;
+        this.price = price;
+    }
+
+    public static Item createTestItem(int id, String label, double price) {
+        return new Item(id, label, price);
+    }
+
     public Long getItemId() {
         return itemId;
     }
