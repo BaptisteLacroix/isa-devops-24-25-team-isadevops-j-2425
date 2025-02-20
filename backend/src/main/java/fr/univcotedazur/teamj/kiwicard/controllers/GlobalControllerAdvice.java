@@ -16,8 +16,7 @@ public class GlobalControllerAdvice {
     @ExceptionHandler({NegativeQuantityException.class})
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorDTO handleExceptions(NegativeQuantityException e) {
-        return new ErrorDTO("Attempting to update the cookie quantity to a negative value from Customer " + e.getName() +
-                        " leading to quantity " + e.getPotentialQuantity());
+        return new ErrorDTO(e.getMessage());
     }
 
     @ExceptionHandler({PaymentException.class})

@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -73,13 +74,7 @@ class PartnerCatalogTest extends BaseUnitTest {
         partnerRepository.save(partnerToSave);
         PartnerDTO partnerSaved = new PartnerDTO(partnerToSave);
 
-        PartnerDTO partnerFound;
-        try {
-            partnerFound = partnerManager.findPartnerById(partnerToSave.getPartnerId());
-
-        } catch (UnknownPartnerIdException e) {
-            throw new RuntimeException(e);
-        }
+        PartnerDTO partnerFound = assertDoesNotThrow(() -> partnerManager.findPartnerById(partnerToSave.getPartnerId()));
 
         assertEquals(partnerSaved, partnerFound);
     }
@@ -100,11 +95,7 @@ class PartnerCatalogTest extends BaseUnitTest {
         partnerRepository.save(partner);
 
         ItemDTO itemDTO = new ItemDTO("Croissant", 1.0);
-        try {
-            partnerManager.addItemToPartnerCatalog(partner.getPartnerId(), itemDTO);
-        } catch (UnknownPartnerIdException e) {
-            throw new RuntimeException(e);
-        }
+        assertDoesNotThrow(() -> partnerManager.addItemToPartnerCatalog(partner.getPartnerId(), itemDTO));
 
         assertEquals(1, partner.getItemList().size());
         assertEquals("Croissant", partner.getItemList().getFirst().getLabel());
@@ -119,13 +110,9 @@ class PartnerCatalogTest extends BaseUnitTest {
         Partner partner = new Partner("Boulange", "2 avenue des mimosas");
         partner.addItem(painAuChocolat);
         partnerRepository.save(partner);
-
         ItemDTO croissantDTO = new ItemDTO("Croissant", 1.0);
-        try {
-            partnerManager.addItemToPartnerCatalog(partner.getPartnerId(), croissantDTO);
-        } catch (UnknownPartnerIdException e) {
-            throw new RuntimeException(e);
-        }
+
+        assertDoesNotThrow(() -> partnerManager.addItemToPartnerCatalog(partner.getPartnerId(), croissantDTO));
 
         assertEquals(2, partner.getItemList().size());
         assertTrue(partner.getItemList().stream().anyMatch(item -> "Pain au chocolat".equals(item.getLabel())));
@@ -163,11 +150,7 @@ class PartnerCatalogTest extends BaseUnitTest {
         partnerRepository.save(partner);
         boolean removed;
 
-        try {
-            removed = partnerManager.removeItemFromPartnerCatalog(partner.getPartnerId(), item.getItemId());
-        } catch (UnknownPartnerIdException e) {
-            throw new RuntimeException(e);
-        }
+        removed = assertDoesNotThrow(() -> partnerManager.removeItemFromPartnerCatalog(partner.getPartnerId(), item.getItemId()));
 
         assertTrue(removed);
         assertEquals(0, partner.getItemList().size());
@@ -186,11 +169,7 @@ class PartnerCatalogTest extends BaseUnitTest {
         partnerRepository.save(partner);
         boolean removed;
 
-        try {
-            removed = partnerManager.removeItemFromPartnerCatalog(partner.getPartnerId(), croissant.getItemId());
-        } catch (UnknownPartnerIdException e) {
-            throw new RuntimeException(e);
-        }
+        removed = assertDoesNotThrow(() -> partnerManager.removeItemFromPartnerCatalog(partner.getPartnerId(), croissant.getItemId()));
 
         assertTrue(removed);
         assertEquals(1, partner.getItemList().size());
@@ -232,13 +211,8 @@ class PartnerCatalogTest extends BaseUnitTest {
         partner.addItem(croissant);
         partner.addItem(painAuChocolat);
         partnerRepository.save(partner);
-        List<Item> items;
 
-        try {
-            items = partnerManager.findAllPartnerItems(partner.getPartnerId());
-        } catch (UnknownPartnerIdException e) {
-            throw new RuntimeException(e);
-        }
+        List<Item> items = assertDoesNotThrow(() -> partnerManager.findAllPartnerItems(partner.getPartnerId()));
 
         assertEquals(2, items.size());
         assertTrue(items.stream().anyMatch(item -> "Croissant".equals(item.getLabel())));
@@ -261,11 +235,7 @@ class PartnerCatalogTest extends BaseUnitTest {
         partnerRepository.save(partner);
         List<Item> items;
 
-        try {
-            items = partnerManager.findAllPartnerItems(partner.getPartnerId());
-        } catch (UnknownPartnerIdException e) {
-            throw new RuntimeException(e);
-        }
+        items = assertDoesNotThrow(() -> partnerManager.findAllPartnerItems(partner.getPartnerId()));
 
         assertEquals(0, items.size());
     }

@@ -1,8 +1,19 @@
 package fr.univcotedazur.teamj.kiwicard;
 
-import fr.univcotedazur.teamj.kiwicard.entities.*;
+import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
+import fr.univcotedazur.teamj.kiwicard.entities.Cart;
+import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
+import fr.univcotedazur.teamj.kiwicard.entities.Customer;
+import fr.univcotedazur.teamj.kiwicard.entities.Item;
+import fr.univcotedazur.teamj.kiwicard.entities.Partner;
+import fr.univcotedazur.teamj.kiwicard.entities.Payment;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.VfpDiscountInPercentPerk;
-import fr.univcotedazur.teamj.kiwicard.repositories.*;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
+import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPartnerManager;
+import fr.univcotedazur.teamj.kiwicard.repositories.ICustomerRepository;
+import fr.univcotedazur.teamj.kiwicard.repositories.IPartnerRepository;
+import fr.univcotedazur.teamj.kiwicard.repositories.IPerkRepository;
+import fr.univcotedazur.teamj.kiwicard.repositories.IPurchaseRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -18,19 +29,16 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
     private final IPartnerRepository partnerRepository;
     private final IPerkRepository perkRepository;
     private final IPurchaseRepository purchaseRepository;
-    private final IItemRepository itemRepository;
-
-
-
+    private final IPartnerManager partnerManager;
     private final boolean deleteAllData = true;
     private long customerId;
 
-    public DataInsertionUseCaseRunner(ICustomerRepository customerRepository, IPartnerRepository partnerRepository, IPerkRepository perkRepository, IPurchaseRepository purchaseRepository, IItemRepository itemRepository) {
+    public DataInsertionUseCaseRunner(ICustomerRepository customerRepository, IPartnerRepository partnerRepository, IPerkRepository perkRepository, IPurchaseRepository purchaseRepository, IPartnerManager partnerManager) {
         this.customerRepository = customerRepository;
         this.partnerRepository = partnerRepository;
         this.perkRepository = perkRepository;
         this.purchaseRepository = purchaseRepository;
-        this.itemRepository = itemRepository;
+        this.partnerManager = partnerManager;
     }
 
     private void deleteAllData() {
@@ -42,7 +50,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
 
     @Override
     @Transactional
-    public void run(String... args) {
+    public void run(String... args) throws UnknownPartnerIdException {
         tryToInsert();
         tryToRetrieve();
     }
@@ -58,7 +66,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         }
     }
 
-    private void tryToInsert() {
+    private void tryToInsert() throws UnknownPartnerIdException {
         if (deleteAllData) {
             this.deleteAllData();
         }
@@ -88,10 +96,9 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         cart = customer.getCart();
 
         // Item
-        Item item = new Item("croissant", 10.0);
-        itemRepository.save(item);
-        partner.addItem(item);
-        partnerRepository.save(partner);
+        ItemDTO itemDTO = new ItemDTO("croissant", 10.0);
+        partnerManager.addItemToPartnerCatalog(partner.getPartnerId(), itemDTO);
+        Item item = partnerManager.findAllPartnerItems(partner.getPartnerId()).getFirst();
 
         // CartItem with cart and item
         CartItem cartItem = new CartItem();

@@ -63,7 +63,6 @@ public class PartnerCatalog implements IPartnerManager {
 
         Partner partner = optionalPartner.get();
         partner.addItem(item);
-//        partnerRepository.save(partner); //TODO: is this necessary?
     }
 
     @Override

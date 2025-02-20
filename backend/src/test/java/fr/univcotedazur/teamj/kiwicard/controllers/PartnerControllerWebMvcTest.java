@@ -1,6 +1,7 @@
 package fr.univcotedazur.teamj.kiwicard.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.univcotedazur.teamj.kiwicard.BaseUnitTest;
 import fr.univcotedazur.teamj.kiwicard.dto.ErrorDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerCreationDTO;
@@ -35,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-class PartnerControllerWebMvcTest {
+class PartnerControllerWebMvcTest extends BaseUnitTest {
 
     public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
