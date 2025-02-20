@@ -58,13 +58,35 @@ services:
       timeout: 3s
       retries: 3
       start_period: 5s
-  wiremock:
+  wiremock-bank:
     image: wiremock/wiremock:latest
-    container_name: wiremock
+    container_name: wiremock-bank
     ports:
-      - "9090:8080"  # Exposition du port WireMock en tant que service bancaire
+      - "9090:8080"
     volumes:
-      - ./wiremock/mappings:/home/wiremock/mappings  # Contient les mocks
-      - ./wiremock/__files:/home/wiremock/__files  # Contient des fichiers statiques (ex: réponses JSON)
+      - ./wiremock/bank/mappings:/home/wiremock/mappings
+      - ./wiremock/bank/__files:/home/wiremock/__files
+    command: "--verbose --global-response-templating"
+    restart: always
+
+  wiremock-card:
+    image: wiremock/wiremock:latest
+    container_name: wiremock-card
+    ports:
+      - "9091:8080"
+    volumes:
+      - ./wiremock/card/mappings:/home/wiremock/mappings
+      - ./wiremock/card/__files:/home/wiremock/__files
+    command: "--verbose --global-response-templating"
+    restart: always
+
+  wiremock-happykids:
+    image: wiremock/wiremock:latest
+    container_name: wiremock-happykids
+    ports:
+      - "9092:8080"
+    volumes:
+      - ./wiremock/happykids/mappings:/home/wiremock/mappings
+      - ./wiremock/happykids/__files:/home/wiremock/__files
     command: "--verbose --global-response-templating"
     restart: always

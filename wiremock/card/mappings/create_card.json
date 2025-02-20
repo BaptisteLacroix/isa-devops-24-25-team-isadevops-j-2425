@@ -1,0 +1,19 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/cards",
+    "bodyPatterns": [
+      { "matchesJsonPath": "$.userId" }
+    ]
+  },
+  "response": {
+    "status": 201,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "userId": "{{jsonPath request.body '$.userId'}}",
+      "cardNumber": "{{randomValue type='NUMERIC' length=16}}"
+    }
+  }
+}

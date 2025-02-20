@@ -1,0 +1,26 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/payments",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$.cardNumber"
+      },
+      {
+        "matchesJsonPath": "$.amount"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+
+      "cardNumber": "{{jsonPath request.body '$.cardNumber'}}",
+      "amount": "{{jsonPath request.body '$.amount'}}",
+      "authorized": "{{#if (matches (jsonPath request.body '$.cardNumber') '[0-9]*[24680]')}}true{{/if}} {{#if (matches (jsonPath request.body '$.cardNumber') '[0-9]*[13579]')}}false{{/if}}"
+    }
+  }
+}
