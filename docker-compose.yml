@@ -64,8 +64,8 @@ services:
     ports:
       - "9090:8080"
     volumes:
-      - ./wiremock/bank/mappings:/home/wiremock/mappings
-      - ./wiremock/bank/__files:/home/wiremock/__files
+      - ./external/bank/mappings:/home/wiremock/mappings
+      - ./external/bank/__files:/home/wiremock/__files
     command: "--verbose --global-response-templating"
     restart: always
 
@@ -75,8 +75,8 @@ services:
     ports:
       - "9091:8080"
     volumes:
-      - ./wiremock/card/mappings:/home/wiremock/mappings
-      - ./wiremock/card/__files:/home/wiremock/__files
+      - ./external/card/mappings:/home/wiremock/mappings
+      - ./external/card/__files:/home/wiremock/__files
     command: "--verbose --global-response-templating"
     restart: always
 
@@ -86,7 +86,7 @@ services:
     ports:
       - "9092:8080"
     volumes:
-      - ./wiremock/happykids/mappings:/home/wiremock/mappings
-      - ./wiremock/happykids/__files:/home/wiremock/__files
+      - ./external/happykids/mappings:/home/wiremock/mappings
+      - ./external/happykids/__files:/home/wiremock/__files
     command: "--verbose --global-response-templating"
     restart: always
