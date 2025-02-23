@@ -50,7 +50,7 @@ public class NPurchasedMGiftedPerk extends AbstractPerk{
     }
 
     @Override
-    public String getDescription() {
+    public String toString() {
         return "Buy " + nbPurchased + " " + item.getLabel() + " and get " + nbGifted + " for free";
     }
 }

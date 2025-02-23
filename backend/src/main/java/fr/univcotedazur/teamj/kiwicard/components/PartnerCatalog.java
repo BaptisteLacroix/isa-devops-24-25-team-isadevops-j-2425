@@ -42,7 +42,7 @@ public class PartnerCatalog implements IPartnerManager {
     public PartnerDTO findPartnerById(long partnerId) throws UnknownPartnerIdException {
         return partnerRepository.findById(partnerId)
                 .map(PartnerDTO::new)
-                .orElseThrow(() -> new UnknownPartnerIdException("Partner with id " + partnerId + " not found"));
+                .orElseThrow(() -> new UnknownPartnerIdException(partnerId));
     }
 
     @Override
@@ -54,25 +54,21 @@ public class PartnerCatalog implements IPartnerManager {
     @Transactional
     public void addItemToPartnerCatalog(long partnerId, @NotNull ItemDTO itemDTO) throws UnknownPartnerIdException {
         Optional<Partner> optionalPartner = partnerRepository.findById(partnerId);
-        if (optionalPartner.isEmpty()) {
-            throw new UnknownPartnerIdException("Partner with id " + partnerId + " not found");
-        }
+        Partner partner = partnerRepository.findById(partnerId).orElseThrow(() -> new UnknownPartnerIdException(partnerId));
 
         Item item = new Item(itemDTO);
         itemRepository.save(item);
-
-        Partner partner = optionalPartner.get();
         partner.addItem(item);
     }
 
     @Override
     @Transactional
-    public boolean removeItemFromPartnerCatalog(long partnerId, long itemId) throws UnknownPartnerIdException {
+    public boolean removeItemFromPartnerCatalog(long partnerId, long itemId) throws UnknownPartnerIdException, UnknownItemIdException {
         Partner partner = partnerRepository.findById(partnerId)
-                .orElseThrow(() -> new UnknownPartnerIdException("Partner with id " + partnerId + " not found"));
+                .orElseThrow(() -> new UnknownPartnerIdException(partnerId));
         boolean removed = partner.getItemList().removeIf(item -> item.getItemId().equals(itemId));
         if (!removed) {
-            throw new UnknownItemIdException("Item with id " + itemId + " not found in partner " + partner.getName() + " catalog");
+            throw new UnknownItemIdException(itemId, partner.getName());
         }
         return true;
     }
@@ -82,7 +78,7 @@ public class PartnerCatalog implements IPartnerManager {
     public List<Item> findAllPartnerItems(long partnerId) throws UnknownPartnerIdException {
         return partnerRepository.findById(partnerId)
                 .map(Partner::getItemList)
-                .orElseThrow(() -> new UnknownPartnerIdException("Partner with id " + partnerId + " not found"));
+                .orElseThrow(() -> new UnknownPartnerIdException(partnerId));
     }
 
     @Override
@@ -90,7 +86,7 @@ public class PartnerCatalog implements IPartnerManager {
         return partnerRepository.findById(partnerId)
                 .map(Partner::getPerkList)
                 .map(perks -> perks.stream().map(PerkDTO::new).toList())
-                .orElseThrow(() -> new UnknownPartnerIdException("Partner with id " + partnerId + " not found"));
+                .orElseThrow(() -> new UnknownPartnerIdException(partnerId));
     }
 }
 

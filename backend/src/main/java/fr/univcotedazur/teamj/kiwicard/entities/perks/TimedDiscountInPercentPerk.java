@@ -43,7 +43,7 @@ public class TimedDiscountInPercentPerk extends AbstractPerk{
     }
 
     @Override
-    public String getDescription() {
+    public String toString() {
         return "Discount of " + discountRate + "% after " + time + "on all items";
     }
 }

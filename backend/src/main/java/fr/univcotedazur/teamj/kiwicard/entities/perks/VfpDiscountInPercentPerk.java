@@ -29,7 +29,7 @@ public class VfpDiscountInPercentPerk extends AbstractPerk{
     }
 
     @Override
-    public String getDescription() {
+    public String toString() {
         return  discountRate + "% discount for all VFPs";
     }
 }

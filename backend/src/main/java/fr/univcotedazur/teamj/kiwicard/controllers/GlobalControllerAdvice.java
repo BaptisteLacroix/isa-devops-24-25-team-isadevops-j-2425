@@ -27,7 +27,7 @@ public class GlobalControllerAdvice {
 
     @ExceptionHandler({UnknownPartnerIdException.class, UnknownItemIdException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorDTO handleExceptions(UnknownPartnerIdException e) {
+    public ErrorDTO handleExceptions(Exception e) {
         return new ErrorDTO(e.getMessage());
     }
 }

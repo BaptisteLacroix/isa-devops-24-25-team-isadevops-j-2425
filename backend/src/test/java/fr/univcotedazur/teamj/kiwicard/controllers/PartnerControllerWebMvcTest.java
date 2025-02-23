@@ -8,6 +8,7 @@ import fr.univcotedazur.teamj.kiwicard.dto.PartnerCreationDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PerkDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPartnerManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -103,7 +104,7 @@ class PartnerControllerWebMvcTest extends BaseUnitTest {
 
     @Test
     void getPartnerByIdNotFound() throws Exception {
-        when(partnerManager.findPartnerById(2)).thenThrow(new UnknownPartnerIdException("Partner with id 2 not found"));
+        when(partnerManager.findPartnerById(2)).thenThrow(new UnknownPartnerIdException(2));
         mockMvc.perform(get(PartnerController.BASE_URI + "/2")
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
@@ -139,7 +140,7 @@ class PartnerControllerWebMvcTest extends BaseUnitTest {
 
     @Test
     void addItemToPartnerCatalogPartnerNotAdded() throws Exception {
-        doThrow(new UnknownPartnerIdException("Partner with id 2 not found")).when(partnerManager).addItemToPartnerCatalog(2, chocolatineDTO);
+        doThrow(new UnknownPartnerIdException(2)).when(partnerManager).addItemToPartnerCatalog(2, chocolatineDTO);
         MvcResult result = mockMvc.perform(patch(PartnerController.BASE_URI + "/2/add-item")
                         .contentType(APPLICATION_JSON)
                         .content(OBJECT_MAPPER.writeValueAsString(chocolatineDTO)))
@@ -163,7 +164,7 @@ class PartnerControllerWebMvcTest extends BaseUnitTest {
 
     @Test
     void removeItemFromPartnerCatalogPartnerNotRemoved() throws Exception {
-        when(partnerManager.removeItemFromPartnerCatalog(2, 1)).thenThrow(new UnknownPartnerIdException("Partner with id 2 not found"));
+        when(partnerManager.removeItemFromPartnerCatalog(2, 1)).thenThrow(new UnknownPartnerIdException(2));
         MvcResult result = mockMvc.perform(patch(PartnerController.BASE_URI + "/2/remove-item/1")
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
@@ -177,7 +178,7 @@ class PartnerControllerWebMvcTest extends BaseUnitTest {
 
     @Test
     void removeItemFromPartnerCatalogItemNotRemoved() throws Exception {
-        when(partnerManager.removeItemFromPartnerCatalog(1, 3)).thenThrow(new UnknownPartnerIdException("Item with id 3 not found in partner " + chezJohn.name() + " catalog"));
+        when(partnerManager.removeItemFromPartnerCatalog(1, 3)).thenThrow(new UnknownItemIdException(3, chezJohn.name()));
         MvcResult result = mockMvc.perform(patch(PartnerController.BASE_URI + "/1/remove-item/3")
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
@@ -186,7 +187,7 @@ class PartnerControllerWebMvcTest extends BaseUnitTest {
                 .andReturn();
         String jsonResult = result.getResponse().getContentAsString();
         ErrorDTO errorDTOResult = OBJECT_MAPPER.readValue(jsonResult, ErrorDTO.class);
-        assertEquals("Item with id 3 not found in partner " + chezJohn.name() + " catalog", errorDTOResult.errorMessage());
+        assertEquals("Item with id 3 not found in the catalog of " + chezJohn.name(), errorDTOResult.errorMessage());
     }
 
     @Test
@@ -208,7 +209,7 @@ class PartnerControllerWebMvcTest extends BaseUnitTest {
 
     @Test
     void listAllItemsFromPartnerNotFound() throws Exception {
-        when(partnerManager.findAllPartnerItems(2)).thenThrow(new UnknownPartnerIdException("Partner with id 2 not found"));
+        when(partnerManager.findAllPartnerItems(2)).thenThrow(new UnknownPartnerIdException(2));
         mockMvc.perform(get(PartnerController.BASE_URI + "/2/items")
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
@@ -233,7 +234,7 @@ class PartnerControllerWebMvcTest extends BaseUnitTest {
 
     @Test
     void listAllPerksFromPartnerNotFound() throws Exception {
-        when(partnerManager.findAllPartnerPerks(2)).thenThrow(new UnknownPartnerIdException("Partner with id 2 not found"));
+        when(partnerManager.findAllPartnerPerks(2)).thenThrow(new UnknownPartnerIdException(2));
         mockMvc.perform(get(PartnerController.BASE_URI + "/2/perks")
                         .contentType(APPLICATION_JSON))
                 .andDo(print())

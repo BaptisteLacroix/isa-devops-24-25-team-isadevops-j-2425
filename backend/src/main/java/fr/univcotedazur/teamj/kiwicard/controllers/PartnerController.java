@@ -5,6 +5,7 @@ import fr.univcotedazur.teamj.kiwicard.dto.PartnerCreationDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PerkDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPartnerManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +60,7 @@ public class PartnerController {
     }
 
     @PatchMapping("/{partnerId}/remove-item/{itemId}")
-    public ResponseEntity<Boolean> removeItemFromPartnerCatalog(@PathVariable long partnerId, @PathVariable long itemId) throws UnknownPartnerIdException {
+    public ResponseEntity<Boolean> removeItemFromPartnerCatalog(@PathVariable long partnerId, @PathVariable long itemId) throws UnknownPartnerIdException, UnknownItemIdException {
         partnerManager.removeItemFromPartnerCatalog(partnerId, itemId);
         return ResponseEntity.noContent().build();
     }

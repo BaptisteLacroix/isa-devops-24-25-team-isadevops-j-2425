@@ -16,5 +16,5 @@ public abstract class AbstractPerk {
     public Long getPerkId() {
         return perkId;
     }
-    public abstract String getDescription();
+    public abstract String toString();
 }
