@@ -28,7 +28,7 @@ public class Partner {
     @Column
     private List<Purchase> purchaseList;
 
-    @OneToMany
+    @OneToMany(mappedBy = "partner")
     @Column
     private List<AbstractPerk> perkList;
 

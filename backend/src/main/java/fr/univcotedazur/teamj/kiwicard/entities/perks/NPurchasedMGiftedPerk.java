@@ -2,6 +2,7 @@ package fr.univcotedazur.teamj.kiwicard.entities.perks;
 
 
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
+import fr.univcotedazur.teamj.kiwicard.mappers.PerkVisitor;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
@@ -47,6 +48,18 @@ public class NPurchasedMGiftedPerk extends AbstractPerk{
 
     public void setNbGifted(@NotNull int nbGifted) {
         this.nbGifted = nbGifted;
+    }
+
+    public Item getItem() {
+        return item;
+    }
+
+    public void setItem(Item item) {
+        this.item = item;
+    }
+    @Override
+    public <T> T accept(PerkVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 
     @Override

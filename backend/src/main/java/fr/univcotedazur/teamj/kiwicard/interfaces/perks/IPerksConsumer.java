@@ -1,6 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.interfaces.perks;
 
-import fr.univcotedazur.teamj.kiwicard.dto.PerkDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCartIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
@@ -13,5 +13,5 @@ import java.util.List;
  */
 public interface IPerksConsumer {
     boolean applyPerk(long perkId, String cartOwnerEmail) throws UnknownPerkIdException, UnknownCustomerEmailException;
-    List<PerkDTO> findConsumablePerksForConsumerAtPartner(String consumerEmail, long partnerId) throws UnknownCartIdException, UnknownPartnerIdException;
+    List<IPerkDTO> findConsumablePerksForConsumerAtPartner(String consumerEmail, long partnerId) throws UnknownCartIdException, UnknownPartnerIdException;
 }
