@@ -16,8 +16,5 @@ public abstract class AbstractPerk {
     public Long getPerkId() {
         return perkId;
     }
-
-    public void setPerkId(Long perkId) {
-        this.perkId = perkId;
-    }
+    
 }
