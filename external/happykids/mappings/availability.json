@@ -10,7 +10,7 @@
     },
     "jsonBody": {
       "time": "{{request.query.time}}",
-      "available": "{{randomValue type='BOOLEAN'}}"
+      "available": "{{#if (matches request.query.time '.*[24680]')}}true{{/if}}{{#if (matches request.query.time '.*[13579]')}}false{{/if}}"
     }
   }
 }
