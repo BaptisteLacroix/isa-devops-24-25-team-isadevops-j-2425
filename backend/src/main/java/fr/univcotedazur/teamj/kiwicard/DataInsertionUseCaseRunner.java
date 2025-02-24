@@ -56,7 +56,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
     }
 
     private void tryToRetrieve() {
-        Customer customer = customerRepository.findByEmail(customerEmail);
+        Customer customer = customerRepository.findByEmail(customerEmail).orElse(null);
         System.out.println("Customer name: " + customer.getFirstName());
         Cart cart = customer.getCart();
         System.out.println("Cart partner: " + cart.getPartner().getName());

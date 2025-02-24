@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -56,7 +57,7 @@ class CustomerCatalogTest {
     @Test
     void registerAlreadyUsedEmail() throws UnreachableExternalServiceException {
         CustomerSubscribeDTO subscribeDto = new CustomerSubscribeDTO("test@example.com", "Clément", "Clem", "123 rue Exemple");
-        when(customerRepository.findByEmail("test@example.com")).thenReturn(new Customer());
+        when(customerRepository.findByEmail("test@example.com")).thenReturn(Optional.of(new Customer()));
 
         assertThrows(AlreadyUsedEmailException.class, () -> customerCatalog.register(subscribeDto));
 
@@ -69,7 +70,7 @@ class CustomerCatalogTest {
     void findCustomerByEmail() throws Exception {
         CustomerSubscribeDTO customersubscribe = new CustomerSubscribeDTO("test@example.com", "Roxane", "Roxx", "2 passage Marie Antoinette");
         Customer customer = new Customer(customersubscribe, "CARD123");
-        when(customerRepository.findByEmail("test@example.com")).thenReturn(customer);
+        when(customerRepository.findByEmail("test@example.com")).thenReturn(Optional.of(customer));
 
         CustomerDTO result = customerCatalog.findCustomerByEmail("test@example.com");
 
@@ -89,7 +90,7 @@ class CustomerCatalogTest {
     void findCustomerByCardNum() throws Exception {
         CustomerSubscribeDTO customersubscribe = new CustomerSubscribeDTO("test@example.com", "Roxane", "Roxx", "2 passage Marie Antoinette");
         Customer customer = new Customer(customersubscribe, "CARD123");
-        when(customerRepository.findByCardNumber("CARD123")).thenReturn(customer);
+        when(customerRepository.findByCardNumber("CARD123")).thenReturn(Optional.of(customer));
 
         CustomerDTO result = customerCatalog.findCustomerByCardNum("CARD123");
 
@@ -122,7 +123,7 @@ class CustomerCatalogTest {
     @Test
     void setCart() throws Exception {
         Customer customer = new Customer("test@example.com", "Roxane", "Roxx", "2 passage Marie Antoinette", false);
-        when(customerRepository.findByEmail("test@example.com")).thenReturn(customer);
+        when(customerRepository.findByEmail("test@example.com")).thenReturn(Optional.of(customer));
 
         CartDTO cartDto = new CartDTO(123456);
         customerCatalog.setCart("test@example.com", cartDto);
@@ -148,7 +149,7 @@ class CustomerCatalogTest {
         Customer customer = new Customer("test@example.com", "Roxane", "Roxx", "2 passage Marie Antoinette", false);
         Cart cart = new Cart(cartDto);
         customer.setCart(cart);
-        when(customerRepository.findByEmail("test@example.com")).thenReturn(customer);
+        when(customerRepository.findByEmail("test@example.com")).thenReturn(Optional.of(customer));
 
         customerCatalog.emptyCart("test@example.com");
 

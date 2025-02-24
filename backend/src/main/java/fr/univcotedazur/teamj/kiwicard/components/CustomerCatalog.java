@@ -18,7 +18,7 @@ import fr.univcotedazur.teamj.kiwicard.repositories.ICustomerRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Service
 public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, ICustomerCartSaver {
@@ -40,7 +40,7 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
 
     @Override
     public CustomerDTO findCustomerByEmail(String customerEmail) throws UnknownCustomerEmailException {
-        Customer customer = customerRepository.findByEmail(customerEmail);
+        Customer customer = customerRepository.findByEmail(customerEmail).orElse(null);
         if (customer == null) {
             throw new UnknownCustomerEmailException();
         }
@@ -49,7 +49,7 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
 
     @Override
     public CustomerDTO findCustomerByCardNum(String cardNumber) throws UnknownCardNumberException {
-        Customer customer = customerRepository.findByCardNumber(cardNumber);
+        Customer customer = customerRepository.findByCardNumber(cardNumber).orElse(null);
         if (customer == null) {
             throw new UnknownCardNumberException();
         }
@@ -67,7 +67,7 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
 
     @Override
     public void setCart(String customerEmail, CartDTO cartDto) throws UnknownCustomerEmailException {
-        Customer customer = customerRepository.findByEmail(customerEmail);
+        Customer customer = customerRepository.findByEmail(customerEmail).orElse(null);
         if (customer == null) {
             throw new UnknownCustomerEmailException();
         }
@@ -77,7 +77,7 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
 
     @Override
     public void emptyCart(String customerEmail) throws UnknownCustomerEmailException {
-        Customer customer = customerRepository.findByEmail(customerEmail);
+        Customer customer = customerRepository.findByEmail(customerEmail).orElse(null);
         if (customer == null) {
             throw new UnknownCustomerEmailException();
         }

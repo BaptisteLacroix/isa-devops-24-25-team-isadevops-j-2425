@@ -23,8 +23,8 @@ class CashierTest extends BaseUnitTest {
     void cleanUpContext() {
     }
 
-   /*@Test
+    @Test
     void identifyPaymentError() {
-    }*/
+    }
 
 }
