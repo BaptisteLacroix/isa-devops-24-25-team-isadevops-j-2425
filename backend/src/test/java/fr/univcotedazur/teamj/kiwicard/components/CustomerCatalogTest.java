@@ -39,25 +39,32 @@ class CustomerCatalogTest {
 
     @Test
     void register() throws Exception {
-        CustomerSubscribeDTO subscribeDto = new CustomerSubscribeDTO("test@example.com", "Roxane", "Roxx", "2 passage Marie Antoinette");
+        CustomerSubscribeDTO subscribeDto = new CustomerSubscribeDTO(
+                "test@example.com", "Roxane", "Roxx", "2 passage Marie Antoinette"
+        );
         CardDTO cardDto = new CardDTO("CARD123");
 
+        // Retourner null pour simuler qu'aucun client n'est trouvé
         when(customerRepository.findByEmail("test@example.com")).thenReturn(null);
-        when(cardEditorProxy.orderACard("test@example.com", "2 passage Marie Antoinette")).thenReturn(cardDto);
+        when(cardEditorProxy.orderACard("test@example.com", "2 passage Marie Antoinette"))
+                .thenReturn(cardDto);
 
         CustomerDTO result = customerCatalog.register(subscribeDto);
 
         assertEquals("test@example.com", result.email());
-
         verify(customerRepository, times(1)).findByEmail("test@example.com");
         verify(cardEditorProxy, times(1)).orderACard("test@example.com", "2 passage Marie Antoinette");
         verify(customerRepository, times(1)).save(any(Customer.class));
     }
 
+
     @Test
     void registerAlreadyUsedEmail() throws UnreachableExternalServiceException {
-        CustomerSubscribeDTO subscribeDto = new CustomerSubscribeDTO("test@example.com", "Clément", "Clem", "123 rue Exemple");
-        when(customerRepository.findByEmail("test@example.com")).thenReturn(Optional.of(new Customer()));
+        CustomerSubscribeDTO subscribeDto = new CustomerSubscribeDTO(
+                "test@example.com", "Clément", "Clem", "123 rue Exemple"
+        );
+        when(customerRepository.findByEmail("test@example.com"))
+                .thenReturn(Optional.of(new Customer()));
 
         assertThrows(AlreadyUsedEmailException.class, () -> customerCatalog.register(subscribeDto));
 
@@ -68,9 +75,12 @@ class CustomerCatalogTest {
 
     @Test
     void findCustomerByEmail() throws Exception {
-        CustomerSubscribeDTO customersubscribe = new CustomerSubscribeDTO("test@example.com", "Roxane", "Roxx", "2 passage Marie Antoinette");
+        CustomerSubscribeDTO customersubscribe = new CustomerSubscribeDTO(
+                "test@example.com", "Roxane", "Roxx", "2 passage Marie Antoinette"
+        );
         Customer customer = new Customer(customersubscribe, "CARD123");
-        when(customerRepository.findByEmail("test@example.com")).thenReturn(Optional.of(customer));
+        when(customerRepository.findByEmail("test@example.com"))
+                .thenReturn(Optional.of(customer));
 
         CustomerDTO result = customerCatalog.findCustomerByEmail("test@example.com");
 
@@ -80,7 +90,8 @@ class CustomerCatalogTest {
 
     @Test
     void findCustomerByEmailNotFound() {
-        when(customerRepository.findByEmail("inconnu@example.com")).thenReturn(null);
+        when(customerRepository.findByEmail("inconnu@example.com"))
+                .thenReturn(Optional.empty());
         assertThrows(UnknownCustomerEmailException.class, () ->
                 customerCatalog.findCustomerByEmail("inconnu@example.com"));
         verify(customerRepository, times(1)).findByEmail("inconnu@example.com");
@@ -88,9 +99,12 @@ class CustomerCatalogTest {
 
     @Test
     void findCustomerByCardNum() throws Exception {
-        CustomerSubscribeDTO customersubscribe = new CustomerSubscribeDTO("test@example.com", "Roxane", "Roxx", "2 passage Marie Antoinette");
+        CustomerSubscribeDTO customersubscribe = new CustomerSubscribeDTO(
+                "test@example.com", "Roxane", "Roxx", "2 passage Marie Antoinette"
+        );
         Customer customer = new Customer(customersubscribe, "CARD123");
-        when(customerRepository.findByCardNumber("CARD123")).thenReturn(Optional.of(customer));
+        when(customerRepository.findByCardNumber("CARD123"))
+                .thenReturn(Optional.of(customer));
 
         CustomerDTO result = customerCatalog.findCustomerByCardNum("CARD123");
 
@@ -100,7 +114,8 @@ class CustomerCatalogTest {
 
     @Test
     void findCustomerByCardNumNotFound() {
-        when(customerRepository.findByCardNumber("INVALID")).thenReturn(null);
+        when(customerRepository.findByCardNumber("INVALID"))
+                .thenReturn(Optional.empty());
         assertThrows(UnknownCardNumberException.class, () ->
                 customerCatalog.findCustomerByCardNum("INVALID"));
         verify(customerRepository, times(1)).findByCardNumber("INVALID");
@@ -108,9 +123,13 @@ class CustomerCatalogTest {
 
     @Test
     void findAll() {
-        CustomerSubscribeDTO customersubscribe1 = new CustomerSubscribeDTO("roxane@example.com", "Roxane", "Roxx", "2 passage Marie Antoinette");
+        CustomerSubscribeDTO customersubscribe1 = new CustomerSubscribeDTO(
+                "roxane@example.com", "Roxane", "Roxx", "2 passage Marie Antoinette"
+        );
         Customer customer1 = new Customer(customersubscribe1, "CARD1608");
-        CustomerSubscribeDTO customersubscribe2 = new CustomerSubscribeDTO("clement@example.com", "Clément", "Clem", "2400 Route des Dolines");
+        CustomerSubscribeDTO customersubscribe2 = new CustomerSubscribeDTO(
+                "clement@example.com", "Clément", "Clem", "2400 Route des Dolines"
+        );
         Customer customer2 = new Customer(customersubscribe2, "CARD1003");
         when(customerRepository.findAll()).thenReturn(Arrays.asList(customer1, customer2));
 
@@ -123,7 +142,8 @@ class CustomerCatalogTest {
     @Test
     void setCart() throws Exception {
         Customer customer = new Customer("test@example.com", "Roxane", "Roxx", "2 passage Marie Antoinette", false);
-        when(customerRepository.findByEmail("test@example.com")).thenReturn(Optional.of(customer));
+        when(customerRepository.findByEmail("test@example.com"))
+                .thenReturn(Optional.of(customer));
 
         CartDTO cartDto = new CartDTO(123456);
         customerCatalog.setCart("test@example.com", cartDto);
@@ -135,7 +155,8 @@ class CustomerCatalogTest {
 
     @Test
     void setCartCustomerNotFound() {
-        when(customerRepository.findByEmail("inconnu@example.com")).thenReturn(null);
+        when(customerRepository.findByEmail("inconnu@example.com"))
+                .thenReturn(Optional.empty());
         CartDTO cartDto = new CartDTO(123456);
         assertThrows(UnknownCustomerEmailException.class, () ->
                 customerCatalog.setCart("inconnu@example.com", cartDto));
@@ -149,7 +170,8 @@ class CustomerCatalogTest {
         Customer customer = new Customer("test@example.com", "Roxane", "Roxx", "2 passage Marie Antoinette", false);
         Cart cart = new Cart(cartDto);
         customer.setCart(cart);
-        when(customerRepository.findByEmail("test@example.com")).thenReturn(Optional.of(customer));
+        when(customerRepository.findByEmail("test@example.com"))
+                .thenReturn(Optional.of(customer));
 
         customerCatalog.emptyCart("test@example.com");
 
@@ -160,7 +182,8 @@ class CustomerCatalogTest {
 
     @Test
     void emptyCartCustomerNotFound() {
-        when(customerRepository.findByEmail("inconnu@example.com")).thenReturn(null);
+        when(customerRepository.findByEmail("inconnu@example.com"))
+                .thenReturn(Optional.empty());
         assertThrows(UnknownCustomerEmailException.class, () ->
                 customerCatalog.emptyCart("inconnu@example.com"));
         verify(customerRepository, times(1)).findByEmail("inconnu@example.com");
