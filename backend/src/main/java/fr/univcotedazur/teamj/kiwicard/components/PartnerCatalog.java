@@ -8,7 +8,6 @@ import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import fr.univcotedazur.teamj.kiwicard.entities.Partner;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
-import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IItemManager;
 import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPartnerManager;
 import fr.univcotedazur.teamj.kiwicard.repositories.IItemRepository;
 import fr.univcotedazur.teamj.kiwicard.repositories.IPartnerRepository;
@@ -88,6 +87,16 @@ public class PartnerCatalog implements IPartnerManager {
                 .map(Partner::getPerkList)
                 .map(perks -> perks.stream().map(PerkDTO::new).toList())
                 .orElseThrow(() -> new UnknownPartnerIdException(partnerId));
+    }
+
+    @Override
+    public void udpatePartner(long partnerId, PartnerDTO newPartner) throws UnknownPartnerIdException {
+
+    }
+
+    @Override
+    public void deletePartner(long partnerId) throws UnknownPartnerIdException {
+
     }
 }
 

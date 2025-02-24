@@ -17,7 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(path = "/customers")
 public class CustomerController {
 
-    CustomerCatalog customerCatalog;
+    private final CustomerCatalog customerCatalog;
+
+    public CustomerController(CustomerCatalog customerCatalog) {
+        this.customerCatalog = customerCatalog;
+    }
 
     @PostMapping("/")
     public void createCustomer(@RequestBody CustomerSubscribeDTO customer) throws UnreachableExternalServiceException, AlreadyUsedEmailException {
