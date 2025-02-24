@@ -1,11 +1,11 @@
 package fr.univcotedazur.teamj.kiwicard.entities;
 
 
+import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -30,6 +30,26 @@ public class Item {
     public Item(@NotNull String label, @NotNull double price) {
         this.label = label;
         this.price = price;
+    }
+
+    public Item(ItemDTO itemDTO) {
+        this(itemDTO.label(), itemDTO.price());
+    }
+
+    /**
+     * package private constructor for testing purposes
+     * @param id l'id de l'item
+     * @param label le label de l'item
+     * @param price le prix de l'item
+     */
+    private Item(int id, String label, double price) {
+        this.itemId = (long) id;
+        this.label = label;
+        this.price = price;
+    }
+
+    public static Item createTestItem(int id, String label, double price) {
+        return new Item(id, label, price);
     }
 
     public Long getItemId() {

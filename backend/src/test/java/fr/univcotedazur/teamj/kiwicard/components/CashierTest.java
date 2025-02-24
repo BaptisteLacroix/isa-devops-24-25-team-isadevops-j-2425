@@ -1,5 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
+import fr.univcotedazur.teamj.kiwicard.BaseUnitTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Commit // test-specific annotation to change default behaviour to Commit on all tests (could be applied on a method
         // This annotation obliges us to clean the DB (removing the 2 customers) but it is only here for illustration
         // The "rollback" policy should be privileged unless some specific testing context appears
-class CashierTest {
+class CashierTest extends BaseUnitTest {
 
     @BeforeEach
     void setUpContext() {

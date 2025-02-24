@@ -1,11 +1,13 @@
 package fr.univcotedazur.teamj.kiwicard.entities;
 
 
+import fr.univcotedazur.teamj.kiwicard.dto.PartnerCreationDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
 import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -31,7 +33,7 @@ public class Partner {
     @Column
     private List<AbstractPerk> perkList;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     @Column
     private List<Item> itemList;
 
@@ -41,14 +43,17 @@ public class Partner {
     public Partner(String name, String address) {
         this.name = name;
         this.address = address;
+        this.itemList = new ArrayList<>();
+        this.perkList = new ArrayList<>();
+        this.purchaseList = new ArrayList<>();
+    }
+
+    public Partner(PartnerCreationDTO partnerDTO) {
+        this(partnerDTO.name(), partnerDTO.address());
     }
 
     public Long getPartnerId() {
         return partnerId;
-    }
-
-    public void setPartnerId(Long partnerId) {
-        this.partnerId = partnerId;
     }
 
     public @NotBlank String getName() {
@@ -67,7 +72,27 @@ public class Partner {
         this.address = address;
     }
 
-    public List<Purchase> getPurchases() {
-        return this.purchaseList;
+    public List<Item> getItemList() {
+        return itemList;
+    }
+
+    public List<AbstractPerk> getPerkList() {
+        return perkList;
+    }
+
+    public List<Purchase> getPurchaseList() {
+        return purchaseList;
+    }
+
+    public void addItem(Item item) {
+        itemList.add(item);
+    }
+
+    public void addPerk(AbstractPerk perk) {
+        perkList.add(perk);
+    }
+
+    public void addPurchase(Purchase purchase) {
+        purchaseList.add(purchase);
     }
 }
