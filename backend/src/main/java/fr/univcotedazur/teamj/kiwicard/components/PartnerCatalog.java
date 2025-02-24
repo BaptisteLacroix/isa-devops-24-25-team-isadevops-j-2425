@@ -34,8 +34,7 @@ public class PartnerCatalog implements IPartnerManager {
     @Override
     public PartnerDTO createPartner(@NotNull PartnerCreationDTO partnerToCreate) {
         Partner partner = new Partner(partnerToCreate);
-        partnerRepository.save(partner);
-        return new PartnerDTO(partner);
+        return new PartnerDTO(partnerRepository.save(partner));
     }
 
     @Override

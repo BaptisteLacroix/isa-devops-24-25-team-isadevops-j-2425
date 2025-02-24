@@ -1,4 +1,4 @@
-package fr.univcotedazur.teamj.kiwicard.components;
+package fr.univcotedazur.teamj.kiwicard.integration;
 
 import fr.univcotedazur.teamj.kiwicard.BaseUnitTest;
 import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
@@ -15,7 +15,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -25,37 +24,42 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest
-class PartnerCatalogTest extends BaseUnitTest {
+class PartnerCatalogIT extends BaseUnitTest {
 
-    @MockitoBean
-    private IPartnerRepository partnerRepository;
-    @MockitoBean
-    private IItemRepository itemRepository;
     @Autowired
     private IPartnerManager partnerManager;
+    @Autowired
+    private IPartnerRepository partnerRepository;
+    @Autowired
+    private IItemRepository itemRepository;
 
     @AfterEach
     @Transactional
     void tearDown() {
-
+        itemRepository.deleteAll();
+        partnerRepository.deleteAll();
+        System.out.println("After each");
     }
 
     @Test
     @Transactional
     void createPartnerOK() {
         PartnerCreationDTO partnerToCreate = new PartnerCreationDTO("Boulange", "2 avenue des mimosas");
-        when(partnerRepository.save(any(Partner.class))).thenReturn(Partner.createTestPartner(1, "Boulange", "2 avenue des mimosas"));
 
         PartnerDTO partnerDTOCreated = partnerManager.createPartner(partnerToCreate);
 
         assertEquals("Boulange", partnerDTOCreated.name());
         assertEquals("2 avenue des mimosas", partnerDTOCreated.address());
-        verify(partnerRepository).save(any(Partner.class));
+        Optional<Partner> optPartnerSaved = partnerRepository.findById(partnerDTOCreated.id());
+        assertTrue(optPartnerSaved.isPresent());
+        Partner partnerSaved = optPartnerSaved.get();
+        assertEquals("Boulange", partnerSaved.getName());
+        assertEquals("2 avenue des mimosas", partnerSaved.getAddress());
+        assertEquals(List.of(), partnerSaved.getPurchaseList());
+        assertEquals(List.of(), partnerSaved.getPerkList());
+        assertEquals(List.of(), partnerSaved.getItemList());
     }
 
     @Test
@@ -66,28 +70,29 @@ class PartnerCatalogTest extends BaseUnitTest {
     @Test
     @Transactional
     void findPartnerByIdOK() {
-        Partner partner = Partner.createTestPartner(1, "Boulange", "2 avenue des mimosas");
-        when(partnerRepository.findById(partner.getPartnerId())).thenReturn(Optional.of(partner));
-        PartnerDTO partnerSaved = new PartnerDTO(partner);
+        Partner partnerToSave = new Partner("Boulange", "2 avenue des mimosas");
+        partnerRepository.save(partnerToSave);
+        PartnerDTO partnerSaved = new PartnerDTO(partnerToSave);
 
-        PartnerDTO partnerFound = assertDoesNotThrow(() -> partnerManager.findPartnerById(partner.getPartnerId()));
+        PartnerDTO partnerFound = assertDoesNotThrow(() -> partnerManager.findPartnerById(partnerToSave.getPartnerId()));
 
         assertEquals(partnerSaved, partnerFound);
     }
 
     @Test
     void findPartnerByIdNotFoundShouldThrow() {
-        Partner partner = Partner.createTestPartner(1, "Boulange", "2 avenue des mimosas");
+        Partner partnerToSave = new Partner("Boulange", "2 avenue des mimosas");
+        partnerRepository.save(partnerToSave);
+        partnerRepository.delete(partnerToSave);
 
-        assertThrows(UnknownPartnerIdException.class, () -> partnerManager.findPartnerById(partner.getPartnerId()));
+        assertThrows(UnknownPartnerIdException.class, () -> partnerManager.findPartnerById(partnerToSave.getPartnerId()));
     }
 
     @Test
     @Transactional
     void addItemToPartnerCatalogOK() {
-        Partner partner = Partner.createTestPartner(1, "Boulange", "2 avenue des mimosas");
-        when(partnerRepository.findById(partner.getPartnerId())).thenReturn(Optional.of(partner));
-
+        Partner partner = new Partner("Boulange", "2 avenue des mimosas");
+        partnerRepository.save(partner);
 
         ItemDTO itemDTO = new ItemDTO("Croissant", 1.0);
         assertDoesNotThrow(() -> partnerManager.addItemToPartnerCatalog(partner.getPartnerId(), itemDTO));
@@ -99,11 +104,12 @@ class PartnerCatalogTest extends BaseUnitTest {
     @Test
     @Transactional
     void addItemToPartnerCatalogWithAlreadyOneItemOK() {
-        Item painAuChocolat = Item.createTestItem(1, "Pain au chocolat", 1.5);
-        when(itemRepository.findById(painAuChocolat.getItemId())).thenReturn(Optional.of(painAuChocolat));
-        Partner partner = Partner.createTestPartner(1, "Boulange", "2 avenue des mimosas");
+        ItemDTO painAuChocolatDTO = new ItemDTO("Pain au chocolat", 1.5);
+        Item painAuChocolat = new Item(painAuChocolatDTO);
+        itemRepository.save(painAuChocolat);
+        Partner partner = new Partner("Boulange", "2 avenue des mimosas");
         partner.addItem(painAuChocolat);
-        when(partnerRepository.findById(partner.getPartnerId())).thenReturn(Optional.of(partner));
+        partnerRepository.save(partner);
         ItemDTO croissantDTO = new ItemDTO("Croissant", 1.0);
 
         assertDoesNotThrow(() -> partnerManager.addItemToPartnerCatalog(partner.getPartnerId(), croissantDTO));
@@ -116,30 +122,32 @@ class PartnerCatalogTest extends BaseUnitTest {
     @Test
     @Transactional
     void addItemToPartnerCatalogWithPartnerNotFoundShouldThrow() {
-        Partner partner = Partner.createTestPartner(1, "Boulange", "2 avenue des mimosas");
+        Partner partnerToSave = new Partner("Boulange", "2 avenue des mimosas");
+        partnerRepository.save(partnerToSave);
+        partnerRepository.delete(partnerToSave);
 
         ItemDTO itemDTO = new ItemDTO("Croissant", 1.0);
 
-        assertThrows(UnknownPartnerIdException.class, () -> partnerManager.addItemToPartnerCatalog(partner.getPartnerId(), itemDTO));
+        assertThrows(UnknownPartnerIdException.class, () -> partnerManager.addItemToPartnerCatalog(partnerToSave.getPartnerId(), itemDTO));
     }
 
     @Test
     @Transactional
     void addItemToPartnerCatalogWithNullDTOShouldThrow() {
-        Partner partner = Partner.createTestPartner(1, "Boulange", "2 avenue des mimosas");
-        when(partnerRepository.findById(partner.getPartnerId())).thenReturn(Optional.of(partner));
+        Partner partnerToSave = new Partner("Boulange", "2 avenue des mimosas");
+        partnerRepository.save(partnerToSave);
 
-        assertThrows(NullPointerException.class, () -> partnerManager.addItemToPartnerCatalog(partner.getPartnerId(), null));
+        assertThrows(NullPointerException.class, () -> partnerManager.addItemToPartnerCatalog(partnerToSave.getPartnerId(), null));
     }
 
     @Test
     @Transactional
     void removeItemFromPartnerCatalogOK() {
-        Item item = Item.createTestItem(1, "Croissant", 1.0);
-        when(itemRepository.findById(item.getItemId())).thenReturn(Optional.of(item));
-        Partner partner = Partner.createTestPartner(1, "Boulange", "2 avenue des mimosas");
+        Item item = new Item("Croissant", 1.0);
+        itemRepository.save(item);
+        Partner partner = new Partner("Boulange", "2 avenue des mimosas");
         partner.addItem(item);
-        when(partnerRepository.findById(partner.getPartnerId())).thenReturn(Optional.of(partner));
+        partnerRepository.save(partner);
         boolean removed;
 
         removed = assertDoesNotThrow(() -> partnerManager.removeItemFromPartnerCatalog(partner.getPartnerId(), item.getItemId()));
@@ -151,14 +159,14 @@ class PartnerCatalogTest extends BaseUnitTest {
     @Test
     @Transactional
     void removeItemFromPartnerCatalogWithMultipleItemsOK() {
-        Item croissant = Item.createTestItem(1, "Croissant", 1.0);
-        when(itemRepository.findById(croissant.getItemId())).thenReturn(Optional.of(croissant));
-        Item painAuChocolat = Item.createTestItem(2, "Pain au chocolat", 1.5);
-        when(itemRepository.findById(painAuChocolat.getItemId())).thenReturn(Optional.of(painAuChocolat));
-        Partner partner = Partner.createTestPartner(1, "Boulange", "2 avenue des mimosas");
+        Item croissant = new Item("Croissant", 1.0);
+        itemRepository.save(croissant);
+        Item painAuChocolat = new Item("Pain au chocolat", 1.5);
+        itemRepository.save(painAuChocolat);
+        Partner partner = new Partner("Boulange", "2 avenue des mimosas");
         partner.addItem(croissant);
         partner.addItem(painAuChocolat);
-        when(partnerRepository.findById(partner.getPartnerId())).thenReturn(Optional.of(partner));
+        partnerRepository.save(partner);
         boolean removed;
 
         removed = assertDoesNotThrow(() -> partnerManager.removeItemFromPartnerCatalog(partner.getPartnerId(), croissant.getItemId()));
@@ -171,10 +179,12 @@ class PartnerCatalogTest extends BaseUnitTest {
     @Test
     @Transactional
     void removeItemFromPartnerCatalogWithPartnerNotFoundShouldThrow() {
-        Item item = Item.createTestItem(1, "Croissant", 1.0);
-        when(itemRepository.findById(item.getItemId())).thenReturn(Optional.of(item));
-        Partner partner = Partner.createTestPartner(1, "Boulange", "2 avenue des mimosas");
+        Item item = new Item("Croissant", 1.0);
+        itemRepository.save(item);
+        Partner partner = new Partner("Boulange", "2 avenue des mimosas");
         partner.addItem(item);
+        partnerRepository.save(partner);
+        partnerRepository.delete(partner);
 
         assertThrows(UnknownPartnerIdException.class, () -> partnerManager.removeItemFromPartnerCatalog(partner.getPartnerId(), item.getItemId()));
     }
@@ -182,10 +192,10 @@ class PartnerCatalogTest extends BaseUnitTest {
     @Test
     @Transactional
     void removeItemFromPartnerCatalogWithNoItemInPartnerShouldThrow() {
-        Item item = Item.createTestItem(1, "Croissant", 1.0);
-        when(itemRepository.findById(item.getItemId())).thenReturn(Optional.of(item));
-        Partner partner = Partner.createTestPartner(1, "Boulange", "2 avenue des mimosas");
-        when(partnerRepository.findById(partner.getPartnerId())).thenReturn(Optional.of(partner));
+        Item item = new Item("Croissant", 1.0);
+        itemRepository.save(item);
+        Partner partner = new Partner("Boulange", "2 avenue des mimosas");
+        partnerRepository.save(partner);
 
         assertThrows(UnknownItemIdException.class, () -> partnerManager.removeItemFromPartnerCatalog(partner.getPartnerId(), item.getItemId()));
     }
@@ -193,14 +203,14 @@ class PartnerCatalogTest extends BaseUnitTest {
     @Test
     @Transactional
     void findAllPartnerItemsOK() {
-        Item croissant = Item.createTestItem(1, "Croissant", 1.0);
-        when(itemRepository.findById(croissant.getItemId())).thenReturn(Optional.of(croissant));
-        Item painAuChocolat = Item.createTestItem(2, "Pain au chocolat", 1.5);
-        when(itemRepository.findById(painAuChocolat.getItemId())).thenReturn(Optional.of(painAuChocolat));
-        Partner partner = Partner.createTestPartner(1, "Boulange", "2 avenue des mimosas");
+        Item croissant = new Item("Croissant", 1.0);
+        itemRepository.save(croissant);
+        Item painAuChocolat = new Item("Pain au chocolat", 1.5);
+        itemRepository.save(painAuChocolat);
+        Partner partner = new Partner("Boulange", "2 avenue des mimosas");
         partner.addItem(croissant);
         partner.addItem(painAuChocolat);
-        when(partnerRepository.findById(partner.getPartnerId())).thenReturn(Optional.of(partner));
+        partnerRepository.save(partner);
 
         List<Item> items = assertDoesNotThrow(() -> partnerManager.findAllPartnerItems(partner.getPartnerId()));
 
@@ -211,7 +221,9 @@ class PartnerCatalogTest extends BaseUnitTest {
 
     @Test
     void findAllPartnerItemsWithPartnerNotFoundShouldThrow() {
-        Partner partner = Partner.createTestPartner(1, "Boulange", "2 avenue des mimosas");
+        Partner partner = new Partner("Boulange", "2 avenue des mimosas");
+        partnerRepository.save(partner);
+        partnerRepository.delete(partner);
 
         assertThrows(UnknownPartnerIdException.class, () -> partnerManager.findAllPartnerItems(partner.getPartnerId()));
     }
@@ -219,8 +231,8 @@ class PartnerCatalogTest extends BaseUnitTest {
     @Test
     @Transactional
     void findAllPartnerItemsWithNoItemsOK() {
-        Partner partner = Partner.createTestPartner(1, "Boulange", "2 avenue des mimosas");
-        when(partnerRepository.findById(partner.getPartnerId())).thenReturn(Optional.of(partner));
+        Partner partner = new Partner("Boulange", "2 avenue des mimosas");
+        partnerRepository.save(partner);
         List<Item> items;
 
         items = assertDoesNotThrow(() -> partnerManager.findAllPartnerItems(partner.getPartnerId()));
