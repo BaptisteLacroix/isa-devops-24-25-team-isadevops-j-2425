@@ -1,5 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
+import fr.univcotedazur.teamj.kiwicard.BaseUnitTest;
 import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyExistingCustomerException;
 import fr.univcotedazur.teamj.kiwicard.repositories.ICustomerRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -13,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         // controller methods (if you are actually testing controller methods!)
 // @Transactional
 // @Commit // default @Transactional is ROLLBACK (no need for the @AfterEach
-class CartServiceTest {
+class CartServiceTest extends BaseUnitTest {
 
     @Autowired
     private ICustomerRepository ICustomerRepository;
