@@ -3,18 +3,16 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'pwd'
                 dir('backend') {
-                    sh 'pwd'
-                    sh 'mvn compile'
+                     echo '🛠️ Pipeline is building the project !'
+                    sh 'mvn clean compile'
                 }
-                sh 'pwd'
             }
         }
         stage('Unit tests') {
                     steps {
                         dir('backend') {
-                            echo 'Pipeline is launching unit tests !'
+                            echo '🧪 Pipeline is launching unit tests !'
                             sh 'mvn test'
                         }
                     }
@@ -25,7 +23,7 @@ pipeline {
             }
             steps {
                 dir('backend') {
-                    echo 'Pipeline is launching integration tests !'
+                    echo '🧩 Pipeline is launching integration tests !'
                     sh 'mvn verify'
                 }
             }
