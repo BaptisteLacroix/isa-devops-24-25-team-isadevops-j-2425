@@ -12,6 +12,14 @@ public class CartItem {
     private Long cartItemId;
 
     @Column
+    private boolean consumed = false;
+
+    public void setConsumed(boolean consumed) {
+        this.consumed = consumed;
+    }
+
+
+    @Column
     private int quantity;
 
     @Column

@@ -85,6 +85,10 @@ public class Customer {
         this.purchaseList.add(purchase);
     }
 
+    public List<Purchase> getPurchases() {
+        return this.purchaseList;
+    }
+
     public @NotBlank String getFirstName() {
         return firstName;
     }

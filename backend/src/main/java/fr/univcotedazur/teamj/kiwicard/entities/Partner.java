@@ -5,6 +5,7 @@ import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
+import java.util.Collection;
 import java.util.List;
 
 @Entity
@@ -64,5 +65,9 @@ public class Partner {
 
     public void setAddress(@NotBlank String address) {
         this.address = address;
+    }
+
+    public List<Purchase> getPurchases() {
+        return this.purchaseList;
     }
 }

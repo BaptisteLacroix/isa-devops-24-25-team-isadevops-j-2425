@@ -23,18 +23,6 @@ public class Item {
     @Column
     private double price;
 
-    @NotNull
-    public boolean isAlreadyConsumedInAPerk() {
-        return alreadyConsumedInAPerk;
-    }
-
-    public void setAlreadyConsumedInAPerk(@NotNull boolean alreadyConsumedInAPerk) {
-        this.alreadyConsumedInAPerk = alreadyConsumedInAPerk;
-    }
-
-    @NotNull
-    @Column
-    private boolean alreadyConsumedInAPerk;
 
     public Item() {
     }
