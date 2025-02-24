@@ -3,10 +3,7 @@ package fr.univcotedazur.teamj.kiwicard.components;
 import fr.univcotedazur.teamj.kiwicard.dto.PaymentDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.*;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCartIdException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPaymentIdException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.*;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseConsumer;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseCreator;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseFinder;
@@ -48,7 +45,7 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
     public void consumeNLastPurchaseOfCustomerInPartner(int nbPurchasesToConsume, String customerEmail, long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException {
         Optional<Customer> customer;
         Optional<Partner> partner;
-        if ((partner = this.partnerRepository.findById(partnerId)).isEmpty()) throw new UnknownPartnerIdException();
+        if ((partner = this.partnerRepository.findById(partnerId)).isEmpty()) throw new UnknownPartnerIdException(partnerId);
         if ((customer = this.customerRepository.findByEmail(customerEmail)).isEmpty())
             throw new UnknownCustomerEmailException();
 
@@ -89,12 +86,12 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
     }
 
     @Override
-    public PurchaseDTO findPurchaseById(long purchaseId) throws UnknownPartnerIdException {
+    public PurchaseDTO findPurchaseById(long purchaseId) throws UnknownPurchaseIdException {
         Optional<Purchase> res;
         if ((res = this.purchaseRepository.findById(purchaseId)).isPresent()) {
             return new PurchaseDTO(res.orElseThrow());
         }
-        throw new UnknownPartnerIdException();
+        throw new UnknownPurchaseIdException(purchaseId);
     }
 
     @Override
@@ -102,7 +99,7 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
         Optional<Partner> partner;
         Optional<Customer> customer;
 
-        if ((partner = this.partnerRepository.findById(partnerId)).isEmpty()) throw new UnknownPartnerIdException();
+        if ((partner = this.partnerRepository.findById(partnerId)).isEmpty()) throw new UnknownPartnerIdException(partnerId);
         if ((customer = this.customerRepository.findByEmail(customerEmail)).isEmpty())
             throw new UnknownCustomerEmailException();
 
@@ -110,7 +107,7 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
         Customer c = customer.orElseThrow();
 
         List<Purchase> result = new ArrayList<>(c.getPurchases());
-        result.retainAll(p.getPurchases());
+        result.retainAll(p.getPurchaseList());
         return result.stream().map(PurchaseDTO::new).collect(Collectors.toList());
     }
 }
