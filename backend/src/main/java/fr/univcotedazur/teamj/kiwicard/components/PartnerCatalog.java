@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -77,10 +78,12 @@ public class PartnerCatalog implements IPartnerManager {
     public List<Item> findAllPartnerItems(long partnerId) throws UnknownPartnerIdException {
         return partnerRepository.findById(partnerId)
                 .map(Partner::getItemList)
+                .map(ArrayList::new)
                 .orElseThrow(() -> new UnknownPartnerIdException(partnerId));
     }
 
     @Override
+    @Transactional
     public List<PerkDTO> findAllPartnerPerks(long partnerId) throws UnknownPartnerIdException {
         return partnerRepository.findById(partnerId)
                 .map(Partner::getPerkList)
