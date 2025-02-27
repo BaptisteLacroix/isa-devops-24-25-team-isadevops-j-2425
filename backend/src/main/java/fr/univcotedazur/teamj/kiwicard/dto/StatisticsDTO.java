@@ -1,4 +1,4 @@
 package fr.univcotedazur.teamj.kiwicard.dto;
 
-public class StatisticsDTO {
+public record StatisticsDTO() {
 }

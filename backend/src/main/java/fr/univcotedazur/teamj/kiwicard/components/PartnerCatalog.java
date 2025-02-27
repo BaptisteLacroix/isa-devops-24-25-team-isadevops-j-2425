@@ -88,5 +88,6 @@ public class PartnerCatalog implements IPartnerManager {
                 .map(perks -> perks.stream().map(PerkDTO::new).toList())
                 .orElseThrow(() -> new UnknownPartnerIdException(partnerId));
     }
+
 }
 

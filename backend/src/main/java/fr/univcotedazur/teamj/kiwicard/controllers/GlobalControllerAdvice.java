@@ -1,11 +1,9 @@
 package fr.univcotedazur.teamj.kiwicard.controllers;
 
 import fr.univcotedazur.teamj.kiwicard.dto.ErrorDTO;
-import fr.univcotedazur.teamj.kiwicard.exceptions.NegativeQuantityException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.PaymentException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -29,5 +27,10 @@ public class GlobalControllerAdvice {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorDTO handleExceptions(Exception e) {
         return new ErrorDTO(e.getMessage());
+    }
+
+    @ExceptionHandler(AlreadyUsedEmailException.class)
+    public ResponseEntity<String> handleAlreadyUsedEmail(AlreadyUsedEmailException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body("Email déjà utilisé");
     }
 }
