@@ -4,6 +4,7 @@ import fr.univcotedazur.teamj.kiwicard.dto.CardCreationDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CardDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.ICardCreation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -18,7 +19,7 @@ public class CardEditorProxy  implements ICardCreation {
     private final WebClient webClient;
     private final String cardEditorBaseUrl;
 
-
+    @Autowired
     public CardEditorProxy(@Value("${cardeditor.host.baseurl}") String cardEditorBaseUrl) {
         this.cardEditorBaseUrl = cardEditorBaseUrl;
         this.webClient = WebClient.builder()
