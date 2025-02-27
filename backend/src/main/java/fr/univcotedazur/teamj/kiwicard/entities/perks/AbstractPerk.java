@@ -38,6 +38,10 @@ public abstract class AbstractPerk {
         return perkType;
     }
 
+    public void setPartner(Partner partner) {
+        this.partner = partner;
+    }
+
     /**
      * Tente d’appliquer le perk sur le panier du client.
      * La méthode vérifie si les conditions sont remplies puis modifie le panier en conséquence.

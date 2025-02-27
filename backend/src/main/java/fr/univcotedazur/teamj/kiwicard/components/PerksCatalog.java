@@ -5,7 +5,6 @@ import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPerkIdException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPerkManager;
 import fr.univcotedazur.teamj.kiwicard.mappers.PerkMapper;
-import fr.univcotedazur.teamj.kiwicard.mappers.PerkToDTOVisitor;
 import fr.univcotedazur.teamj.kiwicard.repositories.IPerkRepository;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +26,7 @@ public class PerksCatalog implements IPerkManager {
     @Override
     public IPerkDTO findPerkById(long perkId) throws UnknownPerkIdException {
         AbstractPerk perk= perksRepository.findById(perkId).orElseThrow(() -> new UnknownPerkIdException(perkId));
-        return perk.accept(new PerkToDTOVisitor());
+        return PerkMapper.toDTO(perk);
     }
 
     @Override

@@ -58,8 +58,10 @@ public class Customer {
     }
 
     public Customer(CustomerDTO customerDTO) {
-        this.firstName = customerDTO.name();
-        this.email = customerDTO.creditCard();
+        this.email = customerDTO.email();
+        this.firstName = customerDTO.firstName();
+        this.surname = customerDTO.surname();
+        this.vfp = customerDTO.vfp();
     }
 
     // Fait pour faire passer les tests, à refaire !!

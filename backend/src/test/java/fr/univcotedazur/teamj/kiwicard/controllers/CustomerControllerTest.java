@@ -76,7 +76,7 @@ class CustomerControllerTest {
     void findCustomerByEmailThrowsException() throws Exception {
         String email = "inconnu@example.com";
         String dummyCard = "ignored";
-        doThrow(new UnknownCustomerEmailException()).when(customerCatalog).findCustomerByEmail(email);
+        doThrow(new UnknownCustomerEmailException(email)).when(customerCatalog).findCustomerByEmail(email);
 
         assertThrows(UnknownCustomerEmailException.class, () -> customerController.findCustomerByEmailOrByCardNumber(email, dummyCard));
         verify(customerCatalog, times(1)).findCustomerByEmail(email);

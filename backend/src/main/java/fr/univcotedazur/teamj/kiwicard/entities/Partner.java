@@ -25,15 +25,15 @@ public class Partner {
     @Column
     private String address;
 
-    @OneToMany
+    @OneToMany(mappedBy = "partner")
     @Column
     private List<Purchase> purchaseList;
 
-    @OneToMany(mappedBy = "partner")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "partner")
     @Column
     private List<AbstractPerk> perkList;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "partner")
     @Column
     private List<Item> itemList;
 
@@ -90,13 +90,16 @@ public class Partner {
 
     public void addItem(Item item) {
         itemList.add(item);
+        item.setPartner(this);
     }
 
     public void addPerk(AbstractPerk perk) {
+        perk.setPartner(this);
         perkList.add(perk);
     }
 
     public void addPurchase(Purchase purchase) {
+        purchase.setPartner(this);
         purchaseList.add(purchase);
     }
 }

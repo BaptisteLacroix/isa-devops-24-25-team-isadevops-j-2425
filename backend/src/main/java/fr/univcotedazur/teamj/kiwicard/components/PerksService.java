@@ -13,9 +13,7 @@ import fr.univcotedazur.teamj.kiwicard.interfaces.customer.ICustomerFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPartnerManager;
 import fr.univcotedazur.teamj.kiwicard.interfaces.perks.IPerksConsumer;
 import fr.univcotedazur.teamj.kiwicard.interfaces.perks.IPerksFinder;
-import fr.univcotedazur.teamj.kiwicard.mappers.PerkFromDTOVisitor;
 import fr.univcotedazur.teamj.kiwicard.mappers.PerkMapper;
-import fr.univcotedazur.teamj.kiwicard.mappers.PerkToDTOVisitor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,7 +60,7 @@ public class PerksService implements IPerksConsumer {
         return partner.getPerkList()
                 .stream()
                 .filter(perk -> perk.consumable(customer))
-                .map(perk -> perk.accept(new PerkToDTOVisitor()))
+                .map(PerkMapper::toDTO)
                 .toList();
     }
 }

@@ -13,7 +13,6 @@ import java.util.List;
 public interface IPartnerManager {
     PartnerDTO createPartner(PartnerCreationDTO partnerToCreate);
     PartnerDTO findPartnerById(long partnerId) throws UnknownPartnerIdException;
-    PartnerDTO findPartnerByEmail(String email) throws UnknownPartnerIdException;
     List<PartnerDTO> findAllPartner();
     void addItemToPartnerCatalog(long partnerId, ItemDTO itemDTO) throws UnknownPartnerIdException;
     boolean removeItemFromPartnerCatalog(long partnerId, long itemId) throws UnknownPartnerIdException, UnknownItemIdException;

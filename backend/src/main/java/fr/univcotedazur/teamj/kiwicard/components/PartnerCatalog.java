@@ -46,15 +46,6 @@ public class PartnerCatalog implements IPartnerManager {
     }
 
     @Override
-    public PartnerDTO findPartnerByEmail(String email) throws UnknownPartnerIdException {
-//        return partnerRepository.findByEmail(email)
-//                .map(PartnerDTO::new)
-//                .orElseThrow(() -> new UnknownPartnerIdException(email));
-        //TODO: Implement this method
-        throw new UnsupportedOperationException("Not implemented yet");
-    }
-
-    @Override
     public List<PartnerDTO> findAllPartner() {
         return partnerRepository.findAll().stream().map(PartnerDTO::new).toList();
     }

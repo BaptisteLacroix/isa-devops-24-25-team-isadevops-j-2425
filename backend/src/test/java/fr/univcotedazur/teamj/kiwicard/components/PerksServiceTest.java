@@ -54,7 +54,7 @@ class PerksServiceTest {
         IPerkDTO dummyPerkDTO = dummyPerk.accept(new PerkToDTOVisitor());
         when(perksFinder.findPerkById(perkId)).thenReturn(dummyPerkDTO);
 
-        CustomerDTO dummyCustomerData = new CustomerDTO(1L, "John", "0123456789");
+        CustomerDTO dummyCustomerData = new CustomerDTO(email, "John","tester",true);
         when(customerFinder.findCustomerByEmail(email)).thenReturn(dummyCustomerData);
         Cart cart = spy(new Cart());
         try (MockedConstruction<Customer> mocked = mockConstruction(Customer.class, (mock, context) -> {
@@ -80,7 +80,7 @@ class PerksServiceTest {
         IPerkDTO dummyPerkDTO = dummyPerk.accept(new PerkToDTOVisitor());
         when(perksFinder.findPerkById(perkId)).thenReturn(dummyPerkDTO);
 
-        CustomerDTO dummyCustomerData = new CustomerDTO(1L, "John", "0123456789");
+        CustomerDTO dummyCustomerData = new CustomerDTO(email, "John","tester",true);
         when(customerFinder.findCustomerByEmail(email)).thenReturn(dummyCustomerData);
         Cart cart = spy(new Cart());
         cart.addItem(cartItem);
@@ -128,7 +128,7 @@ class PerksServiceTest {
         String email = "client@example.com";
         long partnerId = 1L;
 
-        CustomerDTO dummyCustomerData = new CustomerDTO(1L, "John", "0123456789");
+        CustomerDTO dummyCustomerData = new CustomerDTO(email, "John","tester",true);
         when(customerFinder.findCustomerByEmail(email)).thenReturn(dummyCustomerData);
 
         AbstractPerk dummyPerk = new TimedDiscountInPercentPerk(LocalTime.now().minusMinutes(10), 20);
@@ -158,7 +158,7 @@ class PerksServiceTest {
     void testFindConsumablePerksForConsumerAtPartnerUnknownPartner() throws UnknownCustomerEmailException, UnknownPartnerIdException {
         String email = "client@example.com";
         long partnerId = 2L;
-        CustomerDTO dummyCustomerData = new CustomerDTO(1L, "John", "0123456789");
+        CustomerDTO dummyCustomerData = new CustomerDTO(email, "John","tester",true);
         when(customerFinder.findCustomerByEmail(email)).thenReturn(dummyCustomerData);
         when(partnerManager.findPartnerById(partnerId)).thenThrow(new UnknownPartnerIdException(partnerId));
         assertThrows(UnknownPartnerIdException.class,
