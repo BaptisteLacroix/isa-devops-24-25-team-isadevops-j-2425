@@ -1,6 +1,8 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -44,10 +46,10 @@ class PerksCatalogTest {
 
         when(perkRepository.findById(perkId)).thenReturn(Optional.of(timedDiscountInPercentPerk));
 
-        Optional<IPerkDTO> result = perksCatalog.findPerkById(perkId);
+       IPerkDTO result = perksCatalog.findPerkById(perkId);
 
-        assertTrue(result.isPresent());
-        assertEquals(timedDiscountInPercentPerk.accept(perkToDTOVisitor), result.get());
+        assertNotNull(result);
+        assertEquals(timedDiscountInPercentPerk.accept(perkToDTOVisitor), result);
     }
 
     @Test

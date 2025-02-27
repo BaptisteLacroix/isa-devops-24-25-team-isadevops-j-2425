@@ -1,10 +1,10 @@
 package fr.univcotedazur.teamj.kiwicard.entities;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +46,6 @@ public class Customer {
     @JoinColumn(name = "cart_id", unique = true)
     private Cart cart;
 
-
     public Customer() {
     }
 
@@ -56,6 +55,11 @@ public class Customer {
         this.address = address;
         this.email = email;
         this.vfp = vfp;
+    }
+
+    public Customer(CustomerDTO customerDTO) {
+        this.firstName = customerDTO.name();
+        this.email = customerDTO.creditCard();
     }
 
     // Fait pour faire passer les tests, à refaire !!

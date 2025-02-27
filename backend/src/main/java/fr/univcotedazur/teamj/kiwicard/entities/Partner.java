@@ -2,6 +2,7 @@ package fr.univcotedazur.teamj.kiwicard.entities;
 
 
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerCreationDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -46,6 +47,11 @@ public class Partner {
         this.perkList = new ArrayList<>();
         this.purchaseList = new ArrayList<>();
     }
+
+    public Partner(PartnerDTO partnerDTO) {
+        this(partnerDTO.name(), partnerDTO.address());
+    }
+
     public Partner(PartnerCreationDTO partnerDTO) {
         this(partnerDTO.name(), partnerDTO.address());
     }

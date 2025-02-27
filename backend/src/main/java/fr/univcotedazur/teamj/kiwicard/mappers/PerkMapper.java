@@ -9,4 +9,8 @@ public class PerkMapper {
     public static IPerkDTO toDTO(AbstractPerk perk) {
         return perk.accept(new PerkToDTOVisitor());
     }
+
+    public static AbstractPerk fromDTO(IPerkDTO dto) {
+        return dto.accept(new PerkFromDTOVisitor());
+    }
 }

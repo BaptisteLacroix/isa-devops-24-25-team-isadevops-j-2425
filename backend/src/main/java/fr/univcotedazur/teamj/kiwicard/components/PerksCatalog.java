@@ -10,7 +10,6 @@ import fr.univcotedazur.teamj.kiwicard.repositories.IPerkRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PerksCatalog implements IPerkManager {
@@ -26,9 +25,9 @@ public class PerksCatalog implements IPerkManager {
     }
 
     @Override
-    public Optional<IPerkDTO> findPerkById(long perkId) throws UnknownPerkIdException {
+    public IPerkDTO findPerkById(long perkId) throws UnknownPerkIdException {
         AbstractPerk perk= perksRepository.findById(perkId).orElseThrow(() -> new UnknownPerkIdException(perkId));
-        return Optional.of(perk.accept(new PerkToDTOVisitor()));
+        return perk.accept(new PerkToDTOVisitor());
     }
 
     @Override
