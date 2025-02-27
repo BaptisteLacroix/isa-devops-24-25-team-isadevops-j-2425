@@ -31,7 +31,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
     private final IPurchaseRepository purchaseRepository;
     private final IPartnerManager partnerManager;
     private final boolean deleteAllData = true;
-    private long customerId;
+    private String customerEmail;
 
     public DataInsertionUseCaseRunner(ICustomerRepository customerRepository, IPartnerRepository partnerRepository, IPerkRepository perkRepository, IPurchaseRepository purchaseRepository, IPartnerManager partnerManager) {
         this.customerRepository = customerRepository;
@@ -56,7 +56,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
     }
 
     private void tryToRetrieve() {
-        Customer customer = customerRepository.findById(customerId).get();
+        Customer customer = customerRepository.findById(customerEmail).get();
         System.out.println("Customer name: " + customer.getFirstName());
         Cart cart = customer.getCart();
         System.out.println("Cart partner: " + cart.getPartner().getName());
@@ -92,7 +92,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         cart.setPartner(partner);
         customer.setCart(cart);
         customerRepository.save(customer);
-        customerId = customer.getCustomerId();
+        customerEmail = customer.getEmail();
         cart = customer.getCart();
 
         // Item

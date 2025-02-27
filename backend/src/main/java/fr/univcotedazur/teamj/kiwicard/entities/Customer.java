@@ -1,8 +1,16 @@
 package fr.univcotedazur.teamj.kiwicard.entities;
 
-import jakarta.persistence.*;
+import fr.univcotedazur.teamj.kiwicard.connectors.CardEditorProxy;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.context.annotation.Bean;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,8 +20,13 @@ import java.util.Objects;
 public class Customer {
 
     @Id
-    @GeneratedValue
-    private Long customerId;
+    @NotBlank
+    @Column
+    private String email;
+
+    @NotBlank
+    @Column
+    private String cardNumber;
 
     @NotBlank
     @Column
@@ -27,10 +40,6 @@ public class Customer {
     @Column
     private String address;
 
-    @NotBlank
-    @Column
-    private String email;
-
     @NotNull
     @Column
     public boolean vfp;
@@ -42,6 +51,12 @@ public class Customer {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "cart_id", unique = true)
     private Cart cart;
+
+
+    @Bean
+    public CardEditorProxy cardEditorProxy() {
+        return new CardEditorProxy();
+    }
 
     public Customer() {
     }
@@ -70,14 +85,6 @@ public class Customer {
 
     public void removeCart() {
         this.cart = null;
-    }
-
-    public Long getCustomerId() {
-        return customerId;
-    }
-
-    public void setCustomerId(Long customerId) {
-        this.customerId = customerId;
     }
 
     public void addPurchase(Purchase purchase) {
@@ -123,6 +130,14 @@ public class Customer {
 
     public void setVfp(@NotNull boolean vfp) {
         this.vfp = vfp;
+    }
+
+    public String getCardNumber() {
+        return cardNumber;
+    }
+
+    public void setCardNumber(String cardNumber) {
+        this.cardNumber = cardNumber;
     }
 
     @Override

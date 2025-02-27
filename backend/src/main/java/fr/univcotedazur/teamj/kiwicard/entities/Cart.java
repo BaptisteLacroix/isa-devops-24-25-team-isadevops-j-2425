@@ -40,6 +40,12 @@ public class Cart {
     public Cart() {
     }
 
+    public Cart(Partner partner, Set<CartItem> itemList, List<AbstractPerk> perksList) {
+        this.partner = partner;
+        this.itemList = itemList;
+        this.perksList = perksList;
+    }
+
     public void setPartner(Partner partner) {
         this.partner = partner;
     }
@@ -62,5 +68,9 @@ public class Cart {
 
     public Set<CartItem> getItemList() {
         return itemList;
+    }
+
+    public List<AbstractPerk> getPerksList() {
+        return perksList;
     }
 }
