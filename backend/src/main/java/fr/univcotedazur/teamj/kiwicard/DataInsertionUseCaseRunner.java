@@ -1,5 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard;
 
+import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Cart;
 import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
@@ -62,7 +63,8 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
     }
 
     private void tryToRetrieve() {
-        Customer customer = customerRepository.findByEmail(customerClementEmail).getFirst();
+        Customer customer = customerRepository.findByEmail(customerClementEmail).orElse(null);
+        assert customer != null;
         System.out.println("Customer name: " + customer.getFirstName());
         Cart cart = customer.getCart();
         System.out.println("Cart partner: " + cart.getPartner().getName());
@@ -77,52 +79,64 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
             this.deleteAllData();
         }
         // Customers
-        Customer customerAlice = new Customer(
+        CustomerSubscribeDTO customerSubscribeDTOAlice = new CustomerSubscribeDTO("alice.bob@gmail.com",
                 "Alice",
                 "bob",
-                "blabliblou",
-                "alice.bob@gmail.com",
-                true
+                "blabliblou");
+        Customer customerAlice = new Customer(
+                customerSubscribeDTOAlice, "1234567890"
         );
 
-        Customer customerClement = new Customer(
+        CustomerSubscribeDTO customerSubscribeDTOClement = new CustomerSubscribeDTO(
+                "clement@armeedeterre.fr",
                 "Clement",
                 "lfv",
-                "2 avenue des militaires, Callas",
-                "clement@armeedeterre.fr",
-                true
+                "2 avenue des militaires, Callas"
+        );
+        Customer customerClement = new Customer(
+                customerSubscribeDTOClement, "1234567891"
         );
 
-        Customer customerAntoineF = new Customer(
+        CustomerSubscribeDTO customerSubscribeDTOAntoineF = new CustomerSubscribeDTO(
+                "antoine@fitnesspark.fr",
                 "Antoine",
                 "fadda",
-                "3 rue des arcsitecte, Draguignan",
-                "antoine@fitnesspark.fr",
-                true
+                "3 rue des arcsitecte, Draguignan"
+        );
+        Customer customerAntoineF = new Customer(
+                customerSubscribeDTOAntoineF, "1234567892"
         );
 
-        Customer customerAntoineM = new Customer(
+
+        CustomerSubscribeDTO customerSubscribeDTOAntoineM = new CustomerSubscribeDTO(
+                "antoine@seancepull.fr",
                 "Antoine",
                 "maistre",
-                "4 rue des perctoraux, Nice",
-                "antoine@seancepull.fr",
-                false
+                "4 rue des perctoraux, Nice"
+        );
+        Customer customerAntoineM = new Customer(
+                customerSubscribeDTOAntoineM, "1234567893"
         );
 
-        Customer customerBaptiste = new Customer(
+
+        CustomerSubscribeDTO customerSubscribeDTOBaptiste = new CustomerSubscribeDTO(
+                "baptiste@tabarnak.fr",
                 "Baptiste",
                 "xxx",
-                "5 rue des anonymes, St Laurent du Var",
-                "baptiste@tabarnak.fr",
-                false
+                "5 rue des anonymes, St Laurent du Var"
+        );
+        Customer customerBaptiste = new Customer(
+                customerSubscribeDTOBaptiste, "1234567894"
         );
 
-        Customer customerRoxane = new Customer(
+        CustomerSubscribeDTO customerSubscribeDTORoxane = new CustomerSubscribeDTO(
+                "roxane@toulouse.fr",
                 "Roxane",
                 "Roxx",
-                "Place du capitole, Toulouse",
-                "roxane@toulouse.fr",
-                false
+                "Place du capitole, Toulouse"
+        );
+        Customer customerRoxane = new Customer(
+                customerSubscribeDTORoxane, "1234567895"
         );
 
 
@@ -389,7 +403,6 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
 
         // Payment
         Payment payment = new Payment(40, LocalDateTime.now());
-
 
 //        // Purchase
 //        Purchase purchase = new Purchase(payment, cart);
