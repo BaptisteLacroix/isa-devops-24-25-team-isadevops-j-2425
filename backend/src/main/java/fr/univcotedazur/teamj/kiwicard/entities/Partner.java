@@ -46,16 +46,6 @@ public class Partner {
         this.perkList = new ArrayList<>();
         this.purchaseList = new ArrayList<>();
     }
-
-    private Partner(long id, String name, String address) {
-        this(name, address);
-        this.partnerId = id;
-    }
-
-    public static Partner createTestPartner(int id, String name, String address) {
-        return new Partner(id, name, address);
-    }
-
     public Partner(PartnerCreationDTO partnerDTO) {
         this(partnerDTO.name(), partnerDTO.address());
     }
