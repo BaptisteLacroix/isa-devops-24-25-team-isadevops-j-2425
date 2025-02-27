@@ -1,14 +1,10 @@
 package fr.univcotedazur.teamj.kiwicard.entities;
 
-import fr.univcotedazur.teamj.kiwicard.connectors.CardEditorProxy;
-import fr.univcotedazur.teamj.kiwicard.dto.CardCreationDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.CardDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.context.annotation.Bean;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,11 +46,6 @@ public class Customer {
     @JoinColumn(name = "cart_id", unique = true)
     private Cart cart;
 
-
-    @Bean
-    public CardEditorProxy cardEditorProxy() {
-        return new CardEditorProxy();
-    }
 
     public Customer() {
     }

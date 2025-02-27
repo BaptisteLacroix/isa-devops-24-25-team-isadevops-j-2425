@@ -89,14 +89,5 @@ public class PartnerCatalog implements IPartnerManager {
                 .orElseThrow(() -> new UnknownPartnerIdException(partnerId));
     }
 
-    @Override
-    public void udpatePartner(long partnerId, PartnerDTO newPartner) throws UnknownPartnerIdException {
-
-    }
-
-    @Override
-    public void deletePartner(long partnerId) throws UnknownPartnerIdException {
-
-    }
 }
 

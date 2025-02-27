@@ -1,6 +1,7 @@
 package fr.univcotedazur.teamj.kiwicard.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.univcotedazur.teamj.kiwicard.BaseUnitTest;
 import fr.univcotedazur.teamj.kiwicard.components.CustomerCatalog;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
@@ -21,7 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(CustomerController.class)
-class CustomerControllerIntegrationTest {
+class CustomerControllerWebMvcTest extends BaseUnitTest {
 
     @Autowired
     private MockMvc mockMvc;

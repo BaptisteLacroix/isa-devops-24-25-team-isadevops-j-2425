@@ -18,6 +18,4 @@ public interface IPartnerManager {
     boolean removeItemFromPartnerCatalog(long partnerId, long itemId) throws UnknownPartnerIdException, UnknownItemIdException;
     List<Item> findAllPartnerItems(long partnerId) throws UnknownPartnerIdException;
     List<PerkDTO> findAllPartnerPerks(long partnerId) throws UnknownPartnerIdException;
-    void udpatePartner(long partnerId, PartnerDTO newPartner) throws UnknownPartnerIdException;
-    void deletePartner(long partnerId) throws UnknownPartnerIdException;
 }

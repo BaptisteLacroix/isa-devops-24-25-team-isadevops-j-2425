@@ -3,7 +3,13 @@
     "method": "POST",
     "url": "/cards",
     "bodyPatterns": [
-      { "matchesJsonPath": "$.userId" }
+      {
+        "matchesJsonPath": "$.email"
+      },
+      {
+        "matchesJsonPath": "$.address"
+      }
+
     ]
   },
   "response": {
