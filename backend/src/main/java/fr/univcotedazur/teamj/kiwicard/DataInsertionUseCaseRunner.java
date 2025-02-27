@@ -1,5 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard;
 
+import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Cart;
 import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
@@ -71,12 +72,12 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
             this.deleteAllData();
         }
         // Customer
-        Customer customer = new Customer(
+        CustomerSubscribeDTO customerSubscribeDTO = new CustomerSubscribeDTO("alice.bob@gmail.com",
                 "Alice",
                 "bob",
-                "blabliblou",
-                "alice.bob@gmail.com",
-                true
+                "blabliblou");
+        Customer customer = new Customer(
+                customerSubscribeDTO, "1234567890"
         );
         customerRepository.save(customer);
 
