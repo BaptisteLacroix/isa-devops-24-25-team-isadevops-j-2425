@@ -18,6 +18,7 @@ public class Customer {
     @Column
     private String email;
 
+    @NotBlank
     @Column
     private String cardNumber;
 
