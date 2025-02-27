@@ -61,7 +61,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         Cart cart = customer.getCart();
         System.out.println("Cart partner: " + cart.getPartner().getName());
         System.out.println("Cart items: ");
-        for (CartItem item : cart.getItemList()) {
+        for (CartItem item : cart.getItems()) {
             System.out.println("Item: " + item.getItem().getLabel() + " - Quantity: " + item.getQuantity());
         }
     }

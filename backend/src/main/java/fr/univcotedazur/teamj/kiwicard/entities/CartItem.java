@@ -82,5 +82,7 @@ public class CartItem {
     public Item getItem() {
         return item;
     }
+
+    public boolean isConsumed() {return this.consumed;}
 }
 

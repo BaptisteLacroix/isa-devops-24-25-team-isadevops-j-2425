@@ -9,10 +9,10 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 */
 public interface IPurchaseConsumer {
 
-    void consumeNLastPurchaseoOfCustomer (int nbPurchasesToConsume, String customerEmail) throws UnknownCustomerEmailException;
+    void consumeNLastPurchaseOfCustomer(int nbPurchasesToConsume, String customerEmail) throws UnknownCustomerEmailException;
 
     void consumeNLastPurchaseOfCustomerInPartner (int nbPurchasesToConsume, String customerEmail,
                                                   long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException;
 
-    void consumeNLastItemsOfCustomerInPartner(long itemId, int nbItemsConsumed, String customerEmail) throws UnknownCustomerEmailException;
+    void consumeNLastItemsOfCustomerInPartner(int nbItemsConsumed, String customerEmail, long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException;
 }

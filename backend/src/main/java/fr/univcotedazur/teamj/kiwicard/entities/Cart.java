@@ -60,7 +60,7 @@ public class Cart {
         return partner;
     }
 
-    public Set<CartItem> getItemList() {
+    public Set<CartItem> getItems() {
         return itemList;
     }
 }

@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Component
@@ -30,15 +29,15 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
     }
 
     @Override
-    public void consumeNLastPurchaseoOfCustomer(int nbPurchasesToConsume, String customerEmail) throws UnknownCustomerEmailException {
+    public void consumeNLastPurchaseOfCustomer(int nbPurchasesToConsume, String customerEmail) throws UnknownCustomerEmailException {
         Optional<Customer> customer;
         if ((customer = this.customerRepository.findByEmail(customerEmail)).isEmpty())
             throw new UnknownCustomerEmailException();
         customer.orElseThrow().getPurchases().stream()
-                .filter(Purchase::isAlreadyConsumedInAPerk)
-                .sorted(Comparator.comparing(e -> e.getPayment().getTimestamp()))
-                .limit(nbPurchasesToConsume)
-                .forEach(p -> p.setAlreadyConsumedInAPerk(true));
+            .filter(p-> !p.isAlreadyConsumedInAPerk())
+            .sorted(Comparator.comparing(e -> e.getPayment().getTimestamp()))
+            .limit(nbPurchasesToConsume)
+            .forEach(p -> p.setAlreadyConsumedInAPerk(true));
     }
 
     @Override
@@ -50,8 +49,7 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
             throw new UnknownCustomerEmailException();
 
         customer.orElseThrow().getPurchases().stream()
-                .filter(Purchase::isAlreadyConsumedInAPerk)
-                .filter(p -> p.getCart().getPartner().equals(partner.orElseThrow()))
+                .filter(p-> !p.isAlreadyConsumedInAPerk() &&  p.getCart().getPartner().equals(partner.orElseThrow()))
                 .sorted(Comparator.comparing(e -> e.getPayment().getTimestamp()))
                 .limit(nbPurchasesToConsume)
                 .forEach(p -> p.setAlreadyConsumedInAPerk(true));
@@ -59,17 +57,17 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
 
 
     @Override
-    public void consumeNLastItemsOfCustomerInPartner(long itemId, int nbItemsConsumed, String customerEmail) throws UnknownCustomerEmailException {
-        Optional<Customer> customer;
-        if ((customer = this.customerRepository.findByEmail(customerEmail)).isEmpty())
-            throw new UnknownCustomerEmailException();
-        customer.orElseThrow().getPurchases().stream()
-                .filter(Purchase::isAlreadyConsumedInAPerk)
+    public void consumeNLastItemsOfCustomerInPartner(int nbItemsConsumed, String customerEmail, long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException {
+        Customer customer =  this.customerRepository.findByEmail(customerEmail).orElseThrow(UnknownCustomerEmailException::new);
+        Partner partner = this.partnerRepository.findById(partnerId).orElseThrow(()-> new UnknownPartnerIdException(partnerId));
+
+        customer.getPurchases().stream()
+                .filter(p-> !p.isAlreadyConsumedInAPerk() && p.getCart().getPartner().equals(partner))
                 .sorted((e1, e2) -> e2.getPayment().getTimestamp().compareTo(e1.getPayment().getTimestamp()))
-                .map(p -> p.getCart().getItemList())
+                .map(p -> p.getCart().getItems())
                 .flatMap(Collection::stream)
                 .limit(nbItemsConsumed)
-                .forEach((i)-> i.setConsumed(true));
+                .forEach((i)->i.setConsumed(true));
     }
 
     @Override
