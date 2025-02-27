@@ -33,12 +33,11 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
     private final IPurchaseRepository purchaseRepository;
     private final IPartnerManager partnerManager;
     private final boolean deleteAllData = true;
-    private long customerAntoineMId;
-    private long customerAntoineFId;
-    private long customerClementId;
-    private long customerAliceId;
-    private long customerBaptisteId;
-    private long customerRoxaneId;
+    private String customerRoxaneEmail;
+    private String customerAntoineMEmail;
+    private String customerAntoineFEmail;
+    private String customerBaptisteEmail;
+    private String customerClementEmail;
 
     public DataInsertionUseCaseRunner(ICustomerRepository customerRepository, IPartnerRepository partnerRepository, IPerkRepository perkRepository, IPurchaseRepository purchaseRepository, IPartnerManager partnerManager) {
         this.customerRepository = customerRepository;
@@ -63,7 +62,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
     }
 
     private void tryToRetrieve() {
-        Customer customer = customerRepository.findById(customerClementId).get();
+        Customer customer = customerRepository.findByEmail(customerClementEmail).getFirst();
         System.out.println("Customer name: " + customer.getFirstName());
         Cart cart = customer.getCart();
         System.out.println("Cart partner: " + cart.getPartner().getName());
@@ -186,27 +185,27 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         // Customer with Cart
         customerAntoineM.setCart(cartBoulange);
         customerRepository.save(customerAntoineM);
-        customerAntoineMId = customerAntoineM.getCustomerId();
+        customerAntoineMEmail = customerAntoineM.getEmail();
         cartBoulange = customerAntoineM.getCart();
 
         customerRoxane.setCart(cartFleuriste);
         customerRepository.save(customerRoxane);
-        customerRoxaneId = customerRoxane.getCustomerId();
+        customerRoxaneEmail = customerRoxane.getEmail();
         cartFleuriste = customerRoxane.getCart();
 
         customerAntoineF.setCart(cartBoucherie);
         customerRepository.save(customerAntoineF);
-        customerAntoineFId = customerAntoineF.getCustomerId();
+        customerAntoineFEmail = customerAntoineF.getEmail();
         cartBoucherie = customerAntoineF.getCart();
 
         customerBaptiste.setCart(cartPoissonnerie);
         customerRepository.save(customerBaptiste);
-        customerBaptisteId = customerBaptiste.getCustomerId();
+        customerBaptisteEmail = customerBaptiste.getEmail();
         cartPoissonnerie = customerBaptiste.getCart();
 
         customerClement.setCart(cartFromagerie);
         customerRepository.save(customerClement);
-        customerClementId = customerClement.getCustomerId();
+        customerClementEmail = customerClement.getEmail();
         cartFromagerie = customerClement.getCart();
 
 
