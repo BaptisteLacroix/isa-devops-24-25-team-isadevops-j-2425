@@ -46,7 +46,6 @@ public class Partner {
         this.perkList = new ArrayList<>();
         this.purchaseList = new ArrayList<>();
     }
-
     public Partner(PartnerCreationDTO partnerDTO) {
         this(partnerDTO.name(), partnerDTO.address());
     }
