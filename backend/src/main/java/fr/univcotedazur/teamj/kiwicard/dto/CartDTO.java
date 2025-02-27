@@ -1,4 +1,7 @@
 package fr.univcotedazur.teamj.kiwicard.dto;
 
-public class CartDTO {
+public record CartDTO(
+        long CartId
+) {
+
 }

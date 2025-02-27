@@ -1,4 +1,4 @@
 package fr.univcotedazur.teamj.kiwicard.dto;
 
-public class UsedPerkDTO {
+public record UsedPerkDTO() {
 }

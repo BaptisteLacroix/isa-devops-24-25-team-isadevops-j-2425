@@ -1,4 +1,8 @@
 package fr.univcotedazur.teamj.kiwicard.dto;
 
-public class CardCreationDTO {
+public record CardCreationDTO(
+        String email,
+        String adress
+) {
+
 }
