@@ -1,5 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.entities;
 
+import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -40,6 +41,10 @@ public class Cart {
     public Cart() {
     }
 
+    public Cart(CartDTO cartDTO) {
+        this.cartId = cartDTO.CartId();
+    }
+
     public void setPartner(Partner partner) {
         this.partner = partner;
     }
@@ -62,5 +67,13 @@ public class Cart {
 
     public Set<CartItem> getItems() {
         return itemList;
+    }
+
+    public boolean isEmpty() {
+        return this.itemList.isEmpty();
+    }
+
+    public void empty() {
+        this.itemList.clear();
     }
 }

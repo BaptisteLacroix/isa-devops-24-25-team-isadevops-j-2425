@@ -1,5 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard;
 
+import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Cart;
 import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
@@ -31,7 +32,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
     private final IPurchaseRepository purchaseRepository;
     private final IPartnerManager partnerManager;
     private final boolean deleteAllData = true;
-    private long customerId;
+    private String customerEmail;
 
     public DataInsertionUseCaseRunner(ICustomerRepository customerRepository, IPartnerRepository partnerRepository, IPerkRepository perkRepository, IPurchaseRepository purchaseRepository, IPartnerManager partnerManager) {
         this.customerRepository = customerRepository;
@@ -56,7 +57,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
     }
 
     private void tryToRetrieve() {
-        Customer customer = customerRepository.findById(customerId).get();
+        Customer customer = customerRepository.findByEmail(customerEmail).orElse(null);
         System.out.println("Customer name: " + customer.getFirstName());
         Cart cart = customer.getCart();
         System.out.println("Cart partner: " + cart.getPartner().getName());
@@ -71,12 +72,12 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
             this.deleteAllData();
         }
         // Customer
-        Customer customer = new Customer(
+        CustomerSubscribeDTO customerSubscribeDTO = new CustomerSubscribeDTO("alice.bob@gmail.com",
                 "Alice",
                 "bob",
-                "blabliblou",
-                "alice.bob@gmail.com",
-                true
+                "blabliblou");
+        Customer customer = new Customer(
+                customerSubscribeDTO, "1234567890"
         );
         customerRepository.save(customer);
 
@@ -92,7 +93,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         cart.setPartner(partner);
         customer.setCart(cart);
         customerRepository.save(customer);
-        customerId = customer.getCustomerId();
+        customerEmail = customer.getEmail();
         cart = customer.getCart();
 
         // Item

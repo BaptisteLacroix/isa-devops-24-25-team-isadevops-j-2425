@@ -1,21 +1,30 @@
 pipeline {
     agent { label 'agenthost' }
     stages {
-        stage('Clean') {
+        stage('Build') {
             steps {
-                sh 'pwd'
                 dir('backend') {
-                    sh 'pwd'
-                    sh 'mvn clean'
+                     echo '🛠️ Pipeline is building the project !'
+                    sh 'mvn clean compile'
                 }
-                sh 'pwd'
             }
         }
-        stage('Verify') {
+        stage('Unit tests') {
+                    steps {
+                        dir('backend') {
+                            echo '🧪 Pipeline is launching unit tests !'
+                            sh 'mvn test'
+                        }
+                    }
+                }
+        stage('Integration tests') {
+            when{
+                branch 'dev'
+            }
             steps {
                 dir('backend') {
-                    echo 'Pipeline is launching the unit tests !'
-                    sh 'mvn test'
+                    echo '🧩 Pipeline is launching integration tests !'
+                    sh 'mvn verify'
                 }
             }
         }
