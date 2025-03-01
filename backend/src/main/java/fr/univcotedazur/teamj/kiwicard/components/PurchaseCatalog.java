@@ -1,5 +1,7 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
+import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PaymentDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.*;
@@ -19,40 +21,31 @@ import java.util.stream.Collectors;
 @Component
 public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPurchaseFinder {
     IPurchaseRepository purchaseRepository;
-    ICustomerRepository customerRepository;
-    IPartnerRepository partnerRepository;
-
-    public PurchaseCatalog(IPurchaseRepository purchaseRepository, ICustomerRepository customerRepository, IPartnerRepository partnerRepository) {
+    public PurchaseCatalog(IPurchaseRepository purchaseRepository) {
         this.purchaseRepository = purchaseRepository;
-        this.customerRepository = customerRepository;
-        this.partnerRepository = partnerRepository;
     }
 
     @Override
     public void consumeNLastPurchaseOfCustomer(int nbPurchasesToConsume, String customerEmail) throws UnknownCustomerEmailException {
-        Optional<Customer> customer;
-        if ((customer = this.customerRepository.findByEmail(customerEmail)).isEmpty())
-            throw new UnknownCustomerEmailException();
-        customer.orElseThrow().getPurchases().stream()
-            .filter(p-> !p.isAlreadyConsumedInAPerk())
-            .sorted(Comparator.comparing(e -> e.getPayment().getTimestamp()))
-            .limit(nbPurchasesToConsume)
-            .forEach(p -> p.setAlreadyConsumedInAPerk(true));
+//        Optional<Customer> customer;
+//        if ((customer = this.customerRepository.findByEmail(customerEmail)).isEmpty())
+//            throw new UnknownCustomerEmailException();
+//        customer.orElseThrow().getPurchases().stream()
+//            .filter(p-> !p.isAlreadyConsumedInAPerk())
+//            .sorted(Comparator.comparing(e -> e.getPayment().getTimestamp()))
+//            .limit(nbPurchasesToConsume)
+//            .forEach(p -> p.setAlreadyConsumedInAPerk(true));
     }
 
     @Override
-    public void consumeNLastPurchaseOfCustomerInPartner(int nbPurchasesToConsume, String customerEmail, long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException {
-        Optional<Customer> customer;
-        Optional<Partner> partner;
-        if ((partner = this.partnerRepository.findById(partnerId)).isEmpty()) throw new UnknownPartnerIdException(partnerId);
-        if ((customer = this.customerRepository.findByEmail(customerEmail)).isEmpty())
-            throw new UnknownCustomerEmailException();
-
-        customer.orElseThrow().getPurchases().stream()
-                .filter(p-> !p.isAlreadyConsumedInAPerk() &&  p.getCart().getPartner().equals(partner.orElseThrow()))
-                .sorted(Comparator.comparing(e -> e.getPayment().getTimestamp()))
-                .limit(nbPurchasesToConsume)
-                .forEach(p -> p.setAlreadyConsumedInAPerk(true));
+    public void consumeNLastPurchaseOfCustomerInPartner(CustomerDTO customer, PartnerDTO partner, int nbPurchasesToConsume) throws UnknownCustomerEmailException, UnknownPartnerIdException {
+        var res  = this.purchaseRepository.findPurchasesToConsume(customer.id(), partner.id(), nbPurchasesToConsume);
+        res.forEach(p -> p.setAlreadyConsumedInAPerk(true));
+//        customer.orElseThrow().getPurchases().stream()
+//                .filter(p-> !p.isAlreadyConsumedInAPerk() && p.getCart().getPartner().equals(partner.orElseThrow()))
+//                .sorted(Comparator.comparing(e -> e.getPayment().getTimestamp()))
+//                .limit(nbPurchasesToConsume)
+//                .forEach(p -> p.setAlreadyConsumedInAPerk(true));
     }
 
 
@@ -60,7 +53,6 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
     public void consumeNLastItemsOfCustomerInPartner(int nbItemsConsumed, String customerEmail, long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException {
         Customer customer =  this.customerRepository.findByEmail(customerEmail).orElseThrow(UnknownCustomerEmailException::new);
         Partner partner = this.partnerRepository.findById(partnerId).orElseThrow(()-> new UnknownPartnerIdException(partnerId));
-
         customer.getPurchases().stream()
                 .filter(p-> !p.isAlreadyConsumedInAPerk() && p.getCart().getPartner().equals(partner))
                 .sorted((e1, e2) -> e2.getPayment().getTimestamp().compareTo(e1.getPayment().getTimestamp()))
