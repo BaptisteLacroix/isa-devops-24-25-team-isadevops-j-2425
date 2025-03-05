@@ -34,9 +34,9 @@ public class PartnerCommands {
 
     @ShellMethod("Show items of a partner (partneritems PARTNER_ID)")
     public String partneritems(long partnerId) {
-        System.out.println("Récupération des items du partenaire "+partnerId + " : ");
+        System.out.println("Récupération des items du partenaire " + partnerId + " : ");
         return webClient.get()
-                .uri(BASE_URI+"/"+partnerId+"/items")
+                .uri(BASE_URI + "/" + partnerId + "/items")
                 .retrieve()
                 .bodyToFlux(CliItem.class)
                 .map(CliItem::toString)
