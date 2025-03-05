@@ -1,9 +1,11 @@
 package fr.univcotedazur.teamj.kiwicard.cli.model;
 
-public record CustomerRegistrationDTO(
+public record CliCustomerSubscribe(
+        String email,
         String firstName,
         String surname,
-        String address,
-        String email
+        String address
 ) {
+
+
 }
