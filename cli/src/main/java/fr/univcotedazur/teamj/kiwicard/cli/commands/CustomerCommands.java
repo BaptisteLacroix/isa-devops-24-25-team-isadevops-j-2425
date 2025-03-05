@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 @ShellComponent
 public class CustomerCommands {
 
-    public static final String BASE_URI = "/customer";
+    public static final String BASE_URI = "/customers";
 
     private final WebClient webClient;
 
