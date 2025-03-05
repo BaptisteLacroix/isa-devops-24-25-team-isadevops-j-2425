@@ -3,46 +3,33 @@ package fr.univcotedazur.teamj.kiwicard.entities.perks;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.NotNull;
-
-import java.time.LocalDateTime;
 
 @Entity
 public class VfpDiscountInPercentPerk extends AbstractPerk{
-    @NotNull
-    @Column
-    private LocalDateTime time;
-
-    @NotNull
-    @Column
-    private double quantity;
-
     @Column
     @NotNull
-    private final double percentage=0;
+    private double discountRate;
 
     public VfpDiscountInPercentPerk() {
     }
 
-    public VfpDiscountInPercentPerk(@NotNull LocalDateTime time, @NotNull double quantity) {
-        this.time = time;
-        this.quantity = quantity;
+    public VfpDiscountInPercentPerk(double discountRate) {
+        while (discountRate >1){
+            discountRate = discountRate/100;
+        }
+        this.discountRate = discountRate;
     }
 
-    public @NotNull LocalDateTime getTime() {
-        return time;
+    public double getDiscountRate() {
+        return discountRate;
     }
 
-    public void setTime(@NotNull LocalDateTime time) {
-        this.time = time;
+    public void setDiscountRate(double percentage) {
+        this.discountRate = percentage;
     }
 
-    @NotNull
-    public double getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(@NotNull double quantity) {
-        this.quantity = quantity;
+    @Override
+    public String toString() {
+        return  discountRate + "% discount for all VFPs";
     }
 }

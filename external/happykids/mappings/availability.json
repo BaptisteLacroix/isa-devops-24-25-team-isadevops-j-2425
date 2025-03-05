@@ -1,0 +1,16 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPattern": "/availability\\?time=.*"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "time": "{{request.query.time}}",
+      "available": "{{#if (matches request.query.time '.*[24680]')}}true{{/if}}{{#if (matches request.query.time '.*[13579]')}}false{{/if}}"
+    }
+  }
+}

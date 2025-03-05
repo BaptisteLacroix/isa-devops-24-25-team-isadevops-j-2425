@@ -1,4 +1,7 @@
 package fr.univcotedazur.teamj.kiwicard.dto;
 
-public class CardDTO {
+public record CardDTO(
+        String cardNumber
+) {
+
 }

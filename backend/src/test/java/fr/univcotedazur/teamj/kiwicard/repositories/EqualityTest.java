@@ -1,12 +1,13 @@
 package fr.univcotedazur.teamj.kiwicard.repositories;
 
+import fr.univcotedazur.teamj.kiwicard.BaseUnitTest;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-class EqualityTest {
+class EqualityTest extends BaseUnitTest {
 
     private Customer john;
 
@@ -26,12 +27,9 @@ class EqualityTest {
     @Test
     void testCustomerNotEquals() {
         assertEquals(john, john);
-        Customer otherJohn = new Customer("johnn", "john@gmail.com");
+        Customer otherJohn = new Customer("john", "john06@gmail.com");
         assertNotEquals(john, otherJohn);
         assertNotEquals(otherJohn, john);
-        Customer anotherJohn = new Customer("john", "john@gmail.com");
-        assertNotEquals(john, anotherJohn);
-        assertNotEquals(anotherJohn, john);
     }
 
 }

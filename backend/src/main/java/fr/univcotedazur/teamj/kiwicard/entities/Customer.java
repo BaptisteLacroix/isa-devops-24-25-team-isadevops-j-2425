@@ -1,18 +1,26 @@
 package fr.univcotedazur.teamj.kiwicard.entities;
 
+import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 public class Customer {
 
     @Id
-    @GeneratedValue
-    private Long customerId;
+    @NotBlank
+    @Column
+    private String email;
+
+    @NotBlank
+    @Column
+    private String cardNumber;
 
     @NotBlank
     @Column
@@ -26,10 +34,6 @@ public class Customer {
     @Column
     private String address;
 
-    @NotBlank
-    @Column
-    private String email;
-
     @NotNull
     @Column
     public boolean vfp;
@@ -41,6 +45,7 @@ public class Customer {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "cart_id", unique = true)
     private Cart cart;
+
 
     public Customer() {
     }
@@ -59,7 +64,15 @@ public class Customer {
         this.email = email;
     }
 
-
+    public Customer(CustomerSubscribeDTO customerSubscribeDTO, String cardNumber) {
+        this.firstName = customerSubscribeDTO.firstName();
+        this.surname = customerSubscribeDTO.surname();
+        this.address = customerSubscribeDTO.address();
+        this.email = customerSubscribeDTO.email();
+        this.vfp = false;
+        // TODO : ajouter un numéro de carte via CardEditorProxy
+        this.cardNumber = cardNumber;
+    }
 
     public void setCart(Cart cart) {
         this.cart = cart;
@@ -71,14 +84,6 @@ public class Customer {
 
     public void removeCart() {
         this.cart = null;
-    }
-
-    public Long getCustomerId() {
-        return customerId;
-    }
-
-    public void setCustomerId(Long customerId) {
-        this.customerId = customerId;
     }
 
     public void addPurchase(Purchase purchase) {
@@ -126,4 +131,15 @@ public class Customer {
         this.vfp = vfp;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Customer customer = (Customer) o;
+        return Objects.equals(email, customer.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(email);
+    }
 }

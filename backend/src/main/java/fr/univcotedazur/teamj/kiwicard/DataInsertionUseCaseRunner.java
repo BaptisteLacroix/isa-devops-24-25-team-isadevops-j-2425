@@ -1,13 +1,28 @@
 package fr.univcotedazur.teamj.kiwicard;
 
-import fr.univcotedazur.teamj.kiwicard.entities.*;
+import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
+import fr.univcotedazur.teamj.kiwicard.entities.Cart;
+import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
+import fr.univcotedazur.teamj.kiwicard.entities.Customer;
+import fr.univcotedazur.teamj.kiwicard.entities.Item;
+import fr.univcotedazur.teamj.kiwicard.entities.Partner;
+import fr.univcotedazur.teamj.kiwicard.entities.Payment;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.VfpDiscountInPercentPerk;
-import fr.univcotedazur.teamj.kiwicard.repositories.*;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
+import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPartnerManager;
+import fr.univcotedazur.teamj.kiwicard.repositories.ICustomerRepository;
+import fr.univcotedazur.teamj.kiwicard.repositories.IPartnerRepository;
+import fr.univcotedazur.teamj.kiwicard.repositories.IPerkRepository;
+import fr.univcotedazur.teamj.kiwicard.repositories.IPurchaseRepository;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+@Profile("!test")
 @Component
 public class DataInsertionUseCaseRunner implements CommandLineRunner {
 
@@ -15,16 +30,16 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
     private final IPartnerRepository partnerRepository;
     private final IPerkRepository perkRepository;
     private final IPurchaseRepository purchaseRepository;
-
-
+    private final IPartnerManager partnerManager;
     private final boolean deleteAllData = true;
-    private long customerId;
+    private String customerEmail;
 
-    public DataInsertionUseCaseRunner(ICustomerRepository customerRepository, IPartnerRepository partnerRepository, IPerkRepository perkRepository, IPurchaseRepository purchaseRepository) {
+    public DataInsertionUseCaseRunner(ICustomerRepository customerRepository, IPartnerRepository partnerRepository, IPerkRepository perkRepository, IPurchaseRepository purchaseRepository, IPartnerManager partnerManager) {
         this.customerRepository = customerRepository;
         this.partnerRepository = partnerRepository;
         this.perkRepository = perkRepository;
         this.purchaseRepository = purchaseRepository;
+        this.partnerManager = partnerManager;
     }
 
     private void deleteAllData() {
@@ -35,13 +50,14 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) {
+    @Transactional
+    public void run(String... args) throws UnknownPartnerIdException {
         tryToInsert();
         tryToRetrieve();
     }
 
     private void tryToRetrieve() {
-        Customer customer = customerRepository.findById(customerId).get();
+        Customer customer = customerRepository.findByEmail(customerEmail).orElse(null);
         System.out.println("Customer name: " + customer.getFirstName());
         Cart cart = customer.getCart();
         System.out.println("Cart partner: " + cart.getPartner().getName());
@@ -51,23 +67,23 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         }
     }
 
-    private void tryToInsert() {
+    private void tryToInsert() throws UnknownPartnerIdException {
         if (deleteAllData) {
             this.deleteAllData();
         }
         // Customer
-        Customer customer = new Customer(
+        CustomerSubscribeDTO customerSubscribeDTO = new CustomerSubscribeDTO("alice.bob@gmail.com",
                 "Alice",
                 "bob",
-                "blabliblou",
-                "alice.bob@gmail.com",
-                true
+                "blabliblou");
+        Customer customer = new Customer(
+                customerSubscribeDTO, "1234567890"
         );
         customerRepository.save(customer);
 
         // Partner
         Partner partner = new Partner(
-                "Antoine",
+                "Boulange",
                 "14 rue du trottoir, Draguignan"
         );
 
@@ -77,13 +93,13 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         cart.setPartner(partner);
         customer.setCart(cart);
         customerRepository.save(customer);
-        customerId = customer.getCustomerId();
+        customerEmail = customer.getEmail();
         cart = customer.getCart();
 
         // Item
-        Item item = new Item();
-        item.setLabel("croissant");
-        item.setPrice(10.0);
+        ItemDTO itemDTO = new ItemDTO("croissant", 10.0);
+        partnerManager.addItemToPartnerCatalog(partner.getPartnerId(), itemDTO);
+        Item item = partnerManager.findAllPartnerItems(partner.getPartnerId()).getFirst();
 
         // CartItem with cart and item
         CartItem cartItem = new CartItem();
@@ -93,7 +109,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         customerRepository.save(customer);
 
         // Perk (Vfp discount in %)
-        VfpDiscountInPercentPerk perk = new VfpDiscountInPercentPerk(LocalDateTime.now(), 5);
+        VfpDiscountInPercentPerk perk = new VfpDiscountInPercentPerk(0.05);
         perkRepository.save(perk);
         cart.addPerk(perk);
 

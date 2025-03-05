@@ -1,11 +1,11 @@
 package fr.univcotedazur.teamj.kiwicard.entities;
 
 
+import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -23,19 +23,6 @@ public class Item {
     @Column
     private double price;
 
-    @NotNull
-    public boolean isAlreadyConsumedInAPerk() {
-        return alreadyConsumedInAPerk;
-    }
-
-    public void setAlreadyConsumedInAPerk(@NotNull boolean alreadyConsumedInAPerk) {
-        this.alreadyConsumedInAPerk = alreadyConsumedInAPerk;
-    }
-
-    @NotNull
-    @Column
-    private boolean alreadyConsumedInAPerk;
-
     public Item() {
     }
 
@@ -44,12 +31,28 @@ public class Item {
         this.price = price;
     }
 
-    public Long getItemId() {
-        return itemId;
+    public Item(ItemDTO itemDTO) {
+        this(itemDTO.label(), itemDTO.price());
     }
 
-    public void setItemId(Long itemId) {
-        this.itemId = itemId;
+    /**
+     * package private constructor for testing purposes
+     * @param id l'id de l'item
+     * @param label le label de l'item
+     * @param price le prix de l'item
+     */
+    private Item(int id, String label, double price) {
+        this.itemId = (long) id;
+        this.label = label;
+        this.price = price;
+    }
+
+    public static Item createTestItem(int id, String label, double price) {
+        return new Item(id, label, price);
+    }
+
+    public Long getItemId() {
+        return itemId;
     }
 
     public @NotNull String getLabel() {

@@ -5,10 +5,7 @@ import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
-import java.time.LocalDateTime;
 
 @Entity
 public class NPurchasedMGiftedPerk extends AbstractPerk{
@@ -27,10 +24,11 @@ public class NPurchasedMGiftedPerk extends AbstractPerk{
     public NPurchasedMGiftedPerk() {
     }
 
-    public NPurchasedMGiftedPerk(String name, String description, LocalDateTime startDate, LocalDateTime endDate, int nbPurchased, int nbGifted) {
+    public NPurchasedMGiftedPerk(int nbPurchased, int nbGifted, Item item) {
         super();
         this.nbPurchased = nbPurchased;
         this.nbGifted = nbGifted;
+        this.item = item;
     }
 
     @NotNull
@@ -49,5 +47,10 @@ public class NPurchasedMGiftedPerk extends AbstractPerk{
 
     public void setNbGifted(@NotNull int nbGifted) {
         this.nbGifted = nbGifted;
+    }
+
+    @Override
+    public String toString() {
+        return "Buy " + nbPurchased + " " + item.getLabel() + " and get " + nbGifted + " for free";
     }
 }
