@@ -1,6 +1,5 @@
 package fr.univcotedazur.teamj.kiwicard.cli.commands;
 
-import fr.univcotedazur.teamj.kiwicard.cli.model.CliCustomer;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliCustomerSubscribe;
 import fr.univcotedazur.teamj.kiwicard.cli.model.error.CliError;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,7 @@ import reactor.core.publisher.Mono;
 @ShellComponent
 public class CustomerCommands {
 
-    public static final String BASE_URI = "/customer";
+    public static final String BASE_URI = "/customers";
 
     private final WebClient webClient;
 
