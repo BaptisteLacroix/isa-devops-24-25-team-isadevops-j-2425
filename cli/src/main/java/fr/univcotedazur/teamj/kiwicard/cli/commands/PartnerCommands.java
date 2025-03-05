@@ -2,10 +2,13 @@ package fr.univcotedazur.teamj.kiwicard.cli.commands;
 
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliItem;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliPartner;
+import fr.univcotedazur.teamj.kiwicard.cli.model.error.CliError;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.util.stream.Collectors;
 
@@ -38,6 +41,8 @@ public class PartnerCommands {
         return webClient.get()
                 .uri(BASE_URI + "/" + partnerId + "/items")
                 .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(CliError.class)
+                        .flatMap(error -> Mono.error(new RuntimeException(error.errorMessage()))))
                 .bodyToFlux(CliItem.class)
                 .map(CliItem::toString)
                 .collect(Collectors.joining("\n"))
