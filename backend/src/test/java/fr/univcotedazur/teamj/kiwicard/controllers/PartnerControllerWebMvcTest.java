@@ -65,7 +65,7 @@ class PartnerControllerWebMvcTest extends BaseUnitTest {
         painAuChocolat = Item.createTestItem(1, "Pain au chocolat", 1.5);
         croissant = Item.createTestItem(2, "Croissant", 1.2);
         chocolatineDTO = new ItemDTO("Chocolatine", 1.8);
-        perk1 = new NPurchasedMGiftedPerkDTO(1L, 3, new ItemDTO(painAuChocolat), 1, 1L);
+        perk1 = new NPurchasedMGiftedPerkDTO(1L, 3, new ItemDTO(painAuChocolat), 1);
         perk2 = new TimedDiscountInPercentPerkDTO(2L, LocalTime.now(), 30);
     }
 

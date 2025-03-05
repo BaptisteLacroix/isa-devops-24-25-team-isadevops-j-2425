@@ -64,18 +64,18 @@ public class TimedDiscountInPercentPerk extends AbstractPerk{
 
     @Override
     public boolean apply(Customer customer) {
-        if (LocalTime.now().isAfter(time)) {
-            if (customer.getCart() == null) {
-                throw new IllegalStateException("Customer has no cart");
-            }
-            customer.getCart().addToTotalPercentageReduction(discountRate);
-            return true;
+        if (!LocalTime.now().isAfter(time)) {
+            return false;
         }
-        return false;
+        if (customer.getCart() == null) {
+            throw new IllegalStateException("Customer has no cart");
+        }
+        customer.getCart().addToTotalPercentageReduction(discountRate);
+        return true;
     }
 
     @Override
-    public boolean consumable(Customer customer) {
+    public boolean isConsumableFor(Customer customer) {
         return LocalTime.now().isAfter(time);
     }
 

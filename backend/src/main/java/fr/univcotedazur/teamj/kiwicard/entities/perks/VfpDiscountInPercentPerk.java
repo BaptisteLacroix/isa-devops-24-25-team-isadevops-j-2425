@@ -61,7 +61,7 @@ public class VfpDiscountInPercentPerk extends AbstractPerk {
     }
 
     @Override
-    public boolean consumable(Customer customer) {
+    public boolean isConsumableFor(Customer customer) {
         return customer.isVfp();
     }
 }

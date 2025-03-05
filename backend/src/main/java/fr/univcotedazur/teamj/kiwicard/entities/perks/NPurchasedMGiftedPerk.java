@@ -87,7 +87,7 @@ public class NPurchasedMGiftedPerk extends AbstractPerk {
     }
 
     @Override
-    public boolean consumable(Customer customer) {
+    public boolean isConsumableFor(Customer customer) {
         Cart cart = customer.getCart();
         CartItem cartItem = cart.getItemById(this.item.getItemId());
         return isEligibleForGift(cartItem);

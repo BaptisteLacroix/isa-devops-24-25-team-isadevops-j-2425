@@ -20,8 +20,7 @@ public class PerkToDTOVisitor implements PerkVisitor<IPerkDTO> {
                 perk.getPerkId(),
                 perk.getNbPurchased(),
                 new ItemDTO(perk.getItem()),
-                perk.getNbGifted(),
-                perk.getItem().getItemId()
+                perk.getNbGifted()
         );
     }
 

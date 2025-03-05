@@ -30,7 +30,7 @@ public abstract class AbstractPerk {
         return perkId;
     }
 
-    public void setPerkId(Long perkId) {
+    protected void setPerkId(Long perkId) {
         this.perkId = perkId;
     }
 
@@ -51,7 +51,7 @@ public abstract class AbstractPerk {
      */
     public abstract boolean apply(Customer customer);
 
-    public abstract boolean consumable(Customer customer);
+    public abstract boolean isConsumableFor(Customer customer);
 
     public abstract <T> T accept(PerkVisitor<T> visitor);
 }

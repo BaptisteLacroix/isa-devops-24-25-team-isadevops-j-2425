@@ -15,7 +15,6 @@ import fr.univcotedazur.teamj.kiwicard.interfaces.perks.IPerksConsumer;
 import fr.univcotedazur.teamj.kiwicard.interfaces.perks.IPerksFinder;
 import fr.univcotedazur.teamj.kiwicard.mappers.PerkMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -33,7 +32,7 @@ public class PerksService implements IPerksConsumer {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public boolean applyPerk(long perkId, String cartOwnerEmail) throws UnknownPerkIdException, UnknownCustomerEmailException {
         AbstractPerk perk = PerkMapper.fromDTO(perksFinder.findPerkById(perkId));
         Customer customer = new Customer(customerFinder.findCustomerByEmail(cartOwnerEmail));
@@ -59,7 +58,7 @@ public class PerksService implements IPerksConsumer {
         Partner partner = new Partner(partnerManager.findPartnerById(partnerId));
         return partner.getPerkList()
                 .stream()
-                .filter(perk -> perk.consumable(customer))
+                .filter(perk -> perk.isConsumableFor(customer))
                 .map(PerkMapper::toDTO)
                 .toList();
     }
