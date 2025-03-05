@@ -33,7 +33,6 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
     private final IPerkRepository perkRepository;
     private final IPurchaseRepository purchaseRepository;
     private final IPartnerManager partnerManager;
-    private final boolean deleteAllData = true;
     private String customerRoxaneEmail;
     private String customerAntoineMEmail;
     private String customerAntoineFEmail;
@@ -48,12 +47,6 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         this.partnerManager = partnerManager;
     }
 
-    private void deleteAllData() {
-        customerRepository.deleteAll();
-        purchaseRepository.deleteAll();
-        perkRepository.deleteAll();
-        partnerRepository.deleteAll();
-    }
 
     @Override
     @Transactional
@@ -75,9 +68,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
     }
 
     private void tryToInsert() throws UnknownPartnerIdException {
-        if (deleteAllData) {
-            this.deleteAllData();
-        }
+
         // Customers
         CustomerSubscribeDTO customerSubscribeDTOAlice = new CustomerSubscribeDTO("alice.bob@gmail.com",
                 "Alice",
@@ -112,7 +103,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
                 "antoine@seancepull.fr",
                 "Antoine",
                 "maistre",
-                "4 rue des perctoraux, Nice"
+                "4 rue des pectoraux, Nice"
         );
         Customer customerAntoineM = new Customer(
                 customerSubscribeDTOAntoineM, "1234567893"
@@ -130,7 +121,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         );
 
         CustomerSubscribeDTO customerSubscribeDTORoxane = new CustomerSubscribeDTO(
-                "roxane@toulouse.fr",
+                "roxane@princesse.fr",
                 "Roxane",
                 "Roxx",
                 "Place du capitole, Toulouse"
