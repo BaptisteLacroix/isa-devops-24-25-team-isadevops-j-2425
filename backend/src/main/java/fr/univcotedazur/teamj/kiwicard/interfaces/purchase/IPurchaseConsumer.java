@@ -1,5 +1,7 @@
 package fr.univcotedazur.teamj.kiwicard.interfaces.purchase;
 
+import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 
@@ -11,8 +13,7 @@ public interface IPurchaseConsumer {
 
     void consumeNLastPurchaseOfCustomer(int nbPurchasesToConsume, String customerEmail) throws UnknownCustomerEmailException;
 
-    void consumeNLastPurchaseOfCustomerInPartner (int nbPurchasesToConsume, String customerEmail,
-                                                  long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException;
+    void consumeNLastPurchaseOfCustomerInPartner (CustomerDTO customer, PartnerDTO partner, int nbPurchasesToConsume) throws UnknownCustomerEmailException, UnknownPartnerIdException;
 
     void consumeNLastItemsOfCustomerInPartner(int nbItemsConsumed, String customerEmail, long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException;
 }

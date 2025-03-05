@@ -12,6 +12,7 @@ import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseFinder;
 import fr.univcotedazur.teamj.kiwicard.repositories.ICustomerRepository;
 import fr.univcotedazur.teamj.kiwicard.repositories.IPartnerRepository;
 import fr.univcotedazur.teamj.kiwicard.repositories.IPurchaseRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 
 @Component
 public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPurchaseFinder {
-    IPurchaseRepository purchaseRepository;
+    private final IPurchaseRepository purchaseRepository;
     public PurchaseCatalog(IPurchaseRepository purchaseRepository) {
         this.purchaseRepository = purchaseRepository;
     }
@@ -39,40 +40,37 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
 
     @Override
     public void consumeNLastPurchaseOfCustomerInPartner(CustomerDTO customer, PartnerDTO partner, int nbPurchasesToConsume) throws UnknownCustomerEmailException, UnknownPartnerIdException {
-        var res  = this.purchaseRepository.findPurchasesToConsume(customer.id(), partner.id(), nbPurchasesToConsume);
+        var res  = this.purchaseRepository.findPurchasesToConsume(customer.email(), partner.id(), nbPurchasesToConsume);
         res.forEach(p -> p.setAlreadyConsumedInAPerk(true));
-//        customer.orElseThrow().getPurchases().stream()
-//                .filter(p-> !p.isAlreadyConsumedInAPerk() && p.getCart().getPartner().equals(partner.orElseThrow()))
-//                .sorted(Comparator.comparing(e -> e.getPayment().getTimestamp()))
-//                .limit(nbPurchasesToConsume)
-//                .forEach(p -> p.setAlreadyConsumedInAPerk(true));
+        this.purchaseRepository.saveAll(res);
     }
 
 
     @Override
     public void consumeNLastItemsOfCustomerInPartner(int nbItemsConsumed, String customerEmail, long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException {
-        Customer customer =  this.customerRepository.findByEmail(customerEmail).orElseThrow(UnknownCustomerEmailException::new);
-        Partner partner = this.partnerRepository.findById(partnerId).orElseThrow(()-> new UnknownPartnerIdException(partnerId));
-        customer.getPurchases().stream()
-                .filter(p-> !p.isAlreadyConsumedInAPerk() && p.getCart().getPartner().equals(partner))
-                .sorted((e1, e2) -> e2.getPayment().getTimestamp().compareTo(e1.getPayment().getTimestamp()))
-                .map(p -> p.getCart().getItems())
-                .flatMap(Collection::stream)
-                .limit(nbItemsConsumed)
-                .forEach((i)->i.setConsumed(true));
+//        Customer customer =  this.customerRepository.findByEmail(customerEmail).orElseThrow(UnknownCustomerEmailException::new);
+//        Partner partner = this.partnerRepository.findById(partnerId).orElseThrow(()-> new UnknownPartnerIdException(partnerId));
+//        customer.getPurchases().stream()
+//                .filter(p-> !p.isAlreadyConsumedInAPerk() && p.getCart().getPartner().equals(partner))
+//                .sorted((e1, e2) -> e2.getPayment().getTimestamp().compareTo(e1.getPayment().getTimestamp()))
+//                .map(p -> p.getCart().getItems())
+//                .flatMap(Collection::stream)
+//                .limit(nbItemsConsumed)
+//                .forEach((i)->i.setConsumed(true));
     }
 
     @Override
     public PurchaseDTO createPurchase(String customerEmail, PaymentDTO paymentDTO) throws UnknownCustomerEmailException, UnknownPaymentIdException {
-        Optional<Customer> customer;
-        if ((customer = this.customerRepository.findByEmail(customerEmail)).isEmpty())
-            throw new UnknownCustomerEmailException();
-        Cart cart = customer.orElseThrow().getCart();
-        Payment payment = new Payment(paymentDTO.getAmount(), LocalDateTime.now());
-        return new PurchaseDTO(new Purchase(
-                payment,
-                cart
-        ));
+//        Optional<Customer> customer;
+//        if ((customer = this.customerRepository.findByEmail(customerEmail)).isEmpty())
+//            throw new UnknownCustomerEmailException();
+//        Cart cart = customer.orElseThrow().getCart();
+//        Payment payment = new Payment(paymentDTO.getAmount(), LocalDateTime.now());
+//        return new PurchaseDTO(new Purchase(
+//                payment,
+//                cart
+//        ));
+        return null;
     }
 
     @Override
@@ -86,19 +84,20 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
 
     @Override
     public List<PurchaseDTO> findPurchasesByCustomerAndPartner(String customerEmail, long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException {
-        Optional<Partner> partner;
-        Optional<Customer> customer;
-
-        if ((partner = this.partnerRepository.findById(partnerId)).isEmpty()) throw new UnknownPartnerIdException(partnerId);
-        if ((customer = this.customerRepository.findByEmail(customerEmail)).isEmpty())
-            throw new UnknownCustomerEmailException();
-
-        Partner p = partner.orElseThrow();
-        Customer c = customer.orElseThrow();
-
-        List<Purchase> result = new ArrayList<>(c.getPurchases());
-        result.retainAll(p.getPurchaseList());
-        return result.stream().map(PurchaseDTO::new).collect(Collectors.toList());
+//        Optional<Partner> partner;
+//        Optional<Customer> customer;
+//
+//        if ((partner = this.partnerRepository.findById(partnerId)).isEmpty()) throw new UnknownPartnerIdException(partnerId);
+//        if ((customer = this.customerRepository.findByEmail(customerEmail)).isEmpty())
+//            throw new UnknownCustomerEmailException();
+//
+//        Partner p = partner.orElseThrow();
+//        Customer c = customer.orElseThrow();
+//
+//        List<Purchase> result = new ArrayList<>(c.getPurchases());
+//        result.retainAll(p.getPurchaseList());
+//        return result.stream().map(PurchaseDTO::new).collect(Collectors.toList());
+        return null;
     }
 }
 

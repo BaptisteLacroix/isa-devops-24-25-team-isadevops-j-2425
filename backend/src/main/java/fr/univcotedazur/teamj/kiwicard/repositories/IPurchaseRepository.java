@@ -1,6 +1,8 @@
 package fr.univcotedazur.teamj.kiwicard.repositories;
 
 
+import fr.univcotedazur.teamj.kiwicard.entities.Cart;
+import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.entities.Purchase;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,18 +15,21 @@ import java.util.Optional;
 
 @Repository
 public interface IPurchaseRepository extends JpaRepository<Purchase, Long> {
-    @Query(value =
-            "SELECT p FROM Purchase p " //+
-//            "JOIN cart c ON p.cart_id = c.id " +
-//            "JOIN customer cust ON c.customer_id = cust.id " +
-//            "JOIN partner par ON c.partner_id = par.id " +
-//            "WHERE cust.email = :customerEmail " +
-//            "AND par.id = :partnerId " +
-//            "AND p.already_consumed_in_a_perk = false " +
-//            "ORDER BY p.payment_timestamp ASC " +
-//            "LIMIT :nbPurchasesToConsume"
-            )
-    List<Purchase> findPurchasesToConsume(@Param("customerId") long customerId,
+
+    @Query(
+    """
+        SELECT p FROM Purchase p, Customer c
+            where c.email = :customerEmail
+            and p member of c.purchaseList
+            AND p.cart.partner.partnerId = :partnerId
+            ORDER BY p.payment.timestamp ASC
+            LIMIT :nbPurchasesToConsume
+    """
+    )
+    List<Purchase> findPurchasesToConsume(@Param("customerEmail") String customerEmail,
                                           @Param("partnerId") long partnerId,
                                           @Param("nbPurchasesToConsume") int nbPurchasesToConsume);
+
+    Object queryPurchaseByPurchaseId(Long purchaseId);
 }
+
