@@ -53,15 +53,15 @@ public class CustomerCommands {
         CliCustomerSubscribe registrationDTO = new CliCustomerSubscribe(surname, firstname, email, address);
 
         // Appel vers le CustomerController pour enregistrer le client
-        return webClient.post()
+        webClient.post()
                 .uri(BASE_URI)
                 .bodyValue(registrationDTO)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(CliError.class)
                         .flatMap(error -> Mono.error(new RuntimeException(error.errorMessage()))))
-                .bodyToMono(CliCustomer.class)
-                .map(CliCustomer::toString)
+                .toBodilessEntity()
                 .block();
 
+        return "User registered successfully";
     }
 }

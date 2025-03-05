@@ -54,7 +54,7 @@ class CustomerCommandsTest {
         String response = customerCommands.registerClient("Doe", "John", "john.doe@example.com", "123 Main St, City, Country");
 
         // Assert that the response matches the registered customer's details
-        assertEquals("• john.doe@example.com : John Doe au 123 Main St, City, Country (VFP: false)", response);
+        assertEquals("User registered successfully", response);
 
         // Verify the request made to the correct endpoint
         RecordedRequest recordedRequest = mockWebServer.takeRequest();
