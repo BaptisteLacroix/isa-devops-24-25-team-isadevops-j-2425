@@ -11,6 +11,6 @@ public record VfpDiscountInPercentPerkDTO(Long perkId, double discountRate) impl
 
     @Override
     public <T> T accept(PerkDTOVisitor<T> visitor) {
-        return visitor.visit(this);
+        return visitor.fromDTO(this);
     }
 }

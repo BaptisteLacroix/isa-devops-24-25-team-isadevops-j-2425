@@ -5,7 +5,7 @@ import fr.univcotedazur.teamj.kiwicard.entities.perks.TimedDiscountInPercentPerk
 import fr.univcotedazur.teamj.kiwicard.entities.perks.VfpDiscountInPercentPerk;
 
 public interface PerkVisitor<T> {
-    T visit(NPurchasedMGiftedPerk perk);
-    T visit(TimedDiscountInPercentPerk perk);
-    T visit(VfpDiscountInPercentPerk perk);
+    T toDTO(NPurchasedMGiftedPerk perk);
+    T toDTO(TimedDiscountInPercentPerk perk);
+    T toDTO(VfpDiscountInPercentPerk perk);
 }

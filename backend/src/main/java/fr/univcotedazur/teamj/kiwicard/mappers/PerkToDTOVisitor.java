@@ -12,7 +12,7 @@ import fr.univcotedazur.teamj.kiwicard.entities.perks.VfpDiscountInPercentPerk;
 public class PerkToDTOVisitor implements PerkVisitor<IPerkDTO> {
 
     @Override
-    public IPerkDTO visit(NPurchasedMGiftedPerk perk) {
+    public IPerkDTO toDTO(NPurchasedMGiftedPerk perk) {
         if (perk.getItem() == null) {
             throw new IllegalArgumentException("Item cannot be null");
         }
@@ -25,7 +25,7 @@ public class PerkToDTOVisitor implements PerkVisitor<IPerkDTO> {
     }
 
     @Override
-    public IPerkDTO visit(TimedDiscountInPercentPerk perk) {
+    public IPerkDTO toDTO(TimedDiscountInPercentPerk perk) {
         return new TimedDiscountInPercentPerkDTO(
                 perk.getPerkId(),
                 perk.getTime(),
@@ -34,7 +34,7 @@ public class PerkToDTOVisitor implements PerkVisitor<IPerkDTO> {
     }
 
     @Override
-    public IPerkDTO visit(VfpDiscountInPercentPerk perk) {
+    public IPerkDTO toDTO(VfpDiscountInPercentPerk perk) {
         return new VfpDiscountInPercentPerkDTO(
                 perk.getPerkId(),
                 perk.getDiscountRate()

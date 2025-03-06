@@ -8,17 +8,17 @@ import fr.univcotedazur.teamj.kiwicard.entities.perks.*;
 public class PerkFromDTOVisitor implements PerkDTOVisitor<AbstractPerk> {
 
     @Override
-    public AbstractPerk visit(NPurchasedMGiftedPerkDTO dto) {
+    public AbstractPerk fromDTO(NPurchasedMGiftedPerkDTO dto) {
         return new NPurchasedMGiftedPerk(dto);
     }
 
     @Override
-    public AbstractPerk visit(TimedDiscountInPercentPerkDTO dto) {
+    public AbstractPerk fromDTO(TimedDiscountInPercentPerkDTO dto) {
         return new TimedDiscountInPercentPerk(dto);
     }
 
     @Override
-    public AbstractPerk visit(VfpDiscountInPercentPerkDTO dto) {
+    public AbstractPerk fromDTO(VfpDiscountInPercentPerkDTO dto) {
         return new VfpDiscountInPercentPerk(dto);
     }
 }

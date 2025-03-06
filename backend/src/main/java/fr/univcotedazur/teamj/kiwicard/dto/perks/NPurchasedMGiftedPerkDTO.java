@@ -11,6 +11,6 @@ public record NPurchasedMGiftedPerkDTO(Long perkId, int nbPurchased, ItemDTO ite
 
     @Override
     public <T> T accept(PerkDTOVisitor<T> visitor) {
-        return visitor.visit(this);
+        return visitor.fromDTO(this);
     }
 }

@@ -12,6 +12,6 @@ public record TimedDiscountInPercentPerkDTO(Long perkId, LocalTime time, double 
 
     @Override
     public <T> T accept(PerkDTOVisitor<T> visitor) {
-        return visitor.visit(this);
+        return visitor.fromDTO(this);
     }
 }

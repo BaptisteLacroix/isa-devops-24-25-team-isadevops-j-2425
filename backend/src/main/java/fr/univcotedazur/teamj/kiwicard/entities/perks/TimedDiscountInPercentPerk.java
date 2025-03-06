@@ -81,6 +81,6 @@ public class TimedDiscountInPercentPerk extends AbstractPerk{
 
     @Override
     public <T> T accept(PerkVisitor<T> visitor) {
-        return visitor.visit(this);
+        return visitor.toDTO(this);
     }
 }

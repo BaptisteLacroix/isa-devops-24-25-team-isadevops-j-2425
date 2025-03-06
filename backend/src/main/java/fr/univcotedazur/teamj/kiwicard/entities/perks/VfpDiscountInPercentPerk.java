@@ -45,7 +45,7 @@ public class VfpDiscountInPercentPerk extends AbstractPerk {
 
     @Override
     public <T> T accept(PerkVisitor<T> visitor) {
-        return visitor.visit(this);
+        return visitor.toDTO(this);
     }
 
     @Override
