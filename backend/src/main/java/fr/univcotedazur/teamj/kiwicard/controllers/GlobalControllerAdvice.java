@@ -30,7 +30,8 @@ public class GlobalControllerAdvice {
     }
 
     @ExceptionHandler(AlreadyUsedEmailException.class)
-    public ResponseEntity<String> handleAlreadyUsedEmail(AlreadyUsedEmailException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body("Email déjà utilisé");
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorDTO handleAlreadyUsedEmail(AlreadyUsedEmailException ex) {
+        return new ErrorDTO("Email already used");
     }
 }

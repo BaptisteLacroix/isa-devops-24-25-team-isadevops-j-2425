@@ -20,7 +20,7 @@ public class CustomerController {
         this.customerCatalog = customerCatalog;
     }
 
-    @PostMapping("/")
+    @PostMapping("")
     public void createCustomer(@RequestBody CustomerSubscribeDTO customer) throws UnreachableExternalServiceException, AlreadyUsedEmailException {
         customerCatalog.register(customer);
     }

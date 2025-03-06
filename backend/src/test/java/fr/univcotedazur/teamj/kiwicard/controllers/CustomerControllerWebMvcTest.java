@@ -5,6 +5,7 @@ import fr.univcotedazur.teamj.kiwicard.BaseUnitTest;
 import fr.univcotedazur.teamj.kiwicard.components.CustomerCatalog;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.ErrorDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyUsedEmailException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ class CustomerControllerWebMvcTest extends BaseUnitTest {
         );
         String json = mapper.writeValueAsString(dto);
 
-        mockMvc.perform(post("/customers/")
+        mockMvc.perform(post("/customers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isOk());
@@ -57,11 +58,11 @@ class CustomerControllerWebMvcTest extends BaseUnitTest {
         // Simule la levée de l'exception dans le service
         doThrow(new AlreadyUsedEmailException()).when(customerCatalog).register(any(CustomerSubscribeDTO.class));
 
-        mockMvc.perform(post("/customers/")
+        mockMvc.perform(post("/customers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isConflict())
-                .andExpect(content().string("Email déjà utilisé"));
+                .andExpect(content().json(mapper.writeValueAsString(new ErrorDTO("Email already used"))));
 
         verify(customerCatalog, times(1)).register(any(CustomerSubscribeDTO.class));
     }
