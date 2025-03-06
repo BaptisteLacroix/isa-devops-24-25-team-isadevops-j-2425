@@ -74,13 +74,11 @@ public class Cart {
 
     public void usePerk(AbstractPerk perk, Customer customer) {
         if (perk.getPerkType().equals(PerkType.INTERMEDIATE)){
-            if (perk.apply(customer)) {
-                this.perkUsed.add(perk);
-                this.perksToUse.remove(perk);
-            }
-            else{
+            if (!perk.apply(customer)) {
                 throw new IllegalArgumentException("The perk cannot be applied");
             }
+            this.perkUsed.add(perk);
+            this.perksToUse.remove(perk);
         }
         else{
             this.addPerk(perk);
