@@ -2,10 +2,7 @@ package fr.univcotedazur.teamj.kiwicard.entities;
 
 
 import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -22,6 +19,10 @@ public class Item {
     @NotNull
     @Column
     private double price;
+
+    @ManyToOne
+    @JoinColumn(name = "partner_id")
+    private Partner partner;
 
     public Item() {
     }
@@ -70,5 +71,9 @@ public class Item {
 
     public void setPrice(@NotNull double price) {
         this.price = price;
+    }
+
+    public void setPartner(Partner partner) {
+        this.partner = partner;
     }
 }
