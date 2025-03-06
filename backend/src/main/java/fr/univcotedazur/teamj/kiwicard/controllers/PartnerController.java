@@ -3,7 +3,7 @@ package fr.univcotedazur.teamj.kiwicard.controllers;
 import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerCreationDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.PerkDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
@@ -72,7 +72,7 @@ public class PartnerController {
     }
 
     @GetMapping("/{partnerId}/perks")
-    public ResponseEntity<List<PerkDTO>> listAllPerksFromPartner(@PathVariable long partnerId) throws UnknownPartnerIdException {
+    public ResponseEntity<List<IPerkDTO>> listAllPerksFromPartner(@PathVariable long partnerId) throws UnknownPartnerIdException {
         return ResponseEntity.ok()
                 .body(partnerManager.findAllPartnerPerks(partnerId));
     }

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice(assignableTypes = {CustomerController.class, CartController.class, PartnerController.class})
+@RestControllerAdvice(assignableTypes = {CustomerController.class, CartController.class, PartnerController.class, PerksController.class})
 public class GlobalControllerAdvice {
 
     @ExceptionHandler({NegativeQuantityException.class})
@@ -23,7 +23,7 @@ public class GlobalControllerAdvice {
         return new ErrorDTO("Payment was rejected from Customer " + e.getName() + " for amount " + e.getAmount());
     }
 
-    @ExceptionHandler({UnknownPartnerIdException.class, UnknownItemIdException.class})
+    @ExceptionHandler({UnknownPartnerIdException.class, UnknownItemIdException.class, UnknownCustomerEmailException.class, UnknownCartIdException.class, UnknownPerkIdException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorDTO handleExceptions(Exception e) {
         return new ErrorDTO(e.getMessage());

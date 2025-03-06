@@ -1,43 +1,46 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
-import fr.univcotedazur.teamj.kiwicard.dto.PerkDTO;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
+import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
+import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPerkIdException;
-import fr.univcotedazur.teamj.kiwicard.interfaces.perks.IPerksCreator;
-import fr.univcotedazur.teamj.kiwicard.interfaces.perks.IPerksFinder;
-import fr.univcotedazur.teamj.kiwicard.interfaces.perks.IPerksModifier;
+import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPerkManager;
+import fr.univcotedazur.teamj.kiwicard.mappers.PerkMapper;
+import fr.univcotedazur.teamj.kiwicard.repositories.IPerkRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
-public class PerksCatalog implements IPerksCreator, IPerksFinder, IPerksModifier {
-    @Override
-    public PerkDTO createPerk(PerkDTO perkToCreate) {
-        return null;
+@Service
+public class PerksCatalog implements IPerkManager {
+    public static final String NOT_IMPLEMENTED_YET = "Not implemented yet";
+    private final IPerkRepository perksRepository;
+    public PerksCatalog(IPerkRepository perksRepository) {
+        this.perksRepository = perksRepository;
     }
 
     @Override
-    public Optional<PerkDTO> findPerkById(long perkId) throws UnknownPerkIdException {
-        return Optional.empty();
+    public IPerkDTO createPerk(IPerkDTO perkToCreate) {
+        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);
     }
 
     @Override
-    public List<PerkDTO> findPerkByPartner(long partnerId) throws UnknownPartnerIdException {
-        return List.of();
+    public IPerkDTO findPerkById(long perkId) throws UnknownPerkIdException {
+        AbstractPerk perk= perksRepository.findById(perkId).orElseThrow(() -> new UnknownPerkIdException(perkId));
+        return PerkMapper.toDTO(perk);
     }
 
     @Override
-    public List<PerkDTO> findAllPerks() {
-        return List.of();
+    public List<IPerkDTO> findAllPerks() {
+        return perksRepository.findAll().stream().map(PerkMapper::toDTO).toList();
     }
 
     @Override
-    public void udpatePerk(long perkId, PerkDTO newPerk) throws UnknownPerkIdException {
-
+    public void updatePerk(long perkId, IPerkDTO newPerk) throws UnknownPerkIdException {
+        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);
     }
 
     @Override
     public void deletePerk(long perkId) throws UnknownPerkIdException {
-
+        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);
     }
 }
