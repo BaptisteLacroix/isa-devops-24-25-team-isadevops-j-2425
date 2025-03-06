@@ -34,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class CartServiceTest extends BaseUnitTest {
@@ -71,7 +72,13 @@ class CartServiceTest extends BaseUnitTest {
         item = Item.createTestItem(1, "Item1", 10);
         cartItemDTO = new CartItemDTO(1L, 2, null, null, 1L);
         CartItem cartItem = new CartItem(cartItemDTO);
-        Cart cart = new Cart(partner, new HashSet<>(List.of(cartItem)), new ArrayList<>());
+
+        // Mocking the Cart entity, including cartId
+        Cart cart = mock(Cart.class);
+        when(cart.getCartId()).thenReturn(1L);  // Mock the cartId
+        when(cart.getPartner()).thenReturn(partner);  // Mock the partner
+        when(cart.getItemList()).thenReturn(new HashSet<>(List.of(cartItem)));  // Mock the item list
+        when(cart.getPerksList()).thenReturn(new ArrayList<>());  // Mock the perks list
 
         when(customer.getEmail()).thenReturn("customer@email.com");
         when(customer.getFirstName()).thenReturn("John");
@@ -80,6 +87,7 @@ class CartServiceTest extends BaseUnitTest {
         when(customer.isVfp()).thenReturn(false);
         when(customer.getCardNumber()).thenReturn("1234567890");
         when(customer.getAddress()).thenReturn("Address");
+        when(customer.getCart()).thenReturn(cart);
 
         when(partner.getPartnerId()).thenReturn(1L);
         when(partner.getName()).thenReturn("Partner");

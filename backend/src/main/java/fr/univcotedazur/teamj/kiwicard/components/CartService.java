@@ -1,5 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
+import fr.univcotedazur.teamj.kiwicard.dto.CartCreationDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CartItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
@@ -64,7 +65,7 @@ public class CartService implements ICartModifier, ICartFinder, ICartCreator {
      */
     @Override
     @Transactional
-    public CartDTO createCart(String customerEmail, Long partnerId, List<CartItemDTO> cartItemDTOS) throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException {
+    public CartCreationDTO createCart(String customerEmail, Long partnerId, List<CartItemDTO> cartItemDTOS) throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException {
         // Found the customer in the bdd
         customerCatalog.findCustomerByEmail(customerEmail).orElseThrow(UnknownCustomerEmailException::new);
 
@@ -94,10 +95,10 @@ public class CartService implements ICartModifier, ICartFinder, ICartCreator {
         Partner partner = new Partner(new PartnerCreationDTO(partnerDTO.name(), partnerDTO.address()));
 
         // Create the cart
-        Cart cart = new Cart(partner, new HashSet<>(cartItems), new ArrayList<>());
-        customerCatalog.setCart(customerEmail, new CartDTO(cart));
+        CartCreationDTO cartCreationDTO = new CartCreationDTO(partner, new HashSet<>(cartItems), new ArrayList<>());
+        customerCatalog.setCart(customerEmail, cartCreationDTO);
 
-        return new CartDTO(cart);
+        return cartCreationDTO;
     }
 
     /**
