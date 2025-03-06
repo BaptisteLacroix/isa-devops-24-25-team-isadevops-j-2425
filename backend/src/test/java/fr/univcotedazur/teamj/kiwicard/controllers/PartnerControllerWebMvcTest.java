@@ -6,7 +6,9 @@ import fr.univcotedazur.teamj.kiwicard.dto.ErrorDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerCreationDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.PerkDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.perks.NPurchasedMGiftedPerkDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.perks.TimedDiscountInPercentPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
@@ -21,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.time.LocalTime;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -52,8 +55,8 @@ class PartnerControllerWebMvcTest extends BaseUnitTest {
     private Item painAuChocolat;
     private Item croissant;
     private ItemDTO chocolatineDTO;
-    private PerkDTO perk1;
-    private PerkDTO perk2;
+    private IPerkDTO perk1;
+    private IPerkDTO perk2;
 
     @BeforeEach
     void setUp() {
@@ -62,8 +65,8 @@ class PartnerControllerWebMvcTest extends BaseUnitTest {
         painAuChocolat = Item.createTestItem(1, "Pain au chocolat", 1.5);
         croissant = Item.createTestItem(2, "Croissant", 1.2);
         chocolatineDTO = new ItemDTO("Chocolatine", 1.8);
-        perk1 = new PerkDTO(1, "Perk 1 description");
-        perk2 = new PerkDTO(2, "Perk 2 description");
+        perk1 = new NPurchasedMGiftedPerkDTO(1L, 3, new ItemDTO(painAuChocolat), 1);
+        perk2 = new TimedDiscountInPercentPerkDTO(2L, LocalTime.now(), 30);
     }
 
     @Test
@@ -227,9 +230,9 @@ class PartnerControllerWebMvcTest extends BaseUnitTest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].perkId").value(perk1.perkId()))
-                .andExpect(jsonPath("$[0].description").value(perk1.description()))
+                .andExpect(jsonPath("$[0].description").value(perk1.toString()))
                 .andExpect(jsonPath("$[1].perkId").value(perk2.perkId()))
-                .andExpect(jsonPath("$[1].description").value(perk2.description()));
+                .andExpect(jsonPath("$[1].description").value(perk2.toString()));
     }
 
     @Test

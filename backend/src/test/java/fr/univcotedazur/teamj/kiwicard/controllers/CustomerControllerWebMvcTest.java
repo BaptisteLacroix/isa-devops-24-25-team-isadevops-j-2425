@@ -5,6 +5,7 @@ import fr.univcotedazur.teamj.kiwicard.BaseUnitTest;
 import fr.univcotedazur.teamj.kiwicard.components.CustomerCatalog;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
+import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.dto.ErrorDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyUsedEmailException;
 import org.junit.jupiter.api.Test;
@@ -72,16 +73,15 @@ class CustomerControllerWebMvcTest extends BaseUnitTest {
         String email = "test@example.com";
         String dummyCard = "dummyCard"; // valeur factice pour le paramètre cardNumber (non utilisé)
         // Création d'un CustomerDTO factice
-        CustomerDTO customerDTO = new CustomerDTO("test@example.com", "Roxane", "Roxx", false);
-
-        when(customerCatalog.findCustomerByEmail(email)).thenReturn(customerDTO);
+        Customer customer = new Customer("test@example.com", "Roxane", "Roxx", "3 passage du test", false);
+        when(customerCatalog.findCustomerByEmail(email)).thenReturn(customer);
 
         // Appel GET sur /customers sans slash final, avec les paramètres requis
         mockMvc.perform(get("/customers")
                         .param("email", email)
                         .param("cardNumber", dummyCard))
                 .andExpect(status().isOk())
-                .andExpect(content().json(mapper.writeValueAsString(customerDTO)));
+                .andExpect(content().json(mapper.writeValueAsString(new CustomerDTO(customer))));
 
         verify(customerCatalog, times(1)).findCustomerByEmail(email);
     }

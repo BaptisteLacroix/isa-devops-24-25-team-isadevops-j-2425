@@ -82,7 +82,7 @@ class CustomerCatalogTest {
         when(customerRepository.findByEmail("test@example.com"))
                 .thenReturn(Optional.of(customer));
 
-        CustomerDTO result = customerCatalog.findCustomerByEmail("test@example.com");
+        CustomerDTO result = new CustomerDTO(customerCatalog.findCustomerByEmail("test@example.com"));
 
         assertEquals("test@example.com", result.email());
         verify(customerRepository, times(1)).findByEmail("test@example.com");
