@@ -45,12 +45,14 @@ class PurchaseCatalogTest extends BaseUnitTest {
     private Customer customer2;
     private final int nbGoodPurchase = 4;
     private List<Purchase> allGoodPurchases;
+    @Autowired
+    private PartnerCatalog partnerCatalog;
 
     @BeforeEach
     public void setUp() {
         entityManager.clear();
         assertNotNull(purchaseRepository);
-        purchaseCatalog = new PurchaseCatalog(purchaseRepository, customerCatalog);
+        purchaseCatalog = new PurchaseCatalog(purchaseRepository, customerCatalog, partnerCatalog);
         allGoodPurchases = new ArrayList<>();
 
         customer = new Customer(new CustomerSubscribeDTO("test@example.com", "Alice", "Bob", "14 rue du trottoir, Draguignan"), "51");
@@ -181,6 +183,13 @@ class PurchaseCatalogTest extends BaseUnitTest {
     @Test
     public void testCreatePurchase() throws UnknownCustomerEmailException {
         assertTrue(this.purchaseRepository.findById(this.purchaseCatalog.createPurchase(customer.getEmail(), 5L).getPurchaseId()).isPresent());
+    }
+
+    @Transactional
+    @Test
+    public void testFindById() {
+        assertDoesNotThrow(()-> this.purchaseCatalog.findPurchaseById(allGoodPurchases.getFirst().getPurchaseId()));
+        assertThrows(UnknownPurchaseIdException.class, ()->this.purchaseCatalog.findPurchaseById(54511));
     }
 
     private Purchase refreshPurchase(Purchase p) {
