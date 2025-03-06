@@ -103,7 +103,6 @@ class PartnerCommandsTest {
 
     @Test
     void consultPartnerPerksTest() throws InterruptedException {
-        // Mock the response for the perks API
         mockWebServer.enqueue(new MockResponse()
                 .setBody("""
                         [
