@@ -49,7 +49,7 @@ public class CustomerCommands {
             """)
     public String registerClient(String surname, String firstname, String email, String address) {
         // Création du DTO d'inscription
-        CliCustomerSubscribe registrationDTO = new CliCustomerSubscribe(surname, firstname, email, address);
+        CliCustomerSubscribe registrationDTO = new CliCustomerSubscribe(email, firstname, surname, address);
 
         // Appel vers le CustomerController pour enregistrer le client
         webClient.post()
@@ -60,7 +60,6 @@ public class CustomerCommands {
                         .flatMap(error -> Mono.error(new RuntimeException(error.errorMessage()))))
                 .toBodilessEntity()
                 .block();
-
         return "User registered successfully";
     }
 }

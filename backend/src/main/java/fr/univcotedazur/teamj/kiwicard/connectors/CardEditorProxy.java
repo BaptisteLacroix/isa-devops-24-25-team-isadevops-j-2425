@@ -34,7 +34,7 @@ public class CardEditorProxy  implements ICardCreation {
         try {
             // Call the external service
             return webClient.post()
-                    .uri("/cards/")
+                    .uri("/cards")
                     .bodyValue(cardCreationDto)
                     .retrieve()
                     .onStatus(HttpStatusCode::isError, clientResponse ->
