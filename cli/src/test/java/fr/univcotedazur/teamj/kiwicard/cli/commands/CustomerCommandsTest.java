@@ -1,5 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.cli.commands;
 
+import fr.univcotedazur.teamj.kiwicard.cli.CliSession;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -17,11 +18,13 @@ class CustomerCommandsTest {
     private CustomerCommands customerCommands;
 
     private static MockWebServer mockWebServer;
+    private static CliSession cliSession;
 
     @BeforeAll
     static void setUp() throws Exception {
         mockWebServer = new MockWebServer();
         mockWebServer.start();
+        cliSession = new CliSession();
     }
 
     @AfterAll
@@ -31,7 +34,7 @@ class CustomerCommandsTest {
 
     @BeforeEach
     void init() {
-        customerCommands = new CustomerCommands(WebClient.create(mockWebServer.url("/").toString()));
+        customerCommands = new CustomerCommands(WebClient.create(mockWebServer.url("/").toString()), cliSession);
     }
 
     @Test

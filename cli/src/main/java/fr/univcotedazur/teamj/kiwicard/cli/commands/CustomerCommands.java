@@ -2,6 +2,7 @@ package fr.univcotedazur.teamj.kiwicard.cli.commands;
 
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliCustomerSubscribe;
 import fr.univcotedazur.teamj.kiwicard.cli.model.error.CliError;
+import fr.univcotedazur.teamj.kiwicard.cli.CliSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.shell.standard.ShellComponent;
@@ -16,9 +17,12 @@ public class CustomerCommands {
 
     private final WebClient webClient;
 
+    private final CliSession cliSession;
+
     @Autowired
-    public CustomerCommands(WebClient webClient) {
+    public CustomerCommands(WebClient webClient, CliSession cliSession) {
         this.webClient = webClient;
+        this.cliSession = cliSession;
     }
 
     /**
@@ -60,6 +64,7 @@ public class CustomerCommands {
                         .flatMap(error -> Mono.error(new RuntimeException(error.errorMessage()))))
                 .toBodilessEntity()
                 .block();
-        return "User registered successfully";
+        cliSession.logIn(email);
+        return "Register client successfuly, you are now logged in as " + email;
     }
 }
