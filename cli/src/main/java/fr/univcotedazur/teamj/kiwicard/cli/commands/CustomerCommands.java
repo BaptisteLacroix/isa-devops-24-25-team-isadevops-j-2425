@@ -1,18 +1,13 @@
 package fr.univcotedazur.teamj.kiwicard.cli.commands;
 
-import fr.univcotedazur.teamj.kiwicard.cli.CliContext;
-import fr.univcotedazur.teamj.kiwicard.cli.model.CliCustomer;
+import fr.univcotedazur.teamj.kiwicard.cli.model.CliCustomerSubscribe;
+import fr.univcotedazur.teamj.kiwicard.cli.model.error.CliError;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @ShellComponent
 public class CustomerCommands {
@@ -21,46 +16,51 @@ public class CustomerCommands {
 
     private final WebClient webClient;
 
-    private final CliContext cliContext;
-
     @Autowired
-    public CustomerCommands(WebClient webClient, CliContext cliContext) {
+    public CustomerCommands(WebClient webClient) {
         this.webClient = webClient;
-        this.cliContext = cliContext;
     }
 
-    @ShellMethod("Register a customer in the CoD backend (register CUSTOMER_NAME CREDIT_CARD_NUMBER)")
-    public CliCustomer register(String name, String creditCard) {
-        CliCustomer res = webClient.post()
+    /**
+     * Commande CLI pour enregistrer un client.
+     * Exemple d'utilisation :
+     * register-client --surname Pierre --firstname Dupont --email pierre.dupont@email.com
+     * --address "123 rue de Paris"
+     *
+     * @param surname   Le nom de famille du client
+     * @param firstname Le prénom du client
+     * @param email     L'email du client
+     * @param address   L'adresse du client
+     * @return Message de confirmation ou message d'erreur
+     */
+    @ShellMethod("""
+            
+                Register a new client:
+                Usage: register-client --surname <surname> --firstname <firstname> --email <email> --address <address>
+            
+                Parameters:
+                    --surname   The surname of the client.
+                    --firstname The first name of the client.
+                    --email     The email address of the client.
+                    --address   The address of the client.
+            
+                Example:
+                    register-client --surname "Doe" --firstname "John" --email "john.doe@example.com" --address "123 Main St, City, Country"
+            """)
+    public String registerClient(String surname, String firstname, String email, String address) {
+        // Création du DTO d'inscription
+        CliCustomerSubscribe registrationDTO = new CliCustomerSubscribe(surname, firstname, email, address);
+
+        // Appel vers le CustomerController pour enregistrer le client
+        webClient.post()
                 .uri(BASE_URI)
-                .bodyValue(new CliCustomer(name, creditCard))
+                .bodyValue(registrationDTO)
                 .retrieve()
-                .bodyToMono(CliCustomer.class)
+                .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(CliError.class)
+                        .flatMap(error -> Mono.error(new RuntimeException(error.errorMessage()))))
+                .toBodilessEntity()
                 .block();
-        cliContext.getCustomers().put(Objects.requireNonNull(res).getName(), res);
-        return res;
-    }
 
-    @ShellMethod("List all known customers")
-    public String customers() {
-        return cliContext.getCustomers().toString();
+        return "User registered successfully";
     }
-
-    @ShellMethod("Update all known customers from server")
-    public String updateCustomers() {
-        Map<String, CliCustomer> customerMap = cliContext.getCustomers();
-        customerMap.clear();
-        CliCustomer[] customers = webClient
-                .get()
-                .uri(BASE_URI)
-                .retrieve()
-                .bodyToMono(CliCustomer[].class)
-                .switchIfEmpty(Mono.just(new CliCustomer[0])) // Provide default empty array if response body is null
-                .block();
-        customerMap.putAll(Arrays.stream(customers)
-                        .collect(Collectors.toMap(CliCustomer::getName, Function.identity()))
-        );
-        return customerMap.toString();
-    }
-
 }
