@@ -37,8 +37,10 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
 
     @Override
     @Transactional
-    public void consumeNLastPurchaseOfCustomerInPartner(CustomerDTO customer, PartnerDTO partner, int nbPurchasesToConsume) throws UnknownCustomerEmailException, UnknownPartnerIdException {
-        var res  = this.purchaseRepository.findAllByCustomerAndPartner(customer.email(), partner.id(), nbPurchasesToConsume);
+    public void consumeNLastPurchaseOfCustomerInPartner(String customerEmail, Long partnerId, int nbPurchasesToConsume) throws UnknownCustomerEmailException, UnknownPartnerIdException {
+        this.customerCatalog.findCustomerByEmail(customerEmail);
+        this.partnerCatalog.findPartnerById(partnerId);
+        var res  = this.purchaseRepository.findAllByCustomerAndPartner(customerEmail, partnerId, nbPurchasesToConsume);
         res.forEach(p -> p.setAlreadyConsumedInAPerk(true));
     }
 

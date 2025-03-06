@@ -166,7 +166,7 @@ class PurchaseCatalogTest extends BaseUnitTest {
         purchase3.setAlreadyConsumedInAPerk(false);
         customer2.addPurchase(purchase3);
 
-        purchaseCatalog.consumeNLastPurchaseOfCustomerInPartner(new CustomerDTO(customer), new PartnerDTO(partner), 100);
+        purchaseCatalog.consumeNLastPurchaseOfCustomerInPartner(customer.getEmail(), partner.getPartnerId(), 100);
 
         // these two purchases should not be consumed
         Stream.of(purchase2, purchase3)

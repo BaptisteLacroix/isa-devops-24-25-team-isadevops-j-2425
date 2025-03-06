@@ -13,7 +13,7 @@ public interface IPurchaseConsumer {
 
     void consumeNLastPurchaseOfCustomer(CustomerDTO customer, int nbPurchasesToConsume) throws UnknownCustomerEmailException;
 
-    void consumeNLastPurchaseOfCustomerInPartner (CustomerDTO customer, PartnerDTO partner, int nbPurchasesToConsume) throws UnknownCustomerEmailException, UnknownPartnerIdException;
+    void consumeNLastPurchaseOfCustomerInPartner (String customerEmail, Long partnerId, int nbPurchasesToConsume) throws UnknownCustomerEmailException, UnknownPartnerIdException;
 
     void consumeNLastItemsOfCustomerInPartner(int nbItemsConsumed, String customerEmail, long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException;
 }
