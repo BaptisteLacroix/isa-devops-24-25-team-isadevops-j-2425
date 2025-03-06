@@ -12,10 +12,7 @@ import java.util.List;
  * Recherche et récupération de client
  */
 public interface ICustomerFinder {
-    CustomerDTO findCustomerDTOByEmail(String customerEMail) throws UnknownCustomerEmailException;
-
-    Customer findCustomerByEmail(String customerEmail) throws UnknownCustomerEmailException;
-
+    Customer findCustomerByEmail(String customerEMail) throws UnknownCustomerEmailException;
     CustomerDTO findCustomerByCardNum(String cardNumber) throws UnknownCardNumberException;
     List<CustomerDTO> findAll();
 

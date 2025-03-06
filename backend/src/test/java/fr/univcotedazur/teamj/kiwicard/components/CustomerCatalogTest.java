@@ -74,7 +74,7 @@ class CustomerCatalogTest {
     }
 
     @Test
-    void findCustomerDTOByEmail() throws Exception {
+    void findCustomerByEmail() throws Exception {
         CustomerSubscribeDTO customersubscribe = new CustomerSubscribeDTO(
                 "test@example.com", "Roxane", "Roxx", "2 passage Marie Antoinette"
         );
@@ -82,18 +82,18 @@ class CustomerCatalogTest {
         when(customerRepository.findByEmail("test@example.com"))
                 .thenReturn(Optional.of(customer));
 
-        CustomerDTO result = customerCatalog.findCustomerDTOByEmail("test@example.com");
+        CustomerDTO result = new CustomerDTO(customerCatalog.findCustomerByEmail("test@example.com"));
 
         assertEquals("test@example.com", result.email());
         verify(customerRepository, times(1)).findByEmail("test@example.com");
     }
 
     @Test
-    void findCustomerDTOByEmailNotFound() {
+    void findCustomerByEmailNotFound() {
         when(customerRepository.findByEmail("inconnu@example.com"))
                 .thenReturn(Optional.empty());
         assertThrows(UnknownCustomerEmailException.class, () ->
-                customerCatalog.findCustomerDTOByEmail("inconnu@example.com"));
+                customerCatalog.findCustomerByEmail("inconnu@example.com"));
         verify(customerRepository, times(1)).findByEmail("inconnu@example.com");
     }
 

@@ -3,6 +3,7 @@ package fr.univcotedazur.teamj.kiwicard.controllers;
 import fr.univcotedazur.teamj.kiwicard.components.CustomerCatalog;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
+import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyUsedEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCardNumberException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
@@ -53,11 +54,12 @@ class CustomerControllerTest {
         String email = "test@example.com";
         String dummyCard = "ignored"; // Ce paramètre n'est pas utilisé si email != null
         CustomerDTO customerDTO = new CustomerDTO("test@example.com", "Roxane", "Roxx", false);
-        when(customerCatalog.findCustomerDTOByEmail(email)).thenReturn(customerDTO);
+        Customer customer = new Customer(customerDTO);
+        when(customerCatalog.findCustomerByEmail(email)).thenReturn(customer);
 
         CustomerDTO result = customerController.findCustomerByEmailOrByCardNumber(email, dummyCard);
         assertEquals(customerDTO, result);
-        verify(customerCatalog, times(1)).findCustomerDTOByEmail(email);
+        verify(customerCatalog, times(1)).findCustomerByEmail(email);
     }
 
     // Test pour la recherche par numéro de carte (cas : email est null)
@@ -76,10 +78,10 @@ class CustomerControllerTest {
     void findCustomerByEmailThrowsException() throws Exception {
         String email = "inconnu@example.com";
         String dummyCard = "ignored";
-        doThrow(new UnknownCustomerEmailException()).when(customerCatalog).findCustomerDTOByEmail(email);
+        doThrow(new UnknownCustomerEmailException(email)).when(customerCatalog).findCustomerByEmail(email);
 
         assertThrows(UnknownCustomerEmailException.class, () -> customerController.findCustomerByEmailOrByCardNumber(email, dummyCard));
-        verify(customerCatalog, times(1)).findCustomerDTOByEmail(email);
+        verify(customerCatalog, times(1)).findCustomerByEmail(email);
     }
 
     @Test

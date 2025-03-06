@@ -48,16 +48,12 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
     }
 
     @Override
-    public CustomerDTO findCustomerDTOByEmail(String customerEmail) throws UnknownCustomerEmailException {
+    public Customer findCustomerByEmail(String customerEmail) throws UnknownCustomerEmailException {
         Customer customer = customerRepository.findByEmail(customerEmail).orElse(null);
         if (customer == null) {
-            throw new UnknownCustomerEmailException();
+            throw new UnknownCustomerEmailException(customerEmail);
         }
-        return new CustomerDTO(customer);
-    }
-
-    public Customer findCustomerByEmail(String customerEmail) throws UnknownCustomerEmailException {
-        return customerRepository.findByEmail(customerEmail).orElseThrow(UnknownCustomerEmailException::new);
+        return customer;
     }
 
     @Override
@@ -82,7 +78,7 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
     public void setCart(String customerEmail, CartDTO cartDto) throws UnknownCustomerEmailException {
         Customer customer = customerRepository.findByEmail(customerEmail).orElse(null);
         if (customer == null) {
-            throw new UnknownCustomerEmailException();
+            throw new UnknownCustomerEmailException(customerEmail);
         }
         customer.setCart(new Cart(cartDto));
         customerRepository.save(customer);
@@ -92,7 +88,7 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
     public void emptyCart(String customerEmail) throws UnknownCustomerEmailException {
         Customer customer = customerRepository.findByEmail(customerEmail).orElse(null);
         if (customer == null) {
-            throw new UnknownCustomerEmailException();
+            throw new UnknownCustomerEmailException(customerEmail);
         }
         customer.getCart().empty();
         customerRepository.save(customer);

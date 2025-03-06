@@ -25,6 +25,8 @@ public class CartItem {
     @Column
     private LocalDateTime startTime;
 
+    private double price;
+
     @Column
     private LocalDateTime endTime;
 
@@ -39,6 +41,12 @@ public class CartItem {
     }
 
     public CartItem() {
+    }
+
+    public CartItem(Item item, int quantity){
+        this.item = item;
+        this.quantity = quantity;
+        this.price = item.getPrice() * quantity;
     }
 
     public CartItem(int quantity, LocalDateTime startTime, LocalDateTime endTime) {
@@ -57,6 +65,10 @@ public class CartItem {
 
     public int getQuantity() {
         return quantity;
+    }
+
+    public void increaseQuantity(int quantity) {
+        this.quantity += quantity;
     }
 
     public void setQuantity(int quantity) {
@@ -84,5 +96,10 @@ public class CartItem {
     }
 
     public boolean isConsumed() {return this.consumed;}
+
+    public double getPrice() {
+        return price;
+    }
+
 }
 

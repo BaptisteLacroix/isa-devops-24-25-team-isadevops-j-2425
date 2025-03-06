@@ -2,7 +2,6 @@ package fr.univcotedazur.teamj.kiwicard.entities;
 
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -18,6 +17,10 @@ public class Purchase {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "cart_id", unique = true)
     private Cart cart;
+
+    @ManyToOne
+    @JoinColumn(name = "partner_id")
+    private Partner partner;
 
     @NotNull
     @Column
@@ -64,5 +67,9 @@ public class Purchase {
 
     public void setPayment(Payment payment) {
         this.payment = payment;
+    }
+
+    public void setPartner(Partner partner) {
+        this.partner = partner;
     }
 }
