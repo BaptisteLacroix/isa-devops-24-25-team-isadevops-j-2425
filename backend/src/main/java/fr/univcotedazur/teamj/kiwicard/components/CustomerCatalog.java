@@ -38,7 +38,7 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
 
     @Override
     public CustomerDTO register(CustomerSubscribeDTO customerSubscribeDTO) throws AlreadyUsedEmailException, UnreachableExternalServiceException {
-        if (customerRepository.findByEmail(customerSubscribeDTO.email()).isPresent()) {
+        if (customerRepository.findByEmail(customerSubscribeDTO.email()) != null) {
             throw new AlreadyUsedEmailException();
         }
         CardDTO cardDto = cardEditorProxy.orderACard(customerSubscribeDTO.email(), customerSubscribeDTO.address());
