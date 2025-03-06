@@ -3,7 +3,7 @@ package fr.univcotedazur.teamj.kiwicard.dto.perks;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import fr.univcotedazur.teamj.kiwicard.mappers.PerkDTOVisitor;
 
-public sealed interface IPerkDTO permits NPurchasedMGiftedPerkDTO, TimedDiscountInPercentPerkDTO, VfpDiscountInPercentPerkDTO {
+public interface IPerkDTO {
     Long perkId();
     @JsonGetter("description")
     default  String getDescription() {

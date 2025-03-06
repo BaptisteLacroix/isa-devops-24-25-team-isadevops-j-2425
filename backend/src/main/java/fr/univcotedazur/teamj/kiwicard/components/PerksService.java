@@ -35,7 +35,7 @@ public class PerksService implements IPerksConsumer {
     @Transactional
     public boolean applyPerk(long perkId, String cartOwnerEmail) throws UnknownPerkIdException, UnknownCustomerEmailException {
         AbstractPerk perk = PerkMapper.fromDTO(perksFinder.findPerkById(perkId));
-        Customer customer = new Customer(customerFinder.findCustomerByEmail(cartOwnerEmail));
+        Customer customer = customerFinder.findCustomerByEmail(cartOwnerEmail);
 
         Cart cart = customer.getCart();
         if (cart == null) {
@@ -54,7 +54,7 @@ public class PerksService implements IPerksConsumer {
 
     @Override
     public List<IPerkDTO> findConsumablePerksForConsumerAtPartner(String consumerEmail, long partnerId) throws  UnknownCustomerEmailException, UnknownCartIdException, UnknownPartnerIdException {
-        Customer customer = new Customer(customerFinder.findCustomerByEmail(consumerEmail));
+        Customer customer =customerFinder.findCustomerByEmail(consumerEmail);
         Partner partner = new Partner(partnerManager.findPartnerById(partnerId));
         return partner.getPerkList()
                 .stream()

@@ -1,6 +1,5 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
-import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.*;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
@@ -54,19 +53,15 @@ class PerksServiceTest {
         IPerkDTO dummyPerkDTO = dummyPerk.accept(new PerkToDTOVisitor());
         when(perksFinder.findPerkById(perkId)).thenReturn(dummyPerkDTO);
 
-        CustomerDTO dummyCustomerData = new CustomerDTO(email, "John","tester",true);
-        when(customerFinder.findCustomerByEmail(email)).thenReturn(dummyCustomerData);
+        Customer customer = spy(new Customer(email, "John", "tester", "3 passe", true));
+        when(customerFinder.findCustomerByEmail(email)).thenReturn(customer);
         Cart cart = spy(new Cart());
-        try (MockedConstruction<Customer> mocked = mockConstruction(Customer.class, (mock, context) -> {
-            when(mock.getCart()).thenReturn(cart);
-        })) {
-            boolean result = perksService.applyPerk(perkId, email);
-            verify(cart, times(1)).usePerk(any(), any());
-            verify(dummyPerk, never()).apply(any());
-            verify(cart, never()).addToTotalPercentageReduction(anyDouble());
-            assertTrue(result);
-        }
-
+        when(customer.getCart()).thenReturn(cart);
+        boolean result = perksService.applyPerk(perkId, email);
+        verify(cart, times(1)).usePerk(any(), any());
+        verify(dummyPerk, never()).apply(any());
+        verify(cart, never()).addToTotalPercentageReduction(anyDouble());
+        assertTrue(result);
     }
 
     @Test
@@ -80,14 +75,13 @@ class PerksServiceTest {
         IPerkDTO dummyPerkDTO = dummyPerk.accept(new PerkToDTOVisitor());
         when(perksFinder.findPerkById(perkId)).thenReturn(dummyPerkDTO);
 
-        CustomerDTO dummyCustomerData = new CustomerDTO(email, "John","tester",true);
-        when(customerFinder.findCustomerByEmail(email)).thenReturn(dummyCustomerData);
+        Customer customer = spy(new Customer(email, "John", "tester", "3 passe", true));
+        when(customerFinder.findCustomerByEmail(email)).thenReturn(customer);
         Cart cart = spy(new Cart());
         cart.addItem(cartItem);
-        MockedConstruction<Customer> customerMockedConstruction=mockConstruction(Customer.class, (mock, context) -> {
-            when(mock.getCart()).thenReturn(cart);
-        });
-        MockedConstruction<Item> itemMockedConstruction= mockConstruction(Item.class, (mock, context) -> {
+
+        when(customer.getCart()).thenReturn(cart);
+        MockedConstruction<Item> itemMockedConstruction = mockConstruction(Item.class, (mock, context) -> {
             when(mock.getItemId()).thenReturn(1L);
         });
 
@@ -95,10 +89,9 @@ class PerksServiceTest {
         verify(cart, times(1)).usePerk(any(), any());
         verify(dummyPerk, never()).apply(any());
         assertEquals(4, cartItem.getQuantity());
-        assertEquals(item.getPrice()*3, cartItem.getPrice());
+        assertEquals(item.getPrice() * 3, cartItem.getPrice());
         assertTrue(result);
         itemMockedConstruction.close();
-        customerMockedConstruction.close();
     }
 
 
@@ -128,8 +121,8 @@ class PerksServiceTest {
         String email = "client@example.com";
         long partnerId = 1L;
 
-        CustomerDTO dummyCustomerData = new CustomerDTO(email, "John","tester",true);
-        when(customerFinder.findCustomerByEmail(email)).thenReturn(dummyCustomerData);
+        Customer customer = new Customer(email, "John", "tester", "3 passe", true);
+        when(customerFinder.findCustomerByEmail(email)).thenReturn(customer);
 
         AbstractPerk dummyPerk = new TimedDiscountInPercentPerk(LocalTime.now().minusMinutes(10), 20);
         AbstractPerk dummyPerk1 = new TimedDiscountInPercentPerk(LocalTime.now().plusMinutes(10), 20);
@@ -158,8 +151,8 @@ class PerksServiceTest {
     void testFindConsumablePerksForConsumerAtPartnerUnknownPartner() throws UnknownCustomerEmailException, UnknownPartnerIdException {
         String email = "client@example.com";
         long partnerId = 2L;
-        CustomerDTO dummyCustomerData = new CustomerDTO(email, "John","tester",true);
-        when(customerFinder.findCustomerByEmail(email)).thenReturn(dummyCustomerData);
+        Customer customer = new Customer(email, "John", "tester", "3 passe", true);
+        when(customerFinder.findCustomerByEmail(email)).thenReturn(customer);
         when(partnerManager.findPartnerById(partnerId)).thenThrow(new UnknownPartnerIdException(partnerId));
         assertThrows(UnknownPartnerIdException.class,
                 () -> perksService.findConsumablePerksForConsumerAtPartner(email, partnerId));

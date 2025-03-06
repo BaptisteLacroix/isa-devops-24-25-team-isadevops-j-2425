@@ -39,12 +39,12 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
     }
 
     @Override
-    public CustomerDTO findCustomerByEmail(String customerEmail) throws UnknownCustomerEmailException {
+    public Customer findCustomerByEmail(String customerEmail) throws UnknownCustomerEmailException {
         Customer customer = customerRepository.findByEmail(customerEmail).orElse(null);
         if (customer == null) {
             throw new UnknownCustomerEmailException(customerEmail);
         }
-        return new CustomerDTO(customer);
+        return customer;
     }
 
     @Override
