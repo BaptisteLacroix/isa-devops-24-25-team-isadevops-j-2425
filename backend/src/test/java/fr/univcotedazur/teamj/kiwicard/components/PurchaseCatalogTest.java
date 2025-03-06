@@ -88,6 +88,15 @@ class PurchaseCatalogTest extends BaseUnitTest {
             entityManager.persist(payment);
 
             Cart purchaseCart = new Cart();
+            for (int i1 = 0; i1 < 3; i1++) {
+                CartItem ci = new CartItem();
+                entityManager.persist(ci);
+                Item item1 = new Item("croissant " + i1, 10.0 + i1);
+                entityManager.persist(item1);
+                ci.setItem(item1);
+                purchaseCart.addItem(ci);
+            }
+
             // TODO : remove this commented line once fixed
             // Partner currentPartner = (i < nbGoodPurchase - 1) ? partner : partner2;
             Partner currentPartner = partner;
@@ -190,6 +199,19 @@ class PurchaseCatalogTest extends BaseUnitTest {
     public void testFindById() {
         assertDoesNotThrow(()-> this.purchaseCatalog.findPurchaseById(allGoodPurchases.getFirst().getPurchaseId()));
         assertThrows(UnknownPurchaseIdException.class, ()->this.purchaseCatalog.findPurchaseById(54511));
+    }
+
+    @Transactional
+    @Test
+    void consumeNLastItemsOfCustomerInPartner() throws UnknownCustomerEmailException, UnknownPartnerIdException {
+        int itemsToConsume = allGoodPurchases.stream().map(p->p.getCart().getItems().size()).reduce(Integer::sum).orElseThrow() - 1;
+        purchaseCatalog.consumeNLastItemsOfCustomerInPartner(itemsToConsume, customer.getEmail(), partner.getPartnerId());
+
+        for (Purchase purchase : allGoodPurchases.stream().map(this::refreshPurchase).toList()) {
+            int nbConsumed = (int) purchase.getCart().getItems().stream().filter(CartItem::isConsumed).count();
+            assertEquals(nbConsumed, Math.min(purchase.getCart().getItems().size(), itemsToConsume));
+            itemsToConsume-=nbConsumed;
+        }
     }
 
     private Purchase refreshPurchase(Purchase p) {

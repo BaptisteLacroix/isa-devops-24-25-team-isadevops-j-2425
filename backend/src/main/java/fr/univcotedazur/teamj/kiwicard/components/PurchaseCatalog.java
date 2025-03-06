@@ -45,17 +45,14 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
     }
 
 
+    @Transactional
     @Override
     public void consumeNLastItemsOfCustomerInPartner(int nbItemsConsumed, String customerEmail, long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException {
-//        Customer customer =  this.customerRepository.findByEmail(customerEmail).orElseThrow(UnknownCustomerEmailException::new);
-//        Partner partner = this.partnerRepository.findById(partnerId).orElseThrow(()-> new UnknownPartnerIdException(partnerId));
-//        customer.getPurchases().stream()
-//                .filter(p-> !p.isAlreadyConsumedInAPerk() && p.getCart().getPartner().equals(partner))
-//                .sorted((e1, e2) -> e2.getPayment().getTimestamp().compareTo(e1.getPayment().getTimestamp()))
-//                .map(p -> p.getCart().getItems())
-//                .flatMap(Collection::stream)
-//                .limit(nbItemsConsumed)
-//                .forEach((i)->i.setConsumed(true));
+        this.purchaseRepository.findAllByCustomerAndPartner(customerEmail, partnerId).stream()
+                .map(p -> p.getCart().getItems())
+                .flatMap(Collection::stream)
+                .limit(nbItemsConsumed)
+                .forEach((i)->i.setConsumed(true));
     }
 
     @Transactional
