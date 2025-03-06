@@ -4,15 +4,18 @@ import fr.univcotedazur.teamj.kiwicard.BaseUnitTest;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.PaymentDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.*;
 import fr.univcotedazur.teamj.kiwicard.exceptions.*;
 import fr.univcotedazur.teamj.kiwicard.repositories.IPurchaseRepository;
-import io.micrometer.core.instrument.MockClock;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -20,14 +23,17 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DataJpaTest
+@SpringBootTest
 class PurchaseCatalogTest extends BaseUnitTest {
 
     @Autowired
     private IPurchaseRepository purchaseRepository;
 
     @Autowired
-    private TestEntityManager entityManager;
+    private CustomerCatalog customerCatalog;
+
+    @Autowired
+    private EntityManager entityManager;
 
     private Customer customer;
 
@@ -38,12 +44,14 @@ class PurchaseCatalogTest extends BaseUnitTest {
     private PurchaseCatalog purchaseCatalog;
     private Customer customer2;
     private final int nbGoodPurchase = 4;
-    private List<Purchase> allPurchases = new ArrayList<>();
+    private List<Purchase> allGoodPurchases;
 
     @BeforeEach
     public void setUp() {
+        entityManager.clear();
         assertNotNull(purchaseRepository);
-        purchaseCatalog = new PurchaseCatalog(purchaseRepository);
+        purchaseCatalog = new PurchaseCatalog(purchaseRepository, customerCatalog);
+        allGoodPurchases = new ArrayList<>();
 
         customer = new Customer(new CustomerSubscribeDTO("test@example.com", "Alice", "Bob", "14 rue du trottoir, Draguignan"), "51");
         customer2 = new Customer(new CustomerSubscribeDTO("test2@example.com", "Alic2e", "Bob2", "14 rue du trottoir, Draguignan2"), "52");
@@ -89,17 +97,50 @@ class PurchaseCatalogTest extends BaseUnitTest {
             purchase.setAlreadyConsumedInAPerk(false);
             customer.addPurchase(purchase);
             entityManager.persist(purchase);
-            allPurchases.add(purchase);
+            allGoodPurchases.add(purchase);
         }
 
         entityManager.flush();
         entityManager.clear();
     }
 
+
+    @Test
+    @Transactional
+    public void consumeNLastPurchaseOfCustomerWithBadPurchase() throws UnknownCustomerEmailException, UnknownPartnerIdException {
+        // good partner, bad customer
+        Cart cart3 = new Cart();
+        cart3.setPartner(partner);
+        customer2.setCart(cart3);
+        entityManager.persist(cart3);
+        Payment payment3 = new Payment(2, LocalDateTime.now());
+        entityManager.persist(payment3);
+        Purchase purchase3 = new Purchase(payment3, cart3);
+        entityManager.persist(purchase3);
+        purchase3.setAlreadyConsumedInAPerk(false);
+        customer2.addPurchase(purchase3);
+
+        purchaseCatalog.consumeNLastPurchaseOfCustomer(new CustomerDTO(customer), allGoodPurchases.size() + 1);
+        allGoodPurchases.stream().map(this::refreshPurchase).forEach(purchase -> assertTrue(purchase.isAlreadyConsumedInAPerk()));
+        assertFalse(this.refreshPurchase(purchase3).isAlreadyConsumedInAPerk());
+    }
+
+    @Test
+    @Transactional
+    public void consumeNLastPurchaseOfCustomerWithSmallerN() throws UnknownCustomerEmailException, UnknownPartnerIdException {
+        purchaseCatalog.consumeNLastPurchaseOfCustomer(new CustomerDTO(customer), allGoodPurchases.size() - 1);
+        for (int i = 0; i < allGoodPurchases.size() -1; i++) {
+            assertTrue(refreshPurchase(this.allGoodPurchases.get(i)).isAlreadyConsumedInAPerk());
+        }
+        assertFalse(refreshPurchase(this.allGoodPurchases.getLast()).isAlreadyConsumedInAPerk());
+    }
+
+
+    @Transactional
     @Test
     public void consumeNLastPurchaseOfCustomerInPartner() throws UnknownCustomerEmailException, UnknownPartnerIdException {
         // persist the bad cases :
-        // good customer, bad purchase
+        // good customer, bad partner
         Cart cart2 = new Cart();
         cart2.setPartner(partner2);
         customer.setCart(cart2);
@@ -127,14 +168,23 @@ class PurchaseCatalogTest extends BaseUnitTest {
 
         // these two purchases should not be consumed
         Stream.of(purchase2, purchase3)
-                .map(p-> purchaseRepository.findById(p.getPurchaseId()).orElseThrow()) // refresh purchases objects
+                .map(this::refreshPurchase)
                 .forEach(p->assertFalse(p.isAlreadyConsumedInAPerk()));
 
         // The other ones set up in the before each should be consumed
-        this.allPurchases
+        this.allGoodPurchases
                 .stream()
-                .map(p-> purchaseRepository.findById(p.getPurchaseId()).orElseThrow()) // refresh purchases objects
+                .map(this::refreshPurchase)
                 .forEach(p-> assertTrue(p.isAlreadyConsumedInAPerk()));
+    }
+    @Transactional
+    @Test
+    public void testCreatePurchase() throws UnknownCustomerEmailException {
+        assertTrue(this.purchaseRepository.findById(this.purchaseCatalog.createPurchase(customer.getEmail(), 5L).getPurchaseId()).isPresent());
+    }
+
+    private Purchase refreshPurchase(Purchase p) {
+        return purchaseRepository.findById(p.getPurchaseId()).orElseThrow();
     }
 }
 

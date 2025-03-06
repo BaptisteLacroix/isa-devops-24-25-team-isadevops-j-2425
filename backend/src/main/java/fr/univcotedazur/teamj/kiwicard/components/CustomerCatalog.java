@@ -15,6 +15,7 @@ import fr.univcotedazur.teamj.kiwicard.interfaces.customer.ICustomerCartSaver;
 import fr.univcotedazur.teamj.kiwicard.interfaces.customer.ICustomerFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.customer.ICustomerRegistration;
 import fr.univcotedazur.teamj.kiwicard.repositories.ICustomerRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,9 +28,17 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
 
     CardEditorProxy cardEditorProxy;
 
+
+    @Autowired
+    public CustomerCatalog(ICustomerRepository customerRepository, CardEditorProxy cardEditorProxy) {
+        this.customerRepository = customerRepository;
+        this.cardEditorProxy = cardEditorProxy;
+    }
+
+
     @Override
     public CustomerDTO register(CustomerSubscribeDTO customerSubscribeDTO) throws AlreadyUsedEmailException, UnreachableExternalServiceException {
-        if (customerRepository.findByEmail(customerSubscribeDTO.email()) != null) {
+        if (customerRepository.findByEmail(customerSubscribeDTO.email()).isPresent()) {
             throw new AlreadyUsedEmailException();
         }
         CardDTO cardDto = cardEditorProxy.orderACard(customerSubscribeDTO.email(), customerSubscribeDTO.address());
@@ -39,12 +48,16 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
     }
 
     @Override
-    public CustomerDTO findCustomerByEmail(String customerEmail) throws UnknownCustomerEmailException {
+    public CustomerDTO findCustomerDTOByEmail(String customerEmail) throws UnknownCustomerEmailException {
         Customer customer = customerRepository.findByEmail(customerEmail).orElse(null);
         if (customer == null) {
             throw new UnknownCustomerEmailException();
         }
         return new CustomerDTO(customer);
+    }
+
+    public Customer findCustomerByEmail(String customerEmail) throws UnknownCustomerEmailException {
+        return customerRepository.findByEmail(customerEmail).orElseThrow(UnknownCustomerEmailException::new);
     }
 
     @Override

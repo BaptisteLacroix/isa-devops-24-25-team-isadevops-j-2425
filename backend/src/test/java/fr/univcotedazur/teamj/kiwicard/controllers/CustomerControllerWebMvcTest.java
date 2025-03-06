@@ -73,7 +73,7 @@ class CustomerControllerWebMvcTest extends BaseUnitTest {
         // Création d'un CustomerDTO factice
         CustomerDTO customerDTO = new CustomerDTO("test@example.com", "Roxane", "Roxx", false);
 
-        when(customerCatalog.findCustomerByEmail(email)).thenReturn(customerDTO);
+        when(customerCatalog.findCustomerDTOByEmail(email)).thenReturn(customerDTO);
 
         // Appel GET sur /customers sans slash final, avec les paramètres requis
         mockMvc.perform(get("/customers")
@@ -82,7 +82,7 @@ class CustomerControllerWebMvcTest extends BaseUnitTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(customerDTO)));
 
-        verify(customerCatalog, times(1)).findCustomerByEmail(email);
+        verify(customerCatalog, times(1)).findCustomerDTOByEmail(email);
     }
 
     @Test

@@ -22,12 +22,24 @@ public interface IPurchaseRepository extends JpaRepository<Purchase, Long> {
             where c.email = :customerEmail
             and p member of c.purchaseList
             AND p.cart.partner.partnerId = :partnerId
-            ORDER BY p.payment.timestamp ASC
+            ORDER BY p.payment.timestamp DESC
             LIMIT :nbPurchasesToConsume
     """
     )
     List<Purchase> findPurchasesToConsume(@Param("customerEmail") String customerEmail,
                                           @Param("partnerId") long partnerId,
+                                          @Param("nbPurchasesToConsume") int nbPurchasesToConsume);
+
+    @Query(
+            """
+                SELECT p FROM Purchase p, Customer c
+                    where c.email = :customerEmail
+                    and p member of c.purchaseList
+                    ORDER BY p.payment.timestamp DESC
+                    LIMIT :nbPurchasesToConsume
+            """
+    )
+    List<Purchase> findPurchasesToConsume(@Param("customerEmail") String customerEmail,
                                           @Param("nbPurchasesToConsume") int nbPurchasesToConsume);
 
     Object queryPurchaseByPurchaseId(Long purchaseId);

@@ -11,7 +11,7 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 */
 public interface IPurchaseConsumer {
 
-    void consumeNLastPurchaseOfCustomer(int nbPurchasesToConsume, String customerEmail) throws UnknownCustomerEmailException;
+    void consumeNLastPurchaseOfCustomer(CustomerDTO customer, int nbPurchasesToConsume) throws UnknownCustomerEmailException;
 
     void consumeNLastPurchaseOfCustomerInPartner (CustomerDTO customer, PartnerDTO partner, int nbPurchasesToConsume) throws UnknownCustomerEmailException, UnknownPartnerIdException;
 

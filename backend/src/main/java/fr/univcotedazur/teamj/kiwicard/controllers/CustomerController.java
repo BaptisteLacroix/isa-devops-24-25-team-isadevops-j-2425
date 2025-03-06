@@ -28,7 +28,7 @@ public class CustomerController {
     @GetMapping("")
     public CustomerDTO findCustomerByEmailOrByCardNumber(@RequestParam String email, @RequestParam String cardNumber) throws UnknownCustomerEmailException, UnknownCardNumberException {
         if (email != null) {
-            return customerCatalog.findCustomerByEmail(email);
+            return customerCatalog.findCustomerDTOByEmail(email);
         } else {
             return customerCatalog.findCustomerByCardNum(cardNumber);
         }

@@ -10,6 +10,6 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPaymentIdException;
  * Création d'achat lors du règlement d'un panier
  */
 public interface IPurchaseCreator {
-    PurchaseDTO createPurchase(String customerEmail, PaymentDTO paymentDTO) throws UnknownCustomerEmailException, UnknownPaymentIdException;
+    PurchaseDTO createPurchase(String customerEmail, Long  amount) throws UnknownCustomerEmailException, UnknownPaymentIdException;
 
 }

@@ -53,11 +53,11 @@ class CustomerControllerTest {
         String email = "test@example.com";
         String dummyCard = "ignored"; // Ce paramètre n'est pas utilisé si email != null
         CustomerDTO customerDTO = new CustomerDTO("test@example.com", "Roxane", "Roxx", false);
-        when(customerCatalog.findCustomerByEmail(email)).thenReturn(customerDTO);
+        when(customerCatalog.findCustomerDTOByEmail(email)).thenReturn(customerDTO);
 
         CustomerDTO result = customerController.findCustomerByEmailOrByCardNumber(email, dummyCard);
         assertEquals(customerDTO, result);
-        verify(customerCatalog, times(1)).findCustomerByEmail(email);
+        verify(customerCatalog, times(1)).findCustomerDTOByEmail(email);
     }
 
     // Test pour la recherche par numéro de carte (cas : email est null)
@@ -76,10 +76,10 @@ class CustomerControllerTest {
     void findCustomerByEmailThrowsException() throws Exception {
         String email = "inconnu@example.com";
         String dummyCard = "ignored";
-        doThrow(new UnknownCustomerEmailException()).when(customerCatalog).findCustomerByEmail(email);
+        doThrow(new UnknownCustomerEmailException()).when(customerCatalog).findCustomerDTOByEmail(email);
 
         assertThrows(UnknownCustomerEmailException.class, () -> customerController.findCustomerByEmailOrByCardNumber(email, dummyCard));
-        verify(customerCatalog, times(1)).findCustomerByEmail(email);
+        verify(customerCatalog, times(1)).findCustomerDTOByEmail(email);
     }
 
     @Test

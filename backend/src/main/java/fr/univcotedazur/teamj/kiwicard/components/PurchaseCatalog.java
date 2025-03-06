@@ -2,47 +2,40 @@ package fr.univcotedazur.teamj.kiwicard.components;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.PaymentDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.*;
 import fr.univcotedazur.teamj.kiwicard.exceptions.*;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseConsumer;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseCreator;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseFinder;
-import fr.univcotedazur.teamj.kiwicard.repositories.ICustomerRepository;
-import fr.univcotedazur.teamj.kiwicard.repositories.IPartnerRepository;
 import fr.univcotedazur.teamj.kiwicard.repositories.IPurchaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPurchaseFinder {
     private final IPurchaseRepository purchaseRepository;
-    public PurchaseCatalog(IPurchaseRepository purchaseRepository) {
+    private final CustomerCatalog customerCatalog;
+    @Autowired
+    public PurchaseCatalog(IPurchaseRepository purchaseRepository, CustomerCatalog customerCatalog) {
         this.purchaseRepository = purchaseRepository;
+        this.customerCatalog = customerCatalog;
     }
 
     @Override
-    public void consumeNLastPurchaseOfCustomer(int nbPurchasesToConsume, String customerEmail) throws UnknownCustomerEmailException {
-//        Optional<Customer> customer;
-//        if ((customer = this.customerRepository.findByEmail(customerEmail)).isEmpty())
-//            throw new UnknownCustomerEmailException();
-//        customer.orElseThrow().getPurchases().stream()
-//            .filter(p-> !p.isAlreadyConsumedInAPerk())
-//            .sorted(Comparator.comparing(e -> e.getPayment().getTimestamp()))
-//            .limit(nbPurchasesToConsume)
-//            .forEach(p -> p.setAlreadyConsumedInAPerk(true));
+    public void consumeNLastPurchaseOfCustomer(CustomerDTO customer, int nbPurchasesToConsume) {
+        this.purchaseRepository.findPurchasesToConsume(customer.email(), nbPurchasesToConsume).forEach(p->p.setAlreadyConsumedInAPerk(true));
     }
 
     @Override
+    @Transactional
     public void consumeNLastPurchaseOfCustomerInPartner(CustomerDTO customer, PartnerDTO partner, int nbPurchasesToConsume) throws UnknownCustomerEmailException, UnknownPartnerIdException {
         var res  = this.purchaseRepository.findPurchasesToConsume(customer.email(), partner.id(), nbPurchasesToConsume);
         res.forEach(p -> p.setAlreadyConsumedInAPerk(true));
-        this.purchaseRepository.saveAll(res);
     }
 
 
@@ -59,18 +52,19 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
 //                .forEach((i)->i.setConsumed(true));
     }
 
+    @Transactional
     @Override
-    public PurchaseDTO createPurchase(String customerEmail, PaymentDTO paymentDTO) throws UnknownCustomerEmailException, UnknownPaymentIdException {
-//        Optional<Customer> customer;
-//        if ((customer = this.customerRepository.findByEmail(customerEmail)).isEmpty())
-//            throw new UnknownCustomerEmailException();
-//        Cart cart = customer.orElseThrow().getCart();
-//        Payment payment = new Payment(paymentDTO.getAmount(), LocalDateTime.now());
-//        return new PurchaseDTO(new Purchase(
-//                payment,
-//                cart
-//        ));
-        return null;
+    public PurchaseDTO createPurchase(String customerEmail, Long amount) throws UnknownCustomerEmailException {
+        Customer customer = this.customerCatalog.findCustomerByEmail(customerEmail);
+        Cart cart = customer.getCart();
+        Payment payment = new Payment(amount, LocalDateTime.now());
+        var purchase = new Purchase(
+                payment,
+                cart
+        );
+        this.purchaseRepository.save(purchase);
+        return new PurchaseDTO(purchase);
+
     }
 
     @Override
