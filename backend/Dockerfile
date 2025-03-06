@@ -16,4 +16,4 @@ RUN chown -R dockeruser:dockergroup /opt/app
 EXPOSE 8080
 # Starting the service (shell form of ENTRYPOINT used for substitution)
 USER dockeruser
-ENTRYPOINT ["java", "-jar", "/opt/app/app.jar", "--bank.host.baseurl=${BANK_WITH_PORT}"]
+ENTRYPOINT ["java", "-jar", "/opt/app/app.jar", "--bank.host.baseurl=${BANK_WITH_PORT}", "--cardeditor.host.baseurl=${CARD_EDITOR_WITH_PORT}", "--happykids.host.baseurl=${HAPPY_KIDS_WITH_PORT}"]

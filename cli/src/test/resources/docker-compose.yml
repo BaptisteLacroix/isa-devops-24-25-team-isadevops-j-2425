@@ -36,33 +36,13 @@ services:
       timeout: 3s
       retries: 3
       start_period: 5s
-
-  # A simple java CLI
-  kiwicard-cli:
-    image: teamj/kiwicard-spring-cli
-    environment:
-      - SERVER_WITH_PORT=kiwicard-server:8080
-    entrypoint: "java -jar /opt/app/app.jar"
-    depends_on:
-      kiwicard-server:
-        condition: service_healthy
-    volumes:
-      - ./cli/demo.txt:/opt/app/demo.txt
-    stdin_open: true
-    tty: true
-    healthcheck:
-      test: "curl --silent --fail localhost:8081/actuator/health | grep UP || exit 1"
-      interval: 5s
-      timeout: 3s
-      retries: 3
-      start_period: 5s
   wiremock-bank:
     image: wiremock/wiremock:3.12.0
     ports:
       - "9090:8080"
     volumes:
-      - ./external/bank/mappings:/home/wiremock/mappings
-      - ./external/bank/__files:/home/wiremock/__files
+      - ../../../../external/bank/mappings:/home/wiremock/mappings
+      - ../../../../external/bank/__files:/home/wiremock/__files
     command: "--verbose --global-response-templating"
     restart: always
 
@@ -71,8 +51,8 @@ services:
     ports:
       - "9091:8080"
     volumes:
-      - ./external/card/mappings:/home/wiremock/mappings
-      - ./external/card/__files:/home/wiremock/__files
+      - ../../../../external/card/mappings:/home/wiremock/mappings
+      - ../../../../external/card/__files:/home/wiremock/__files
     command: "--verbose --global-response-templating"
     restart: always
 
@@ -81,7 +61,7 @@ services:
     ports:
       - "9092:8080"
     volumes:
-      - ./external/happykids/mappings:/home/wiremock/mappings
-      - ./external/happykids/__files:/home/wiremock/__files
+      - ../../../../external/happykids/mappings:/home/wiremock/mappings
+      - ../../../../external/happykids/__files:/home/wiremock/__files
     command: "--verbose --global-response-templating"
     restart: always
