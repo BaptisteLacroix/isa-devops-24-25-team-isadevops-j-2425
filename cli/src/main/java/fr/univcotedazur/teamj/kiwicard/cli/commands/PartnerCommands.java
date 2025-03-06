@@ -5,6 +5,7 @@ import fr.univcotedazur.teamj.kiwicard.cli.model.CliPartner;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliPerk;
 import fr.univcotedazur.teamj.kiwicard.cli.model.error.CliError;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
@@ -69,15 +70,15 @@ public class PartnerCommands {
                 Example:
                     consult-partner-perks --partnerId "12345"
             """)
-
     public void consultPartnerPerks(String partnerId) {
-        webClient.post()
+        List<CliPerk> perksList = webClient.get()
                 .uri("partners/" + partnerId + "/perks")
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(CliError.class)
                         .flatMap(error -> Mono.error(new RuntimeException(error.errorMessage()))))
-                .bodyToMono(List.class)
-                .subscribe(this::printPerks);
+                .bodyToMono(new ParameterizedTypeReference<List<CliPerk>>() {})
+                .block();
+        printPerks(perksList);
     }
 
     private void printPerks(List<CliPerk> perks) {
