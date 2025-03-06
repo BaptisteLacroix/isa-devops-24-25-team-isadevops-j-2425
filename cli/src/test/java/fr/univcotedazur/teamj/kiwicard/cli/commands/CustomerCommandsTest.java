@@ -58,7 +58,7 @@ class CustomerCommandsTest {
 
         // Verify the request made to the correct endpoint
         RecordedRequest recordedRequest = mockWebServer.takeRequest();
-        assertEquals("/customer", recordedRequest.getPath());
+        assertEquals("/customers", recordedRequest.getPath());
         assertEquals("POST", recordedRequest.getMethod());
     }
 }
