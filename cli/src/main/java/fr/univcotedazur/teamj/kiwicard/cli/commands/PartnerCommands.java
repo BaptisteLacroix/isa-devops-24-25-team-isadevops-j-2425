@@ -87,8 +87,6 @@ public class PartnerCommands {
             return;
         }
         System.out.println("List of Perks:\n");
-        for (CliPerk perk : perks) {
-            System.out.println("Perk ID: " + perk.perkId() + "\nDescription: " + perk.description() + "\n");
-        }
+        perks.forEach(System.out::println);
     }
 }
