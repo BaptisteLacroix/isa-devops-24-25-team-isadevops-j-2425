@@ -124,6 +124,6 @@ class PartnerCommandsTest {
         // Assert that the request was made to the correct URL
         RecordedRequest recordedRequest = mockWebServer.takeRequest();
         assertEquals("/partners/12345/perks", recordedRequest.getPath());
-        assertEquals("POST", recordedRequest.getMethod());
+        assertEquals("GET", recordedRequest.getMethod());
     }
 }
