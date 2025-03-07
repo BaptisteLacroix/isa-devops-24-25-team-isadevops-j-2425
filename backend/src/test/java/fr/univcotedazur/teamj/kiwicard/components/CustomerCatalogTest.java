@@ -45,7 +45,7 @@ class CustomerCatalogTest {
         CardDTO cardDto = new CardDTO("CARD123");
 
         // Retourner null pour simuler qu'aucun client n'est trouvé
-        when(customerRepository.findByEmail("test@example.com")).thenReturn(null);
+        when(customerRepository.findByEmail("test@example.com")).thenReturn(Optional.empty());
         when(cardEditorProxy.orderACard("test@example.com", "2 passage Marie Antoinette"))
                 .thenReturn(cardDto);
 

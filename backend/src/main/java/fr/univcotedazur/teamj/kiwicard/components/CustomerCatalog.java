@@ -15,7 +15,9 @@ import fr.univcotedazur.teamj.kiwicard.interfaces.customer.ICustomerCartSaver;
 import fr.univcotedazur.teamj.kiwicard.interfaces.customer.ICustomerFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.customer.ICustomerRegistration;
 import fr.univcotedazur.teamj.kiwicard.repositories.ICustomerRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -27,9 +29,16 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
 
     CardEditorProxy cardEditorProxy;
 
+    @Autowired
+    public CustomerCatalog(ICustomerRepository customerRepository, CardEditorProxy cardEditorProxy) {
+        this.customerRepository = customerRepository;
+        this.cardEditorProxy = cardEditorProxy;
+    }
+
     @Override
+    @Transactional
     public CustomerDTO register(CustomerSubscribeDTO customerSubscribeDTO) throws AlreadyUsedEmailException, UnreachableExternalServiceException {
-        if (customerRepository.findByEmail(customerSubscribeDTO.email()) != null) {
+        if (customerRepository.findByEmail(customerSubscribeDTO.email()).isPresent()) {
             throw new AlreadyUsedEmailException();
         }
         CardDTO cardDto = cardEditorProxy.orderACard(customerSubscribeDTO.email(), customerSubscribeDTO.address());
