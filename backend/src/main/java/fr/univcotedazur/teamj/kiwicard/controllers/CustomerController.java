@@ -27,7 +27,7 @@ public class CustomerController {
 
     @GetMapping("")
     public CustomerDTO findCustomerByEmailOrByCardNumber(@RequestParam(required = false) String email, @RequestParam(required = false) String cardNumber) throws UnknownCustomerEmailException, UnknownCardNumberException {
-        if ((email == null && cardNumber == null) || (email != null && cardNumber != null)) {
+        if (email == null && cardNumber == null) {
             throw new IllegalArgumentException("Either email or cardNumber must be provided, but not both.");
         }
         if (email != null) {

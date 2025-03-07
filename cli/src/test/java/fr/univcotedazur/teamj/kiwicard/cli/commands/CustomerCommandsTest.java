@@ -54,10 +54,11 @@ class CustomerCommandsTest {
                 .setResponseCode(HttpStatus.OK.value()));
 
         // Call the method
-        String response = customerCommands.registerClient("Doe", "John", "john.doe@example.com", "123 Main St, City, Country");
+        String mail = "john.doe@example.com";
+        String response = customerCommands.registerClient("Doe", "John", mail, "123 Main St, City, Country");
 
         // Assert that the response matches the registered customer's details
-        assertEquals("User registered successfully", response);
+        assertEquals("Register client successfuly, you are now logged in as "+ mail, response);
 
         // Verify the request made to the correct endpoint
         RecordedRequest recordedRequest = mockWebServer.takeRequest();
