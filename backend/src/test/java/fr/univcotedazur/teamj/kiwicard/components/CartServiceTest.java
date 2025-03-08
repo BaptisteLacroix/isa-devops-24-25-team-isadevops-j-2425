@@ -26,7 +26,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -61,6 +60,7 @@ class CartServiceTest extends BaseUnitTest {
     private Customer customer;
     @Mock
     private Partner partner;
+    @Mock
     private Item item;
     private CartItemDTO cartItemDTO;
     @Mock
@@ -75,7 +75,12 @@ class CartServiceTest extends BaseUnitTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        item = Item.createTestItem(1, "Item1", 10);
+        // Mocking the Item entity
+        item = mock(Item.class);
+        when(item.getItemId()).thenReturn(1L);
+        when(item.getLabel()).thenReturn("Item");
+        when(item.getPrice()).thenReturn(10.0);
+        when(item.getPartner()).thenReturn(partner);
         cartItemDTO = new CartItemDTO(1L, 2, null, null, 1L);
 
         cartItem = mock(CartItem.class);
@@ -125,18 +130,7 @@ class CartServiceTest extends BaseUnitTest {
         when(customerCatalog.findCustomerByEmail(anyString())).thenThrow(UnknownCustomerEmailException.class);
 
         // When & Then
-        assertThrows(UnknownCustomerEmailException.class, () -> cartService.createCart("nonexistent@example.com", 1L, new ArrayList<>()));
-    }
-
-    @Test
-    void createCart_shouldThrowUnknownPartnerIdException_whenPartnerNotFound() throws UnknownPartnerIdException, UnknownCustomerEmailException {
-        // Given
-        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
-        when(partnerManager.findAllPartnerItems(anyLong())).thenReturn(Collections.emptyList());
-        when(partnerManager.findPartnerById(anyLong())).thenThrow(UnknownPartnerIdException.class);
-
-        // When & Then
-        assertThrows(UnknownPartnerIdException.class, () -> cartService.createCart("customer@example.com", 1L, new ArrayList<>()));
+        assertThrows(UnknownCustomerEmailException.class, () -> cartService.addItemToCart("nonexistent@example.com", cartItemDTO, null));
     }
 
     @Test
@@ -147,7 +141,7 @@ class CartServiceTest extends BaseUnitTest {
         when(itemRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         // When & Then
-        assertThrows(UnknownItemIdException.class, () -> cartService.createCart("customer@example.com", 1L, List.of(cartItemDTO)));
+        assertThrows(UnknownItemIdException.class, () -> cartService.addItemToCart("customer@example.com", cartItemDTO, null));
     }
 
     @Test
@@ -160,30 +154,11 @@ class CartServiceTest extends BaseUnitTest {
         when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
 
         // When
-        CartDTO result = cartService.createCart("customer@example.com", 1L, List.of(cartItemDTO));
+        CartDTO result = cartService.addItemToCart("customer@example.com", cartItemDTO, null);
 
         // Then
         assertNotNull(result);
         assertEquals(1, result.items().size());
-    }
-
-    @Test
-    void addItemToCart_shouldThrowUnknownCustomerEmailException_whenCustomerNotFound() throws UnknownCustomerEmailException {
-        // Given
-        when(customerCatalog.findCustomerByEmail(anyString())).thenThrow(UnknownCustomerEmailException.class);
-
-        // When & Then
-        assertThrows(UnknownCustomerEmailException.class, () -> cartService.addItemToCart("nonexistent@example.com", cartItemDTO));
-    }
-
-    @Test
-    void addItemToCart_shouldThrowUnknownItemIdException_whenItemNotFound() throws UnknownCustomerEmailException {
-        // Given
-        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
-        when(itemRepository.findById(anyLong())).thenReturn(Optional.empty());
-
-        // When & Then
-        assertThrows(UnknownItemIdException.class, () -> cartService.addItemToCart("customer@example.com", cartItemDTO));
     }
 
     @Test
@@ -195,7 +170,7 @@ class CartServiceTest extends BaseUnitTest {
         when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
 
         // When
-        CartDTO result = cartService.addItemToCart("customer@example.com", cartItemDTO);
+        CartDTO result = cartService.addItemToCart("customer@example.com", cartItemDTO, new CartDTO(customer.getCart()));
 
         // Then
         assertNotNull(result);

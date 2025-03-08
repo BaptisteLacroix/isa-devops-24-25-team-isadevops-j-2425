@@ -7,10 +7,10 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
-import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartCreator;
 import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartModifier;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,8 +20,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -35,55 +33,41 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class CartController {
 
     public static final String CART_URI = "/cart";
-    private final ICartCreator creator;
     private final ICartModifier modifier;
     private final ICartFinder finder;
 
     /**
      * Constructs a new CartController with the provided dependencies.
      *
-     * @param creator  The service responsible for creating shopping carts.
      * @param modifier The service responsible for modifying shopping carts (e.g., adding/removing items).
      * @param finder   The service responsible for finding and retrieving shopping carts.
      */
     @Autowired
-    public CartController(ICartCreator creator, ICartModifier modifier, ICartFinder finder) {
-        this.creator = creator;
+    public CartController(ICartModifier modifier, ICartFinder finder) {
         this.modifier = modifier;
         this.finder = finder;
     }
 
     /**
-     * Creates a new shopping cart for a customer with the specified partner and items.
+     * Creates a new cart or adds an item to an existing cart for the specified customer.
+     * If the customer already has a cart, the item will be added to the cart; otherwise, a new cart will be created.
      *
-     * @param customerEmail The email address of the customer for whom the cart is being created.
-     * @param partnerId     The ID of the partner whose items will be included in the cart.
-     * @param cartItemDTOS  A list of CartItemDTOs representing the items to be added to the cart.
-     * @return A ResponseEntity containing the created CartDTO with HTTP status 201 (Created).
+     * @param customerEmail The email address of the customer whose cart will be modified.
+     * @param cartItemDTO   A CartItemDTO containing the details of the item to be added.
+     * @return A ResponseEntity containing the updated CartDTO, representing the customer's cart.
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
-     * @throws UnknownPartnerIdException     If no partner is found with the given ID.
-     * @throws UnknownItemIdException        If any of the items in the cart are invalid or do not belong to the partner.
-     */
-    @PostMapping(path = "/{customerEmail}/{partnerId}", consumes = APPLICATION_JSON_VALUE)
-    public ResponseEntity<CartDTO> createCart(@PathVariable String customerEmail, @PathVariable Long partnerId, @RequestBody List<CartItemDTO> cartItemDTOS) throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException {
-        return ResponseEntity.created(null)
-                .body(creator.createCart(customerEmail, partnerId, cartItemDTOS));
-    }
-
-    /**
-     * Adds an item to an existing shopping cart.
-     *
-     * @param customerEmail The email address of the customer whose cart will be updated.
-     * @param cartItemDTO   The CartItemDTO containing the item details to be added.
-     * @return A ResponseEntity containing the updated CartDTO with HTTP status 201 (Created).
-     * @throws UnknownCustomerEmailException If no customer is found with the given email.
-     * @throws UnknownPartnerIdException     If the item does not belong to the customer's current partner.
-     * @throws UnknownItemIdException        If the specified item does not exist in the item repository.
+     * @throws UnknownPartnerIdException     If no partner is found for the item in the cart.
+     * @throws UnknownItemIdException        If the item does not exist in the item repository.
      */
     @PutMapping(path = "/{customerEmail}", consumes = APPLICATION_JSON_VALUE)
-    public ResponseEntity<CartDTO> addItemToCart(@PathVariable String customerEmail, @RequestBody CartItemDTO cartItemDTO) throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException {
-        return ResponseEntity.created(null)
-                .body(modifier.addItemToCart(customerEmail, cartItemDTO));
+    public ResponseEntity<CartDTO> createOrAddItemToCart(
+            @PathVariable String customerEmail,
+            @RequestBody CartItemDTO cartItemDTO
+    ) throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException {
+        CartDTO existingCart = finder.findCustomerCart(customerEmail).orElse(null);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(modifier.addItemToCart(customerEmail, cartItemDTO, existingCart));
     }
 
     /**

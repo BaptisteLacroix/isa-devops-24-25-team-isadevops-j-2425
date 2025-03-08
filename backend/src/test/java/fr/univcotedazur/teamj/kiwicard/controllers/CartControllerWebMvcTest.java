@@ -10,7 +10,6 @@ import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
-import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartCreator;
 import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartModifier;
 import org.junit.jupiter.api.Assertions;
@@ -51,9 +50,6 @@ class CartControllerWebMvcTest extends BaseUnitTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private ICartCreator creator;
-
-    @MockitoBean
     private ICartModifier modifier;
 
     @MockitoBean
@@ -75,14 +71,13 @@ class CartControllerWebMvcTest extends BaseUnitTest {
     }
 
     @Test
-    void createCart() throws Exception {
-        List<CartItemDTO> cartItemDTOS = List.of(cartItemDTO);
-        when(creator.createCart(customerEmail, partnerId, cartItemDTOS)).thenReturn(cartDTO);
+    void addItemCreateCart() throws Exception {
+        when(modifier.addItemToCart(customerEmail, cartItemDTO, null)).thenReturn(cartDTO);
 
-        MvcResult result = mockMvc.perform(post(CartController.CART_URI + "/" + customerEmail + "/" + partnerId)
+        MvcResult result = mockMvc.perform(put(CartController.CART_URI + "/" + customerEmail)
                         .contentType(APPLICATION_JSON)
-                        .content(OBJECT_MAPPER.writeValueAsString(cartItemDTOS)))
-                .andExpect(status().isCreated())
+                        .content(OBJECT_MAPPER.writeValueAsString(cartItemDTO)))
+                .andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_JSON))
                 .andReturn();
 
@@ -94,12 +89,13 @@ class CartControllerWebMvcTest extends BaseUnitTest {
 
     @Test
     void addItemToCart() throws Exception {
-        when(modifier.addItemToCart(customerEmail, cartItemDTO)).thenReturn(cartDTO);
+        when(modifier.addItemToCart(customerEmail, cartItemDTO, cartDTO)).thenReturn(cartDTO);
+        when(finder.findCustomerCart(customerEmail)).thenReturn(Optional.of(cartDTO));
 
         MvcResult result = mockMvc.perform(put(CartController.CART_URI + "/" + customerEmail)
                         .contentType(APPLICATION_JSON)
                         .content(OBJECT_MAPPER.writeValueAsString(cartItemDTO)))
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_JSON))
                 .andReturn();
 
@@ -109,6 +105,28 @@ class CartControllerWebMvcTest extends BaseUnitTest {
         assertEquals(cartDTO.items().size(), responseCart.items().size());
         // Check if the added item is present in the cart
         assertNotNull(responseCart.items().stream().filter(item -> item.itemId().equals(cartItemDTO.itemId())).findFirst().orElse(null));
+    }
+
+    @Test
+    void addItemCreateCartUnknownCustomer() throws Exception {
+        when(modifier.addItemToCart(customerEmail, cartItemDTO, null)).thenThrow(new UnknownCustomerEmailException(customerEmail));
+
+        mockMvc.perform(put(CartController.CART_URI + "/" + customerEmail)
+                        .contentType(APPLICATION_JSON)
+                        .content(OBJECT_MAPPER.writeValueAsString(cartItemDTO)))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(APPLICATION_JSON));
+    }
+
+    @Test
+    void addItemToCartUnknownItem() throws Exception {
+        when(modifier.addItemToCart(customerEmail, cartItemDTO, cartDTO)).thenThrow(new UnknownItemIdException(cartItemDTO.itemId()));
+        when(finder.findCustomerCart(customerEmail)).thenReturn(Optional.of(cartDTO));
+        mockMvc.perform(put(CartController.CART_URI + "/" + customerEmail)
+                        .contentType(APPLICATION_JSON)
+                        .content(OBJECT_MAPPER.writeValueAsString(cartItemDTO)))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(APPLICATION_JSON));
     }
 
     @Test
@@ -132,7 +150,6 @@ class CartControllerWebMvcTest extends BaseUnitTest {
         assertNotEquals(cartDTO.items().size(), responseCart.items().size());
         assertNull(responseCart.items().stream().filter(item -> item.itemId().equals(cartItemDTO.itemId())).findFirst().orElse(null));
     }
-
 
     @Test
     void validateCart_shouldReturnCreated_whenCartIsValid() throws Exception {
@@ -184,7 +201,6 @@ class CartControllerWebMvcTest extends BaseUnitTest {
                 .andExpect(content().contentType(APPLICATION_JSON));
     }
 
-
     @Test
     void getCart() throws Exception {
         when(finder.findCustomerCart(customerEmail)).thenReturn(Optional.of(cartDTO));
@@ -199,29 +215,6 @@ class CartControllerWebMvcTest extends BaseUnitTest {
         CartDTO responseCart = OBJECT_MAPPER.readValue(jsonResult, CartDTO.class);
         assertEquals(cartDTO.cartId(), responseCart.cartId());
         assertEquals(cartDTO.items().size(), responseCart.items().size());
-    }
-
-    @Test
-    void createCartUnknownCustomer() throws Exception {
-        List<CartItemDTO> cartItemDTOS = List.of(cartItemDTO);
-        when(creator.createCart(customerEmail, partnerId, cartItemDTOS)).thenThrow(new UnknownCustomerEmailException(customerEmail));
-
-        mockMvc.perform(post(CartController.CART_URI + "/" + customerEmail + "/" + partnerId)
-                        .contentType(APPLICATION_JSON)
-                        .content(OBJECT_MAPPER.writeValueAsString(cartItemDTOS)))
-                .andExpect(status().isNotFound())
-                .andExpect(content().contentType(APPLICATION_JSON));
-    }
-
-    @Test
-    void addItemToCartUnknownItem() throws Exception {
-        when(modifier.addItemToCart(customerEmail, cartItemDTO)).thenThrow(new UnknownItemIdException(cartItemDTO.itemId()));
-
-        mockMvc.perform(put(CartController.CART_URI + "/" + customerEmail)
-                        .contentType(APPLICATION_JSON)
-                        .content(OBJECT_MAPPER.writeValueAsString(cartItemDTO)))
-                .andExpect(status().isNotFound())
-                .andExpect(content().contentType(APPLICATION_JSON));
     }
 
     @Test
