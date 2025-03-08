@@ -1,9 +1,9 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.*;
 import fr.univcotedazur.teamj.kiwicard.exceptions.*;
+import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPartnerManager;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseConsumer;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseCreator;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseFinder;
@@ -19,28 +19,28 @@ import java.util.*;
 public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPurchaseFinder {
     private final IPurchaseRepository purchaseRepository;
     private final CustomerCatalog customerCatalog;
-    private final PartnerCatalog partnerCatalog;
+    private final IPartnerManager partnerManager;
 
     @Autowired
-    public PurchaseCatalog(IPurchaseRepository purchaseRepository, CustomerCatalog customerCatalog, PartnerCatalog partnerCatalog) {
+    public PurchaseCatalog(IPurchaseRepository purchaseRepository, CustomerCatalog customerCatalog, IPartnerManager partnerManager) {
         this.purchaseRepository = purchaseRepository;
         this.customerCatalog = customerCatalog;
-        this.partnerCatalog = partnerCatalog;
+        this.partnerManager = partnerManager;
     }
 
     @Override
     @Transactional
     public void consumeNLastPurchaseOfCustomer(CustomerDTO customer, int nbPurchasesToConsume) {
         this.purchaseRepository.findAllByCustomer(customer.email(), nbPurchasesToConsume)
-                .forEach(p->p.setAlreadyConsumedInAPerk(true));
+                .forEach(p -> p.setAlreadyConsumedInAPerk(true));
     }
 
     @Override
     @Transactional
     public void consumeNLastPurchaseOfCustomerInPartner(String customerEmail, Long partnerId, int nbPurchasesToConsume) throws UnknownCustomerEmailException, UnknownPartnerIdException {
         this.customerCatalog.findCustomerByEmail(customerEmail);
-        this.partnerCatalog.findPartnerById(partnerId);
-        var res  = this.purchaseRepository.findAllByCustomerAndPartner(customerEmail, partnerId, nbPurchasesToConsume);
+        this.partnerManager.findPartnerById(partnerId);
+        var res = this.purchaseRepository.findAllByCustomerAndPartner(customerEmail, partnerId, nbPurchasesToConsume);
         res.forEach(p -> p.setAlreadyConsumedInAPerk(true));
     }
 
@@ -52,7 +52,7 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
                 .map(p -> p.getCart().getItems())
                 .flatMap(Collection::stream)
                 .limit(nbItemsConsumed)
-                .forEach((i)->i.setConsumed(true));
+                .forEach(i -> i.setConsumed(true));
     }
 
     @Transactional
@@ -71,13 +71,13 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
 
     @Override
     public Purchase findPurchaseById(long purchaseId) throws UnknownPurchaseIdException {
-        return this.purchaseRepository.findById(purchaseId).orElseThrow(()->new UnknownPurchaseIdException(purchaseId));
+        return this.purchaseRepository.findById(purchaseId).orElseThrow(() -> new UnknownPurchaseIdException(purchaseId));
     }
 
     @Override
     public List<Purchase> findPurchasesByCustomerAndPartner(String customerEmail, long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException {
         this.customerCatalog.findCustomerByEmail(customerEmail);
-        this.partnerCatalog.findPartnerById(partnerId);
+        this.partnerManager.findPartnerById(partnerId);
         return this.purchaseRepository.findAllByCustomerAndPartner(customerEmail, partnerId);
     }
 }
