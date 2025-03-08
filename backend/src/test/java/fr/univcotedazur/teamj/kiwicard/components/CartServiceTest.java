@@ -19,7 +19,6 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceExce
 import fr.univcotedazur.teamj.kiwicard.interfaces.IPayment;
 import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPartnerManager;
 import fr.univcotedazur.teamj.kiwicard.repositories.IItemRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -32,7 +31,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -240,7 +238,7 @@ class CartServiceTest extends BaseUnitTest {
     void validateCart_shouldThrowUnreachableExternalServiceException_whenPaymentServiceFails() throws UnknownCustomerEmailException, UnreachableExternalServiceException {
         // Given
         when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
-        when(payment.makePay(any(CustomerDTO.class))).thenThrow(UnreachableExternalServiceException.class);
+        when(payment.makePay(any(Customer.class))).thenThrow(UnreachableExternalServiceException.class);
 
         // When & Then
         assertThrows(UnreachableExternalServiceException.class, () -> cartService.validateCart("customer@email.com"));
@@ -251,7 +249,7 @@ class CartServiceTest extends BaseUnitTest {
         // Given
         PaymentDTO paymentDTO = mock(PaymentDTO.class);
         when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
-        when(payment.makePay(any(CustomerDTO.class))).thenReturn(paymentDTO);
+        when(payment.makePay(any(Customer.class))).thenReturn(paymentDTO);
 
         // When
         PurchaseDTO result = cartService.validateCart("customer@email.com");

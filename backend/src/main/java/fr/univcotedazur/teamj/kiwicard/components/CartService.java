@@ -198,7 +198,7 @@ public class CartService implements ICartModifier, ICartFinder, ICartCreator {
         Customer customer = customerCatalog.findCustomerByEmail(cartOwnerEmail);
 
         // Create the purchase
-        PaymentDTO paymentDTO = payment.makePay(new CustomerDTO(customer));
+        PaymentDTO paymentDTO = payment.makePay(customer);
 
         PurchaseDTO purchaseDTO = new PurchaseDTO(cartOwnerEmail, new CartDTO(customer.getCart()), paymentDTO);
 

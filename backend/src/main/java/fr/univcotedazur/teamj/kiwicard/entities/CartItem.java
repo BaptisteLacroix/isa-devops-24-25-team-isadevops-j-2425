@@ -34,19 +34,15 @@ public class CartItem {
 
     public CartItem(Item item, int quantity, LocalDateTime startTime, LocalDateTime endTime) {
         this.item = item;
+        this.quantity = quantity;
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
 
     public CartItem(Item item, int quantity){
         this.item = item;
         this.quantity = quantity;
         this.price = item.getPrice() * quantity;
-    }
-
-    public CartItem(CartItemDTO cartItemDTO) {
-        this.cartItemId = cartItemDTO.cartItemId();
-        this.quantity = cartItemDTO.quantity();
-        this.startTime = cartItemDTO.startTime();
-        this.endTime = cartItemDTO.endTime();
     }
 
     public void setItem(Item item) {
