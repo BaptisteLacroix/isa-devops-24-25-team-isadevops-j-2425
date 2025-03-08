@@ -7,7 +7,6 @@ import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
-import java.util.Collection;
 import java.util.ArrayList;
 import java.util.List;
 
