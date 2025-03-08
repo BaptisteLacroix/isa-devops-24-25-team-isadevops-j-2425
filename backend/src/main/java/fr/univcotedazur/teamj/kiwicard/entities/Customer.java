@@ -1,5 +1,8 @@
 package fr.univcotedazur.teamj.kiwicard.entities;
 
+import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
+import jakarta.persistence.*;
 import fr.univcotedazur.teamj.kiwicard.connectors.CardEditorProxy;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -52,12 +55,6 @@ public class Customer {
     @JoinColumn(name = "cart_id", unique = true)
     private Cart cart;
 
-
-    @Bean
-    public CardEditorProxy cardEditorProxy() {
-        return new CardEditorProxy();
-    }
-
     public Customer() {
     }
 
@@ -69,10 +66,27 @@ public class Customer {
         this.vfp = vfp;
     }
 
-    // Fait pour faire passer les tests, à refaire !!
+    public Customer(CustomerDTO customerDTO) {
+        this.email = customerDTO.email();
+        this.firstName = customerDTO.firstName();
+        this.surname = customerDTO.surname();
+        this.vfp = customerDTO.vfp();
+    }
+
+    // FIXME: Fait pour faire passer les tests, à refaire !!
     public Customer(String firstName, String email) {
         this.firstName = firstName;
         this.email = email;
+    }
+
+    public Customer(CustomerSubscribeDTO customerSubscribeDTO, String cardNumber) {
+        this.firstName = customerSubscribeDTO.firstName();
+        this.surname = customerSubscribeDTO.surname();
+        this.address = customerSubscribeDTO.address();
+        this.email = customerSubscribeDTO.email();
+        this.vfp = false;
+        // TODO : ajouter un numéro de carte via CardEditorProxy
+        this.cardNumber = cardNumber;
     }
 
     public void setCart(Cart cart) {

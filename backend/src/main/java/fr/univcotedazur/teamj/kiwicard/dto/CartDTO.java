@@ -8,6 +8,11 @@ import java.util.stream.Collectors;
 
 public record CartDTO (long cartId, PartnerDTO partner, Set<CartItemDTO> items, List<IPerkDTO> perksList) {
     public CartDTO(Cart entity) {
-        this(entity.getCartId(), new PartnerDTO(entity.getPartner()), entity.getItemList().stream().map(CartItemDTO::new).collect(Collectors.toSet()), entity.getPerksList().stream().map(IPerkDTO::toDTO).collect(Collectors.toList()));
+        this(
+                entity.getCartId(),
+                new PartnerDTO(entity.getPartner()),
+                entity.getItemList().stream().map(CartItemDTO::new).collect(Collectors.toSet()),
+                entity.getPerksToUse().stream().map(IPerkDTO::toDTO).toList()
+        );
     }
 }

@@ -12,6 +12,12 @@ public record CartItemDTO(
         Long itemId
 ) {
     public CartItemDTO(CartItem entity) {
-        this(entity.getCartItemId(), entity.getQuantity(), entity.getStartTime(), entity.getEndTime(), entity.getItem().getItemId());
+        this(
+                entity.getCartItemId(),
+                entity.getQuantity(),
+                entity.getStartTime(),
+                entity.getEndTime(),
+                entity.getItem().getItemId()
+        );
     }
 }

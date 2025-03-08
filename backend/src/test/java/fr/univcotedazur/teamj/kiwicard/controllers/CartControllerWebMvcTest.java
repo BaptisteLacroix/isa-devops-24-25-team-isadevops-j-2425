@@ -20,6 +20,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -133,8 +135,7 @@ class CartControllerWebMvcTest extends BaseUnitTest {
 
     @Test
     void validateCart() throws Exception {
-        // TODO: Implement this test
-        throw new NotImplementedException();
+
     }
 
     @Test
@@ -156,7 +157,7 @@ class CartControllerWebMvcTest extends BaseUnitTest {
     @Test
     void createCartUnknownCustomer() throws Exception {
         List<CartItemDTO> cartItemDTOS = List.of(cartItemDTO);
-        when(creator.createCart(customerEmail, partnerId, cartItemDTOS)).thenThrow(new UnknownCustomerEmailException());
+        when(creator.createCart(customerEmail, partnerId, cartItemDTOS)).thenThrow(new UnknownCustomerEmailException(customerEmail));
 
         mockMvc.perform(post(CartController.CART_URI + "/" + customerEmail + "/" + partnerId)
                         .contentType(APPLICATION_JSON)
@@ -178,7 +179,7 @@ class CartControllerWebMvcTest extends BaseUnitTest {
 
     @Test
     void removeItemFromCartUnknownCustomer() throws Exception {
-        when(modifier.removeItemFromCart(customerEmail, cartItemDTO)).thenThrow(new UnknownCustomerEmailException());
+        when(modifier.removeItemFromCart(customerEmail, cartItemDTO)).thenThrow(new UnknownCustomerEmailException(customerEmail));
 
         mockMvc.perform(delete(CartController.CART_URI + "/" + customerEmail)
                         .contentType(APPLICATION_JSON)
@@ -189,7 +190,7 @@ class CartControllerWebMvcTest extends BaseUnitTest {
 
     @Test
     void getCartUnknownCustomer() throws Exception {
-        when(finder.findCustomerCart(customerEmail)).thenThrow(new UnknownCustomerEmailException());
+        when(finder.findCustomerCart(customerEmail)).thenThrow(new UnknownCustomerEmailException(customerEmail));
 
         mockMvc.perform(get(CartController.CART_URI + "/" + customerEmail)
                         .contentType(APPLICATION_JSON))

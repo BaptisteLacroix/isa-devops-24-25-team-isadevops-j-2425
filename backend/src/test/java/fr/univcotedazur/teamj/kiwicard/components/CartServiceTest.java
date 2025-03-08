@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
@@ -64,6 +65,8 @@ class CartServiceTest extends BaseUnitTest {
     @Mock
     private CustomerDTO customerDTO;
     private PartnerDTO partnerDTO;
+    @Mock
+    private CartItem cartItem;
 
     @BeforeEach
     void setUp() {
@@ -71,14 +74,19 @@ class CartServiceTest extends BaseUnitTest {
 
         item = Item.createTestItem(1, "Item1", 10);
         cartItemDTO = new CartItemDTO(1L, 2, null, null, 1L);
-        CartItem cartItem = new CartItem(cartItemDTO);
+
+        cartItem = mock(CartItem.class);
+        when(cartItem.getCartItemId()).thenReturn(1L);
+        when(cartItem.getQuantity()).thenReturn(2);
+        when(cartItem.getItem()).thenReturn(item);
+        when(cartItem.getPrice()).thenReturn(20.0);
 
         // Mocking the Cart entity, including cartId
         Cart cart = mock(Cart.class);
-        when(cart.getCartId()).thenReturn(1L);  // Mock the cartId
-        when(cart.getPartner()).thenReturn(partner);  // Mock the partner
-        when(cart.getItemList()).thenReturn(new HashSet<>(List.of(cartItem)));  // Mock the item list
-        when(cart.getPerksList()).thenReturn(new ArrayList<>());  // Mock the perks list
+        when(cart.getCartId()).thenReturn(1L);
+        when(cart.getPartner()).thenReturn(partner);
+        when(cart.getItemList()).thenReturn(new HashSet<>(List.of(cartItem)));
+        when(cart.getPerksToUse()).thenReturn(new ArrayList<>());
 
         when(customer.getEmail()).thenReturn("customer@email.com");
         when(customer.getFirstName()).thenReturn("John");
@@ -111,7 +119,7 @@ class CartServiceTest extends BaseUnitTest {
     @Test
     void createCart_shouldThrowUnknownCustomerEmailException_whenCustomerNotFound() throws UnknownCustomerEmailException {
         // Given
-        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(Optional.empty());
+        when(customerCatalog.findCustomerByEmail(anyString())).thenThrow(UnknownCustomerEmailException.class);
 
         // When & Then
         assertThrows(UnknownCustomerEmailException.class, () -> cartService.createCart("nonexistent@example.com", 1L, new ArrayList<>()));
@@ -120,7 +128,7 @@ class CartServiceTest extends BaseUnitTest {
     @Test
     void createCart_shouldThrowUnknownPartnerIdException_whenPartnerNotFound() throws UnknownPartnerIdException, UnknownCustomerEmailException {
         // Given
-        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(Optional.of(customerDTO));
+        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
         when(partnerManager.findAllPartnerItems(anyLong())).thenReturn(Collections.emptyList());
         when(partnerManager.findPartnerById(anyLong())).thenThrow(UnknownPartnerIdException.class);
 
@@ -131,7 +139,7 @@ class CartServiceTest extends BaseUnitTest {
     @Test
     void createCart_shouldThrowUnknownItemIdException_whenItemNotFound() throws UnknownPartnerIdException, UnknownCustomerEmailException {
         // Given
-        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(Optional.of(customerDTO));
+        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
         when(partnerManager.findAllPartnerItems(anyLong())).thenReturn(List.of(item));
         when(itemRepository.findById(anyLong())).thenReturn(Optional.empty());
 
@@ -142,10 +150,11 @@ class CartServiceTest extends BaseUnitTest {
     @Test
     void createCart_shouldCreateCartSuccessfully() throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException {
         // Given
-        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(Optional.of(customerDTO));
+        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
         when(partnerManager.findAllPartnerItems(anyLong())).thenReturn(List.of(item));
         when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
         when(partnerManager.findPartnerById(anyLong())).thenReturn(partnerDTO);
+        when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
 
         // When
         CartDTO result = cartService.createCart("customer@example.com", 1L, List.of(cartItemDTO));
@@ -158,7 +167,7 @@ class CartServiceTest extends BaseUnitTest {
     @Test
     void addItemToCart_shouldThrowUnknownCustomerEmailException_whenCustomerNotFound() throws UnknownCustomerEmailException {
         // Given
-        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(Optional.empty());
+        when(customerCatalog.findCustomerByEmail(anyString())).thenThrow(UnknownCustomerEmailException.class);
 
         // When & Then
         assertThrows(UnknownCustomerEmailException.class, () -> cartService.addItemToCart("nonexistent@example.com", cartItemDTO));
@@ -167,7 +176,7 @@ class CartServiceTest extends BaseUnitTest {
     @Test
     void addItemToCart_shouldThrowUnknownItemIdException_whenItemNotFound() throws UnknownCustomerEmailException {
         // Given
-        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(Optional.of(customerDTO));
+        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
         when(itemRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         // When & Then
@@ -177,9 +186,10 @@ class CartServiceTest extends BaseUnitTest {
     @Test
     void addItemToCart_shouldAddItemSuccessfully() throws UnknownCustomerEmailException, UnknownItemIdException, UnknownPartnerIdException {
         // Given
-        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(Optional.of(customerDTO));
+        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
         when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
         when(partnerManager.findAllPartnerItems(anyLong())).thenReturn(List.of(item));
+        when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
 
         // When
         CartDTO result = cartService.addItemToCart("customer@example.com", cartItemDTO);
@@ -192,7 +202,7 @@ class CartServiceTest extends BaseUnitTest {
     @Test
     void removeItemFromCart_shouldThrowUnknownCustomerEmailException_whenCustomerNotFound() throws UnknownCustomerEmailException {
         // Given
-        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(Optional.empty());
+        when(customerCatalog.findCustomerByEmail(anyString())).thenThrow(UnknownCustomerEmailException.class);
 
         // When & Then
         assertThrows(UnknownCustomerEmailException.class, () -> cartService.removeItemFromCart("nonexistent@example.com", cartItemDTO));
@@ -201,7 +211,8 @@ class CartServiceTest extends BaseUnitTest {
     @Test
     void removeItemFromCart_shouldRemoveItemSuccessfully() throws UnknownCustomerEmailException {
         // Given
-        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(Optional.of(customerDTO));
+        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
+        when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
 
         // When
         CartDTO result = cartService.removeItemFromCart("customer@example.com", cartItemDTO);

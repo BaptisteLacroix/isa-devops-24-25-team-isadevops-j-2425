@@ -1,23 +1,59 @@
 pipeline {
     agent { label 'agenthost' }
     stages {
-        stage('Clean') {
+        stage('[BE] Build') {
             steps {
-                sh 'pwd'
                 dir('backend') {
-                    sh 'pwd'
-                    sh 'mvn clean'
+                     echo '🛠️ Pipeline is building the backend project !'
+                    sh 'mvn clean compile'
                 }
-                sh 'pwd'
             }
         }
-        stage('Verify') {
+        stage('[BE] Unit tests') {
+                    steps {
+                        dir('backend') {
+                            echo '🧪 Pipeline is launching backend unit tests !'
+                            sh 'mvn test'
+                        }
+                    }
+                }
+        stage('[BE] Integration tests') {
+            when{
+                branch 'dev'
+            }
             steps {
                 dir('backend') {
-                    echo 'Pipeline is launching the unit tests !'
-                    sh 'mvn test'
+                    echo '🧩 Pipeline is launching backend integration tests !'
+                    sh 'mvn verify'
                 }
             }
+        }
+        stage('[CLI] Build') {
+             steps {
+                 dir('cli') {
+                      echo '🛠️ Pipeline is building cli the project !'
+                     sh 'mvn clean compile'
+                 }
+             }
+         }
+         stage('[CLI] Unit tests') {
+             steps {
+                 dir('cli') {
+                     echo '🧪 Pipeline is launching cli unit tests !'
+                     sh 'mvn test'
+                 }
+             }
+         }
+         stage('[CLI] Integration tests') {
+             when{
+                 branch 'dev'
+             }
+             steps {
+                 dir('cli') {
+                     echo '🧩 Pipeline is launching cli integration tests !'
+                     sh 'mvn verify'
+                 }
+             }
         }
     }
 }

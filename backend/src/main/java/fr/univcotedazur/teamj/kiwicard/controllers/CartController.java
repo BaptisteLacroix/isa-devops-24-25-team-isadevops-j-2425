@@ -2,10 +2,7 @@ package fr.univcotedazur.teamj.kiwicard.controllers;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CartItemDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.PerkDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.UsedPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
@@ -15,7 +12,14 @@ import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartModifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -38,9 +42,9 @@ public class CartController {
     /**
      * Constructs a new CartController with the provided dependencies.
      *
-     * @param creator The service responsible for creating shopping carts.
+     * @param creator  The service responsible for creating shopping carts.
      * @param modifier The service responsible for modifying shopping carts (e.g., adding/removing items).
-     * @param finder The service responsible for finding and retrieving shopping carts.
+     * @param finder   The service responsible for finding and retrieving shopping carts.
      */
     @Autowired
     public CartController(ICartCreator creator, ICartModifier modifier, ICartFinder finder) {
@@ -53,12 +57,12 @@ public class CartController {
      * Creates a new shopping cart for a customer with the specified partner and items.
      *
      * @param customerEmail The email address of the customer for whom the cart is being created.
-     * @param partnerId The ID of the partner whose items will be included in the cart.
-     * @param cartItemDTOS A list of CartItemDTOs representing the items to be added to the cart.
+     * @param partnerId     The ID of the partner whose items will be included in the cart.
+     * @param cartItemDTOS  A list of CartItemDTOs representing the items to be added to the cart.
      * @return A ResponseEntity containing the created CartDTO with HTTP status 201 (Created).
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
-     * @throws UnknownPartnerIdException If no partner is found with the given ID.
-     * @throws UnknownItemIdException If any of the items in the cart are invalid or do not belong to the partner.
+     * @throws UnknownPartnerIdException     If no partner is found with the given ID.
+     * @throws UnknownItemIdException        If any of the items in the cart are invalid or do not belong to the partner.
      */
     @PostMapping(path = "/{customerEmail}/{partnerId}", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<CartDTO> createCart(@PathVariable String customerEmail, @PathVariable Long partnerId, @RequestBody List<CartItemDTO> cartItemDTOS) throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException {
@@ -70,11 +74,11 @@ public class CartController {
      * Adds an item to an existing shopping cart.
      *
      * @param customerEmail The email address of the customer whose cart will be updated.
-     * @param cartItemDTO The CartItemDTO containing the item details to be added.
+     * @param cartItemDTO   The CartItemDTO containing the item details to be added.
      * @return A ResponseEntity containing the updated CartDTO with HTTP status 201 (Created).
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
-     * @throws UnknownPartnerIdException If the item does not belong to the customer's current partner.
-     * @throws UnknownItemIdException If the specified item does not exist in the item repository.
+     * @throws UnknownPartnerIdException     If the item does not belong to the customer's current partner.
+     * @throws UnknownItemIdException        If the specified item does not exist in the item repository.
      */
     @PutMapping(path = "/{customerEmail}", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<CartDTO> addItemToCart(@PathVariable String customerEmail, @RequestBody CartItemDTO cartItemDTO) throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException {
@@ -86,7 +90,7 @@ public class CartController {
      * Removes an item from a customer's shopping cart.
      *
      * @param customerEmail The email address of the customer whose cart will be updated.
-     * @param cartItemDTO The CartItemDTO containing the item details to be removed.
+     * @param cartItemDTO   The CartItemDTO containing the item details to be removed.
      * @return A ResponseEntity containing the updated CartDTO with HTTP status 201 (Created).
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
      */
@@ -103,7 +107,7 @@ public class CartController {
      * @return A ResponseEntity containing the PurchaseDTO representing the validated cart, with HTTP status 201 (Created).
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
      */
-    @PostMapping(path =  "/{customerEmail}/validate", consumes = APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/{customerEmail}/validate", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<PurchaseDTO> validateCart(@PathVariable String customerEmail) throws UnknownCustomerEmailException, UnreachableExternalServiceException {
         return ResponseEntity.created(null)
                 .body(modifier.validateCart(customerEmail));
@@ -119,7 +123,7 @@ public class CartController {
     @GetMapping(path = "/{customerEmail}", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<CartDTO> getCart(@PathVariable String customerEmail) throws UnknownCustomerEmailException {
         return ResponseEntity.ok()
-                .body(finder.findCustomerCart(customerEmail).orElseThrow(UnknownCustomerEmailException::new));
+                .body(finder.findCustomerCart(customerEmail).orElseThrow());
     }
 }
 
