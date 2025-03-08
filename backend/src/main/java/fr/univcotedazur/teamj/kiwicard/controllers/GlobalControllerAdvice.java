@@ -1,15 +1,28 @@
 package fr.univcotedazur.teamj.kiwicard.controllers;
 
 import fr.univcotedazur.teamj.kiwicard.dto.ErrorDTO;
-import fr.univcotedazur.teamj.kiwicard.exceptions.*;
+import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyUsedEmailException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.NegativeQuantityException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.PaymentException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCartIdException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPerkIdException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice(assignableTypes = {CustomerController.class, CartController.class, PartnerController.class, PerksController.class})
 public class GlobalControllerAdvice {
+
+    @ExceptionHandler({UnreachableExternalServiceException.class})
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public ErrorDTO handleExceptions(UnreachableExternalServiceException e) {
+        return new ErrorDTO("External service is unreachable");
+    }
 
     @ExceptionHandler({NegativeQuantityException.class})
     @ResponseStatus(HttpStatus.FORBIDDEN)

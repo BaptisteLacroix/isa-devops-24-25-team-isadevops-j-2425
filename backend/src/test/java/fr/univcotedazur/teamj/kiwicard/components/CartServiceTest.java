@@ -5,6 +5,8 @@ import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CartItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.PaymentDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Cart;
 import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
@@ -13,9 +15,11 @@ import fr.univcotedazur.teamj.kiwicard.entities.Partner;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.IPayment;
 import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPartnerManager;
 import fr.univcotedazur.teamj.kiwicard.repositories.IItemRepository;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -28,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -221,4 +226,41 @@ class CartServiceTest extends BaseUnitTest {
         assertNotNull(result);
         assertTrue(result.items().isEmpty());
     }
+
+    @Test
+    void validateCart_shouldThrowUnknownCustomerEmailException_whenCustomerNotFound() throws UnknownCustomerEmailException {
+        // Given
+        when(customerCatalog.findCustomerByEmail(anyString())).thenThrow(UnknownCustomerEmailException.class);
+
+        // When & Then
+        assertThrows(UnknownCustomerEmailException.class, () -> cartService.validateCart("nonexistent@example.com"));
+    }
+
+    @Test
+    void validateCart_shouldThrowUnreachableExternalServiceException_whenPaymentServiceFails() throws UnknownCustomerEmailException, UnreachableExternalServiceException {
+        // Given
+        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
+        when(payment.makePay(any(CustomerDTO.class))).thenThrow(UnreachableExternalServiceException.class);
+
+        // When & Then
+        assertThrows(UnreachableExternalServiceException.class, () -> cartService.validateCart("customer@email.com"));
+    }
+
+    @Test
+    void validateCart_shouldReturnPurchaseDTO_whenCartIsValid() throws UnknownCustomerEmailException, UnreachableExternalServiceException {
+        // Given
+        PaymentDTO paymentDTO = mock(PaymentDTO.class);
+        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
+        when(payment.makePay(any(CustomerDTO.class))).thenReturn(paymentDTO);
+
+        // When
+        PurchaseDTO result = cartService.validateCart("customer@email.com");
+
+        // Then
+        assertNotNull(result);
+        assertEquals("customer@email.com", result.cartOwnerEmail());
+        assertNotNull(result.cartDTO());
+        assertNotNull(result.paymentDTO());
+    }
+
 }

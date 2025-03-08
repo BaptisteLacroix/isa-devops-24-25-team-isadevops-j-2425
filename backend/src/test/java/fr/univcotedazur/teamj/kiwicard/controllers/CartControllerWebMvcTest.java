@@ -5,12 +5,15 @@ import fr.univcotedazur.teamj.kiwicard.BaseUnitTest;
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CartItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.PaymentDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartCreator;
 import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartModifier;
-import org.apache.commons.lang3.NotImplementedException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +23,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -134,9 +135,55 @@ class CartControllerWebMvcTest extends BaseUnitTest {
 
 
     @Test
-    void validateCart() throws Exception {
+    void validateCart_shouldReturnCreated_whenCartIsValid() throws Exception {
+        // Given
+        PurchaseDTO purchaseDTO = new PurchaseDTO(customerEmail, cartDTO, new PaymentDTO(
+                "1234-5678-9012-3456",
+                23.0,
+                true
+        ));
+        when(modifier.validateCart(customerEmail)).thenReturn(purchaseDTO);
 
+        // When
+        MvcResult result = mockMvc.perform(post(CartController.CART_URI + "/" + customerEmail + "/validate")
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(APPLICATION_JSON))
+                .andReturn();
+
+        // Then
+        String jsonResult = result.getResponse().getContentAsString();
+        PurchaseDTO responsePurchase = OBJECT_MAPPER.readValue(jsonResult, PurchaseDTO.class);
+        Assertions.assertNotNull(responsePurchase);
+        Assertions.assertEquals(purchaseDTO.cartOwnerEmail(), responsePurchase.cartOwnerEmail());
+        Assertions.assertEquals(purchaseDTO.cartDTO(), responsePurchase.cartDTO());
+        Assertions.assertEquals(purchaseDTO.paymentDTO(), responsePurchase.paymentDTO());
     }
+
+    @Test
+    void validateCart_shouldReturnNotFound_whenCustomerIsNotFound() throws Exception {
+        // Given
+        when(modifier.validateCart(customerEmail)).thenThrow(new UnknownCustomerEmailException(customerEmail));
+
+        // When & Then
+        mockMvc.perform(post(CartController.CART_URI + "/" + customerEmail + "/validate")
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(APPLICATION_JSON));
+    }
+
+    @Test
+    void validateCart_shouldReturnInternalServerError_whenPaymentServiceFails() throws Exception {
+        // Given
+        when(modifier.validateCart(customerEmail)).thenThrow(new UnreachableExternalServiceException());
+
+        // When & Then
+        mockMvc.perform(post(CartController.CART_URI + "/" + customerEmail + "/validate")
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(content().contentType(APPLICATION_JSON));
+    }
+
 
     @Test
     void getCart() throws Exception {

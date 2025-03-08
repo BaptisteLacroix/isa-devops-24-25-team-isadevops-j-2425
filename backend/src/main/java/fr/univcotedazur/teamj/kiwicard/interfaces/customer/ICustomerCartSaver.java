@@ -10,5 +10,5 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
  */
 public interface ICustomerCartSaver {
     Customer setCart(String customerEMail, Cart cart) throws UnknownCustomerEmailException;
-    void emptyCart(String customerEMail) throws UnknownCustomerEmailException;
+    Customer emptyCart(String customerEMail) throws UnknownCustomerEmailException;
 }
