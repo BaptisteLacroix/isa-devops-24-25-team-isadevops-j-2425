@@ -4,8 +4,8 @@ import fr.univcotedazur.teamj.kiwicard.dto.ErrorDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyUsedEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.EmptyCartException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.NegativeQuantityException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.PaymentException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.NoCartException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.PaymentException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCartIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
@@ -51,7 +51,8 @@ public class GlobalControllerAdvice {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorDTO handleIllegalArgumentException(IllegalArgumentException ex) {
+        return new ErrorDTO(ex.getMessage());
     }
 }

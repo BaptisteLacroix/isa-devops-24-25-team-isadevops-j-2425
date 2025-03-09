@@ -17,13 +17,7 @@ public abstract class AbstractPerk {
     @JoinColumn(name = "partner_id")
     private Partner partner;
 
-    private PerkType perkType;
-
     protected AbstractPerk() {
-    }
-
-    protected AbstractPerk(PerkType perkType) {
-        this.perkType = perkType;
     }
 
     public Long getPerkId() {
@@ -32,10 +26,6 @@ public abstract class AbstractPerk {
 
     protected void setPerkId(Long perkId) {
         this.perkId = perkId;
-    }
-
-    public PerkType getPerkType() {
-        return perkType;
     }
 
     public void setPartner(Partner partner) {

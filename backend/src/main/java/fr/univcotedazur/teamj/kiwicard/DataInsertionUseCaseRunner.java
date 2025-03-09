@@ -391,8 +391,8 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
 
         perkRepository.save(perk);
         perkRepository.save(perk2);
-        cartBoulange.addPerk(perk);
-        cartFleuriste.addPerk(perk2);
+        cartBoulange.addPerkToUse(perk);
+        cartFleuriste.addPerkToUse(perk2);
 
         // Payment
         Payment payment = new Payment(40, LocalDateTime.now());
