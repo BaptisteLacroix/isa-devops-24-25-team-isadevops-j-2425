@@ -3,7 +3,7 @@ package fr.univcotedazur.teamj.kiwicard.components;
 import fr.univcotedazur.teamj.kiwicard.connectors.BankProxy;
 import fr.univcotedazur.teamj.kiwicard.connectors.externaldto.PaymentRequestDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PaymentDTO;
-import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
+import fr.univcotedazur.teamj.kiwicard.entities.Cart;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
@@ -52,21 +52,19 @@ public class Cashier implements IPayment {
     }
 
     private double computePrice(Customer customer) {
+        Cart cart = customer.getCart();
         // Calculate the total price before applying discounts
-        double percentage = customer.getCart().getTotalPercentageReduction();
-        double totalPriceWithoutReduction = customer.getCart().getTotalPrice();
+        double percentage = cart.getTotalPercentageReduction();
+        double totalPriceWithoutReduction = cart.getTotalPrice();
         double totalPrice = totalPriceWithoutReduction - (totalPriceWithoutReduction * percentage);
-
         // Reset the total percentage reduction
-        customer.getCart().resetTotalPercentageReduction();
-
+        cart.resetTotalPercentageReduction();
         // Apply perks to the customer
-        for (AbstractPerk perk : customer.getCart().getPerksToUse()) {
+        for (AbstractPerk perk : cart.getPerksToUse()) {
             perk.apply(customer);
         }
-
         // Calculate the total price after applying discounts
-        percentage = customer.getCart().getTotalPercentageReduction();
+        percentage = cart.getTotalPercentageReduction();
         // Recalculate the total price after applying discounts
         if (percentage != 0) totalPrice = totalPriceWithoutReduction - (totalPriceWithoutReduction * percentage);
         return totalPrice;
