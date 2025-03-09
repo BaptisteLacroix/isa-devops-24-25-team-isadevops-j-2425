@@ -1,11 +1,16 @@
 package fr.univcotedazur.teamj.kiwicard.entities.perks;
 
 import fr.univcotedazur.teamj.kiwicard.dto.perks.VfpDiscountInPercentPerkDTO;
+import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.mappers.PerkVisitor;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+
+import java.util.List;
 
 @Entity
 public class VfpDiscountInPercentPerk extends AbstractPerk {
@@ -13,20 +18,35 @@ public class VfpDiscountInPercentPerk extends AbstractPerk {
     @NotNull
     private double discountRate;
 
+    @Column
+    @NotNull
+    @Min(0)
+    @Max(23)
+    private int startHour;
+
+    @Column
+    @NotNull
+    @Min(0)
+    @Max(23)
+    private int endHour;
+
+
     public VfpDiscountInPercentPerk() {
         super(PerkType.FINAL);
     }
 
-    public VfpDiscountInPercentPerk(double discountRate) {
+    public VfpDiscountInPercentPerk(double discountRate, int startHour, int endHour) {
         this();
         while (discountRate > 1) {
             discountRate = discountRate / 100;
         }
         this.discountRate = discountRate;
+        this.startHour = startHour;
+        this.endHour = endHour;
     }
 
     public VfpDiscountInPercentPerk(VfpDiscountInPercentPerkDTO dto) {
-        this(dto.discountRate());
+        this(dto.discountRate(), dto.startHour(), dto.endHour());
         this.setPerkId(dto.perkId());
     }
 
@@ -38,9 +58,25 @@ public class VfpDiscountInPercentPerk extends AbstractPerk {
         this.discountRate = percentage;
     }
 
+    public int getStartHour() {
+        return startHour;
+    }
+
+    public void setStartHour(int startHour) {
+        this.startHour = startHour;
+    }
+
+    public int getEndHour() {
+        return endHour;
+    }
+
+    public void setEndHour(int endHour) {
+        this.endHour = endHour;
+    }
+
     @Override
     public String toString() {
-        return discountRate + "% discount for all VFPs";
+        return discountRate + "% discount for all VFPs when booking between " + startHour + "h and " + endHour + "h";
     }
 
     @Override
@@ -56,12 +92,25 @@ public class VfpDiscountInPercentPerk extends AbstractPerk {
         if (customer.getCart() == null) {
             throw new IllegalStateException("Customer has no cart");
         }
-        customer.getCart().addToTotalPercentageReduction(discountRate);
         return true;
     }
 
     @Override
     public boolean isConsumableFor(Customer customer) {
-        return customer.isVfp();
+        if (customer.getCart() == null) {
+            return false;
+        }
+        List<CartItem> hkItems = customer.getCart().getHKItems();
+
+        for (CartItem item : hkItems) {
+            if (item.getStartTime() == null) {
+                return false;
+            }
+            int bookingHour = item.getStartTime().getHour();
+            if (customer.isVfp() && bookingHour >= startHour && bookingHour < endHour) {
+                return true;
+            }
+        }
+        return false;
     }
 }

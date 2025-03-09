@@ -90,6 +90,13 @@ public class Cart {
         this.itemList.add(item);
     }
 
+    public List<CartItem> getHKItems() {
+        return this.itemList.stream()
+                .filter(item -> item.getItem().getLabel().equals("HappyKids"))
+                .toList();
+
+    }
+
     public CartItem getItemById(Long itemId) {
         for (CartItem cartItem : itemList) {
             if (cartItem.getItem().getItemId().equals(itemId)) {
