@@ -1,7 +1,11 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
 import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
-import fr.univcotedazur.teamj.kiwicard.entities.*;
+import fr.univcotedazur.teamj.kiwicard.entities.Cart;
+import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
+import fr.univcotedazur.teamj.kiwicard.entities.Customer;
+import fr.univcotedazur.teamj.kiwicard.entities.Item;
+import fr.univcotedazur.teamj.kiwicard.entities.Partner;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.NPurchasedMGiftedPerk;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.TimedDiscountInPercentPerk;
@@ -21,10 +25,20 @@ import org.mockito.MockitoAnnotations;
 
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyDouble;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockConstruction;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class PerksServiceTest {
     @Mock
@@ -128,14 +142,10 @@ class PerksServiceTest {
         AbstractPerk dummyPerk1 = new TimedDiscountInPercentPerk(LocalTime.now().plusMinutes(10), 20);
         Partner partner = mock(Partner.class);
         when(partner.getPartnerId()).thenReturn(partnerId);
-        when(partnerRepository.findById(partnerId)).thenReturn(Optional.of(partner));
-        try (MockedConstruction<Partner> mocked = mockConstruction(Partner.class, (mock, context) -> {
-            when(mock.getPerkList()).thenReturn(List.of(dummyPerk, dummyPerk1));
-        })) {
-            List<IPerkDTO> result =
-                    perksService.findConsumablePerksForConsumerAtPartner(email, partnerId);
-            assertEquals(1, result.size());
-        }
+        when(partner.getPerkList()).thenReturn(List.of(dummyPerk, dummyPerk1));
+        when(partnerManager.findPartnerById(anyLong())).thenReturn(partner);
+        List<IPerkDTO> result = perksService.findConsumablePerksForConsumerAtPartner(email, partnerId);
+        assertEquals(1, result.size());
     }
 
     @Test

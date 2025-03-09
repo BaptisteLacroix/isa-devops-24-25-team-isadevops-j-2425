@@ -53,9 +53,9 @@ public class PerksService implements IPerksConsumer {
     }
 
     @Override
-    public List<IPerkDTO> findConsumablePerksForConsumerAtPartner(String consumerEmail, long partnerId) throws  UnknownCustomerEmailException, UnknownCartIdException, UnknownPartnerIdException {
-        Customer customer =customerFinder.findCustomerByEmail(consumerEmail);
-        Partner partner = new Partner(partnerManager.findPartnerById(partnerId));
+    public List<IPerkDTO> findConsumablePerksForConsumerAtPartner(String consumerEmail, long partnerId) throws UnknownCustomerEmailException, UnknownCartIdException, UnknownPartnerIdException {
+        Customer customer = customerFinder.findCustomerByEmail(consumerEmail);
+        Partner partner = partnerManager.findPartnerById(partnerId);
         return partner.getPerkList()
                 .stream()
                 .filter(perk -> perk.isConsumableFor(customer))

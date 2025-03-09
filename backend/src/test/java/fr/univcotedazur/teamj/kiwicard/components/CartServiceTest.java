@@ -150,7 +150,7 @@ class CartServiceTest extends BaseUnitTest {
         when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
         when(partnerManager.findAllPartnerItems(anyLong())).thenReturn(List.of(item));
         when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
-        when(partnerManager.findPartnerById(anyLong())).thenReturn(partnerDTO);
+        when(partnerManager.findPartnerById(anyLong())).thenReturn(partner);
         when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
 
         // When

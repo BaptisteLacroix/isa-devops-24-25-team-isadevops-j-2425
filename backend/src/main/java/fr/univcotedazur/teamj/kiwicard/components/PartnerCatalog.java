@@ -39,9 +39,8 @@ public class PartnerCatalog implements IPartnerManager {
     }
 
     @Override
-    public PartnerDTO findPartnerById(long partnerId) throws UnknownPartnerIdException {
+    public Partner findPartnerById(long partnerId) throws UnknownPartnerIdException {
         return partnerRepository.findById(partnerId)
-                .map(PartnerDTO::new)
                 .orElseThrow(() -> new UnknownPartnerIdException(partnerId));
     }
 

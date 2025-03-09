@@ -10,6 +10,7 @@ import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.NPurchasedMGiftedPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.TimedDiscountInPercentPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
+import fr.univcotedazur.teamj.kiwicard.entities.Partner;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPartnerManager;
@@ -29,6 +30,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -90,6 +92,10 @@ class PartnerControllerWebMvcTest extends BaseUnitTest {
 
     @Test
     void getPartnerByIdOK() throws Exception {
+        Partner chezJohn = mock(Partner.class);
+        when(chezJohn.getPartnerId()).thenReturn(1L);
+        when(chezJohn.getName()).thenReturn("Chez John");
+        when(chezJohn.getAddress()).thenReturn("2 boulevard Wilson");
         when(partnerManager.findPartnerById(1)).thenReturn(chezJohn);
         MvcResult result = mockMvc.perform(get(PartnerController.BASE_URI + "/1")
                         .contentType(APPLICATION_JSON))
@@ -99,9 +105,9 @@ class PartnerControllerWebMvcTest extends BaseUnitTest {
                 .andReturn();
         String jsonResult = result.getResponse().getContentAsString();
         PartnerDTO partnerResult = OBJECT_MAPPER.readValue(jsonResult, PartnerDTO.class);
-        assertEquals(chezJohn.id(), partnerResult.id());
-        assertEquals(chezJohn.name(), partnerResult.name());
-        assertEquals(chezJohn.address(), partnerResult.address());
+        assertEquals(chezJohn.getPartnerId(), partnerResult.id());
+        assertEquals(chezJohn.getName(), partnerResult.name());
+        assertEquals(chezJohn.getAddress(), partnerResult.address());
 
     }
 
