@@ -27,7 +27,7 @@ public interface ICartModifier {
      * @throws UnknownPartnerIdException     If no partner is found for the item in the cart.
      * @throws UnknownItemIdException        If the item does not exist in the item repository.
      */
-    CartDTO addItemToCart(String customerEmail, CartItemDTO cartItemDTO, CartDTO cartDTO) throws UnknownCustomerEmailException, UnknownItemIdException, UnknownPartnerIdException;
+    CartDTO addItemToCart(String customerEmail, CartItemDTO cartItemDTO, CartDTO cartDTO) throws UnknownCustomerEmailException, UnknownItemIdException, UnknownPartnerIdException, NoCartException;
 
     /**
      * Removes a specified item from the customer's shopping cart. The method first validates that the customer exists,

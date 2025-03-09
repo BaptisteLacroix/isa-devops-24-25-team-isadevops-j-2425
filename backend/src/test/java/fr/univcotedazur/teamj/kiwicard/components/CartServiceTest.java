@@ -147,7 +147,7 @@ class CartServiceTest extends BaseUnitTest {
     }
 
     @Test
-    void createCart_shouldCreateCartSuccessfully() throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException {
+    void createCart_shouldCreateCartSuccessfully() throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException, NoCartException {
         // Given
         when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
         when(partnerManager.findAllPartnerItems(anyLong())).thenReturn(List.of(item));
@@ -164,7 +164,7 @@ class CartServiceTest extends BaseUnitTest {
     }
 
     @Test
-    void addItemToCart_shouldAddItemSuccessfully() throws UnknownCustomerEmailException, UnknownItemIdException, UnknownPartnerIdException {
+    void addItemToCart_shouldAddItemSuccessfully() throws UnknownCustomerEmailException, UnknownItemIdException, UnknownPartnerIdException, NoCartException {
         // Given
         when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
         when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));

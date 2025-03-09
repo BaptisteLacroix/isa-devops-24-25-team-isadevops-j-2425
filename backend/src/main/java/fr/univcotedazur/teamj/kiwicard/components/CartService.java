@@ -58,10 +58,11 @@ public class CartService implements ICartModifier, ICartFinder {
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
      * @throws UnknownPartnerIdException     If no partner is found for the item in the cart.
      * @throws UnknownItemIdException        If the item does not exist in the item repository.
+     * @throws NoCartException               If the customer does not have a cart.
      */
     @Override
     @Transactional
-    public CartDTO addItemToCart(String customerEmail, CartItemDTO cartItemDTO, CartDTO cartDTO) throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException {
+    public CartDTO addItemToCart(String customerEmail, CartItemDTO cartItemDTO, CartDTO cartDTO) throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException, NoCartException {
         // Found the customer in the bdd
         Customer customer = customerCatalog.findCustomerByEmail(customerEmail);
         Item item = itemRepository.findById(cartItemDTO.itemId()).orElseThrow(() -> new UnknownItemIdException(cartItemDTO.itemId()));
@@ -83,18 +84,23 @@ public class CartService implements ICartModifier, ICartFinder {
      * @throws UnknownPartnerIdException     If no partner is found for the item in the cart.
      * @throws UnknownItemIdException        If the item is not valid for the partner's catalog.
      * @throws UnknownCustomerEmailException If the customer does not exist in the database.
+     * @throws NoCartException               If the customer does not have a cart.
      */
-    private CartDTO addItemToCart(CartItemDTO cartItemDTO, Customer customer, Item item) throws UnknownPartnerIdException, UnknownItemIdException, UnknownCustomerEmailException {
+    private CartDTO addItemToCart(CartItemDTO cartItemDTO, Customer customer, Item item) throws UnknownPartnerIdException, UnknownItemIdException, UnknownCustomerEmailException, NoCartException {
+        Cart customerCart = customer.getCart();
+        if (customerCart == null) {
+            throw new NoCartException(customer.getEmail());
+        }
         // Check that the item belongs to the partner's catalog
-        Partner partner = customer.getCart().getPartner();
+        Partner partner = customerCart.getPartner();
         List<Item> partnerItems = partnerManager.findAllPartnerItems(partner.getPartnerId());
         if (partnerItems.stream().noneMatch(partnerItem -> partnerItem.getItemId().equals(item.getItemId()))) {
             throw new UnknownItemIdException(item.getItemId());
         }
         // Add the item to the cart
         CartItem cartItem = new CartItem(item, cartItemDTO.quantity(), cartItemDTO.startTime(), cartItemDTO.endTime());
-        customer.getCart().getItemList().add(cartItem);
-        Customer updatedCustomer = customerCatalog.setCart(customer.getEmail(), customer.getCart());
+        customerCart.getItemList().add(cartItem);
+        Customer updatedCustomer = customerCatalog.setCart(customer.getEmail(), customerCart);
         return new CartDTO(updatedCustomer.getCart());
     }
 
@@ -132,10 +138,11 @@ public class CartService implements ICartModifier, ICartFinder {
     @Override
     public Optional<CartDTO> findCustomerCart(String cartOwnerEmail) throws UnknownCustomerEmailException {
         Customer customer = customerCatalog.findCustomerByEmail(cartOwnerEmail);
-        if (customer.getCart() == null) {
+        Cart cart = customer.getCart();
+        if (cart == null) {
             return Optional.empty();
         }
-        return Optional.of(new CartDTO(customer.getCart()));
+        return Optional.of(new CartDTO(cart));
     }
 
     /**
@@ -146,7 +153,7 @@ public class CartService implements ICartModifier, ICartFinder {
      * @param cartItemDTO    A CartItemDTO representing the item to be removed, including the item ID.
      * @return A CartDTO representing the updated shopping cart after the item has been removed.
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
-     * @throws NoCartException          If the customer does not have a cart.
+     * @throws NoCartException               If the customer does not have a cart.
      * @throws EmptyCartException            If the cart is empty and no items can be removed.
      */
     @Override
@@ -154,21 +161,10 @@ public class CartService implements ICartModifier, ICartFinder {
     public CartDTO removeItemFromCart(String cartOwnerEmail, CartItemDTO cartItemDTO) throws UnknownCustomerEmailException, EmptyCartException, NoCartException {
         // Check that the customer exists
         Customer customer = customerCatalog.findCustomerByEmail(cartOwnerEmail);
-
-        // Check if the customer has a cart
-        if (customer.getCart() == null) {
-            // If no cart exists, throw an exception or return a specific error response
-            throw new NoCartException(customer.getEmail());
-        }
-        if (customer.getCart().getItemList().isEmpty()) {
-            throw new EmptyCartException(customer.getCart().getCartId());
-        }
-
+        Cart cart = verifyCart(customer);
         // Remove the item from the cart
-        customer.getCart().getItemList().removeIf(cartItem -> cartItem.getItem().getItemId().equals(cartItemDTO.itemId()));
-
-        Customer updatedCustomer = customerCatalog.setCart(cartOwnerEmail, customer.getCart());
-
+        cart.getItemList().removeIf(cartItem -> cartItem.getItem().getItemId().equals(cartItemDTO.itemId()));
+        Customer updatedCustomer = customerCatalog.setCart(cartOwnerEmail, cart);
         return new CartDTO(updatedCustomer.getCart());
     }
 
@@ -185,29 +181,38 @@ public class CartService implements ICartModifier, ICartFinder {
      * @throws UnreachableExternalServiceException If there is an issue contacting or processing the payment
      *                                             with the external service.
      * @throws EmptyCartException                  If the cart is empty and cannot be validated.
-     * @throws NoCartException                If the customer does not have a cart.
+     * @throws NoCartException                     If the customer does not have a cart.
      */
     @Override
     @Transactional
     public PurchaseDTO validateCart(String cartOwnerEmail) throws UnknownCustomerEmailException, UnreachableExternalServiceException, EmptyCartException, NoCartException {
         // Check that the customer exists
         Customer customer = customerCatalog.findCustomerByEmail(cartOwnerEmail);
-
-        if (customer.getCart() == null) {
-            throw new NoCartException(customer.getEmail());
-        }
-
-        if (customer.getCart().getItemList().isEmpty()) {
-            throw new EmptyCartException(customer.getCart().getCartId());
-        }
-
+        Cart cart = verifyCart(customer);
         // Create the purchase
         PaymentDTO paymentDTO = payment.makePay(customer);
-
-        PurchaseDTO purchaseDTO = new PurchaseDTO(cartOwnerEmail, new CartDTO(customer.getCart()), paymentDTO);
-
+        PurchaseDTO purchaseDTO = new PurchaseDTO(cartOwnerEmail, new CartDTO(cart), paymentDTO);
         customerCatalog.emptyCart(cartOwnerEmail);
-
         return purchaseDTO;
+    }
+
+    /**
+     * Verifies the existence and validity of the customer's cart.
+     * This helper method checks whether the customer has a cart and if the cart is not empty.
+     *
+     * @param customer The customer whose cart is being validated.
+     * @return The cart associated with the customer if it exists and is not empty.
+     * @throws NoCartException    If the customer does not have a cart.
+     * @throws EmptyCartException If the customer's cart is empty.
+     */
+    private static Cart verifyCart(Customer customer) throws NoCartException, EmptyCartException {
+        Cart cart = customer.getCart();
+        if (cart == null) {
+            throw new NoCartException(customer.getEmail());
+        }
+        if (cart.getItemList().isEmpty()) {
+            throw new EmptyCartException(cart.getCartId());
+        }
+        return cart;
     }
 }
