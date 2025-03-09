@@ -44,13 +44,21 @@ public class Cashier implements IPayment {
      */
     @Override
     public PaymentDTO makePay(Customer customer) throws UnreachableExternalServiceException {
+        double totalPrice = computePrice(customer);
+
+        // Prepare the payment request and process it via the bank proxy
+        PaymentRequestDTO paymentRequestDTO = new PaymentRequestDTO(customer.getCardNumber(), totalPrice);
+        return bankProxy.askPayment(paymentRequestDTO);
+    }
+
+    private double computePrice(Customer customer) {
         // Calculate the total price before applying discounts
         double percentage = customer.getCart().getTotalPercentageReduction();
-        double totalPriceWithoutReduction = customer.getCart().getItemList().stream().mapToDouble(CartItem::getPrice).sum();
+        double totalPriceWithoutReduction = customer.getCart().getTotalPrice();
         double totalPrice = totalPriceWithoutReduction - (totalPriceWithoutReduction * percentage);
 
         // Reset the total percentage reduction
-        customer.getCart().addToTotalPercentageReduction(percentage);
+        customer.getCart().resetTotalPercentageReduction();
 
         // Apply perks to the customer
         for (AbstractPerk perk : customer.getCart().getPerksToUse()) {
@@ -61,10 +69,7 @@ public class Cashier implements IPayment {
         percentage = customer.getCart().getTotalPercentageReduction();
         // Recalculate the total price after applying discounts
         if (percentage != 0) totalPrice = totalPriceWithoutReduction - (totalPriceWithoutReduction * percentage);
-
-        // Prepare the payment request and process it via the bank proxy
-        PaymentRequestDTO paymentRequestDTO = new PaymentRequestDTO(customer.getCardNumber(), totalPrice);
-        return bankProxy.askPayment(paymentRequestDTO);
+        return totalPrice;
     }
 
 }

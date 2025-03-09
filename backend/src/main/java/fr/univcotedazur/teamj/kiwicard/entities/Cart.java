@@ -132,4 +132,13 @@ public class Cart {
         this.totalPercentageReduction += amount;
         return this.totalPercentageReduction;
     }
+
+    public double resetTotalPercentageReduction() {
+        this.totalPercentageReduction = 0;
+        return this.totalPercentageReduction;
+    }
+
+    public double getTotalPrice() {
+        return getItemList().stream().mapToDouble(CartItem::getPrice).sum();
+    }
 }

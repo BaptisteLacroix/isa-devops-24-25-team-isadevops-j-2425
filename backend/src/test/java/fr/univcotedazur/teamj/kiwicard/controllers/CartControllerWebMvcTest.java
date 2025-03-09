@@ -63,7 +63,7 @@ class CartControllerWebMvcTest extends BaseUnitTest {
     @BeforeEach
     void setUp() {
         // Updated CartItemDTO initialization
-        cartItemDTO = new CartItemDTO(1L, 2, null, null, 10L);
+        cartItemDTO = new CartItemDTO(2, null, null, 10L);
 
         // Updated CartDTO initialization with PartnerDTO and IPerkDTO List
         PartnerDTO partnerDTO = new PartnerDTO(partnerId, "Partner Name", "Partner Address");

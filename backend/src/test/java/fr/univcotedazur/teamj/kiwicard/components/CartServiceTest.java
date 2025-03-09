@@ -81,7 +81,7 @@ class CartServiceTest extends BaseUnitTest {
         when(item.getLabel()).thenReturn("Item");
         when(item.getPrice()).thenReturn(10.0);
         when(item.getPartner()).thenReturn(partner);
-        cartItemDTO = new CartItemDTO(1L, 2, null, null, 1L);
+        cartItemDTO = new CartItemDTO(2, null, null, 1L);
 
         cartItem = mock(CartItem.class);
         when(cartItem.getCartItemId()).thenReturn(1L);
@@ -170,11 +170,11 @@ class CartServiceTest extends BaseUnitTest {
         when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
 
         // When
-        CartDTO result = cartService.addItemToCart("customer@example.com", cartItemDTO, new CartDTO(customer.getCart()));
+        CartDTO result = cartService.addItemToCart("customer@example.com", cartItemDTO, cartDTO);
 
         // Then
         assertNotNull(result);
-        assertEquals(2, result.items().size());
+        assertTrue(result.items().contains(cartItemDTO));
     }
 
     @Test
