@@ -26,14 +26,16 @@ public class CustomerController {
     }
 
     @GetMapping("")
-    public CustomerDTO findCustomerByEmailOrByCardNumber(@RequestParam String email, @RequestParam String cardNumber) throws UnknownCustomerEmailException, UnknownCardNumberException {
+    public CustomerDTO findCustomerByEmailOrByCardNumber(@RequestParam(required = false) String email, @RequestParam(required = false) String cardNumber) throws UnknownCustomerEmailException, UnknownCardNumberException {
+        if (email == null && cardNumber == null) {
+            throw new IllegalArgumentException("Either email or cardNumber must be provided, but not both.");
+        }
         if (email != null) {
             return new CustomerDTO(customerCatalog.findCustomerByEmail(email));
         } else {
             return customerCatalog.findCustomerByCardNum(cardNumber);
         }
     }
-
 
     @GetMapping("/")
     public void findAllCustomers() {

@@ -1,5 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.cli.commands;
 
+import fr.univcotedazur.teamj.kiwicard.cli.CliSession;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -17,11 +18,13 @@ class CustomerCommandsTest {
     private CustomerCommands customerCommands;
 
     private static MockWebServer mockWebServer;
+    private static CliSession cliSession;
 
     @BeforeAll
     static void setUp() throws Exception {
         mockWebServer = new MockWebServer();
         mockWebServer.start();
+        cliSession = new CliSession();
     }
 
     @AfterAll
@@ -31,7 +34,7 @@ class CustomerCommandsTest {
 
     @BeforeEach
     void init() {
-        customerCommands = new CustomerCommands(WebClient.create(mockWebServer.url("/").toString()));
+        customerCommands = new CustomerCommands(WebClient.create(mockWebServer.url("/").toString()), cliSession);
     }
 
     @Test
@@ -51,10 +54,11 @@ class CustomerCommandsTest {
                 .setResponseCode(HttpStatus.OK.value()));
 
         // Call the method
-        String response = customerCommands.registerClient("Doe", "John", "john.doe@example.com", "123 Main St, City, Country");
+        String mail = "john.doe@example.com";
+        String response = customerCommands.registerClient("Doe", "John", mail, "123 Main St, City, Country");
 
         // Assert that the response matches the registered customer's details
-        assertEquals("User registered successfully", response);
+        assertEquals("Register client successfuly, you are now logged in as "+ mail, response);
 
         // Verify the request made to the correct endpoint
         RecordedRequest recordedRequest = mockWebServer.takeRequest();
