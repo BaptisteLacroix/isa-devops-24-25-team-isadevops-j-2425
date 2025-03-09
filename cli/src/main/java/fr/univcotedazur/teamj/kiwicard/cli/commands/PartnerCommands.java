@@ -6,7 +6,6 @@ import fr.univcotedazur.teamj.kiwicard.cli.model.CliPartner;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliPerk;
 import fr.univcotedazur.teamj.kiwicard.cli.model.error.CliError;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
@@ -80,12 +79,17 @@ public class PartnerCommands {
             """)
     public void consultPartnerPerks(String partnerId) {
         List<CliPerk> perksList = webClient.get()
-                .uri("partners/" + partnerId + "/perks")
+                .uri(BASE_URI + "/" + partnerId + "/perks")
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(CliError.class)
                         .flatMap(error -> Mono.error(new RuntimeException(error.errorMessage()))))
-                .bodyToMono(new ParameterizedTypeReference<List<CliPerk>>() {})
+                .bodyToFlux(CliPerk.class)
+                .collectList()
                 .block();
+        if (perksList == null) {
+            System.out.println("No perks available for this partner.");
+            return;
+        }
         printPerks(perksList);
     }
 
