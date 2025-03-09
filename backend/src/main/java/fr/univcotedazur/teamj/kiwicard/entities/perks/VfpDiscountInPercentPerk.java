@@ -6,10 +6,13 @@ import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.mappers.PerkVisitor;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -20,22 +23,18 @@ public class VfpDiscountInPercentPerk extends AbstractPerk {
 
     @Column
     @NotNull
-    @Min(0)
-    @Max(23)
-    private int startHour;
+    private LocalDateTime startHour;
 
     @Column
     @NotNull
-    @Min(0)
-    @Max(23)
-    private int endHour;
+    private LocalDateTime endHour;
 
 
     public VfpDiscountInPercentPerk() {
         super(PerkType.FINAL);
     }
 
-    public VfpDiscountInPercentPerk(double discountRate, int startHour, int endHour) {
+    public VfpDiscountInPercentPerk(double discountRate, LocalDateTime startHour, LocalDateTime endHour) {
         this();
         while (discountRate > 1) {
             discountRate = discountRate / 100;
@@ -58,19 +57,19 @@ public class VfpDiscountInPercentPerk extends AbstractPerk {
         this.discountRate = percentage;
     }
 
-    public int getStartHour() {
+    public LocalDateTime getStartHour() {
         return startHour;
     }
 
-    public void setStartHour(int startHour) {
+    public void setStartHour(LocalDateTime startHour) {
         this.startHour = startHour;
     }
 
-    public int getEndHour() {
+    public LocalDateTime getEndHour() {
         return endHour;
     }
 
-    public void setEndHour(int endHour) {
+    public void setEndHour(LocalDateTime endHour) {
         this.endHour = endHour;
     }
 
@@ -100,14 +99,14 @@ public class VfpDiscountInPercentPerk extends AbstractPerk {
         if (customer.getCart() == null) {
             return false;
         }
-        List<CartItem> hkItems = customer.getCart().getHKItems();
+        List<CartItem> hkItems = customer.getCart().getHKItems(null);
 
         for (CartItem item : hkItems) {
             if (item.getStartTime() == null) {
                 return false;
             }
             int bookingHour = item.getStartTime().getHour();
-            if (customer.isVfp() && bookingHour >= startHour && bookingHour < endHour) {
+            if (customer.isVfp() && bookingHour >= startHour.getHour() && bookingHour < endHour.getHour()) {
                 return true;
             }
         }

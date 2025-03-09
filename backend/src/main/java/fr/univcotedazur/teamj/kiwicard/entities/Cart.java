@@ -14,6 +14,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -90,9 +91,9 @@ public class Cart {
         this.itemList.add(item);
     }
 
-    public List<CartItem> getHKItems() {
+    public List<CartItem> getHKItems(@Value("${happykids.item.name}") String itemName) {
         return this.itemList.stream()
-                .filter(item -> item.getItem().getLabel().equals("HappyKids"))
+                .filter(item -> item.getItem().getLabel().contains(itemName))
                 .toList();
 
     }

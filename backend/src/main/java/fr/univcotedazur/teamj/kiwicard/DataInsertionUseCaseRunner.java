@@ -294,7 +294,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         Item brie = partnerManager.findAllPartnerItems(partnerFromagerie.getPartnerId()).get(2);
         Item comte = partnerManager.findAllPartnerItems(partnerFromagerie.getPartnerId()).get(3);
 
-        Item happyKids = new Item("HappyKids", 10.0);
+        Item happyKids = new Item("Heure de garde HappyKids", 10.0);
 
         // CartItem with cart and item and quantity Boulange
         CartItem cartItem = new CartItem();
@@ -406,7 +406,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
 
 
         // Perk (Vfp discount in %)
-        VfpDiscountInPercentPerk perk = new VfpDiscountInPercentPerk(0.05, 9, 12);
+        VfpDiscountInPercentPerk perk = new VfpDiscountInPercentPerk(0.05, LocalDateTime.of(2025, 6, 1, 9, 0, 0), LocalDateTime.of(2025, 6, 1, 12, 0, 0));
         TimedDiscountInPercentPerk perk2 = new TimedDiscountInPercentPerk(LocalTime.now(), 20);
 
         perkRepository.save(perk);

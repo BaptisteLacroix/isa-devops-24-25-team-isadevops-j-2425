@@ -28,14 +28,16 @@ public class PerksService implements IPerksConsumer {
     private final ICustomerFinder customerFinder;
     private final IPartnerManager partnerManager;
 
+    @Autowired
+    private HappyKidsProxy happyKidsProxy;
+
+
     public PerksService(IPerksFinder perksRepository, ICustomerFinder customerFinder, IPartnerManager partnerManager) {
         this.perksFinder = perksRepository;
         this.customerFinder = customerFinder;
         this.partnerManager = partnerManager;
     }
 
-    @Autowired
-    private HappyKidsProxy happyKidsProxy;
 
     @Override
     @Transactional
@@ -65,16 +67,15 @@ public class PerksService implements IPerksConsumer {
         // if(perksFinder.findPerkById(perkId). )
         VfpDiscountInPercentPerk perk = (VfpDiscountInPercentPerk) PerkMapper.fromDTO(perksFinder.findPerkById(perkId));
 
-        List<CartItem> hkItems = customer.getCart().getHKItems();
+        List<CartItem> hkItems = customer.getCart().getHKItems(null);
 
         for (CartItem item : hkItems) {
             LocalDateTime bookingTime = item.getStartTime();
             if (bookingTime == null) {
                 throw new IllegalStateException("Booking time is not set");
             }
-            int bookingHour = bookingTime.getHour();
 
-            if (bookingHour >= perk.getStartHour() && bookingHour < perk.getEndHour()) {
+            if (!bookingTime.isBefore(perk.getStartHour()) && bookingTime.isBefore(perk.getEndHour())) {
                 HappyKidsDiscountDTO happyKidsDiscountDTO = happyKidsProxy.computeDiscount(item, perk.getDiscountRate());
                 if (happyKidsDiscountDTO != null) {
                     item.setPrice(happyKidsDiscountDTO.price());
