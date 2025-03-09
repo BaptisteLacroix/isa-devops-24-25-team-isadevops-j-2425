@@ -31,11 +31,9 @@ public class VfpDiscountInPercentPerk extends AbstractPerk {
 
 
     public VfpDiscountInPercentPerk() {
-        super(PerkType.FINAL);
     }
 
     public VfpDiscountInPercentPerk(double discountRate, LocalDateTime startHour, LocalDateTime endHour) {
-        this();
         while (discountRate > 1) {
             discountRate = discountRate / 100;
         }

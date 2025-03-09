@@ -376,7 +376,6 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
 
         CartItem cartItemFromagerie = new CartItem();
 
-
         cartItemFromagerie.setItem(camembert);
         cartItemFromagerie.setQuantity(2);
         cartFromagerie.addItem(cartItemFromagerie);
@@ -411,9 +410,8 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
 
         perkRepository.save(perk);
         perkRepository.save(perk2);
-        customerAntoineF.getCart().addPerk(perk);
-        customerAlice.getCart().addPerk(perk2);
-
+        customerAntoineF.getCart().addPerkToUse(perk);
+        customerAlice.getCart().addPerkToUse(perk2);
 
         // Payment
         Payment payment = new Payment(40, LocalDateTime.now());

@@ -2,9 +2,7 @@ package fr.univcotedazur.teamj.kiwicard.controllers;
 
 import fr.univcotedazur.teamj.kiwicard.components.PerksService;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCartIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPerkIdException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPerkManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,9 +46,9 @@ public class PerksController {
     }
 
     @GetMapping("/consumable")
-    public ResponseEntity<List<IPerkDTO>> findConsumablePerksForConsumerAtPartner(@RequestParam String consumerEmail, @RequestParam long partnerId)
-            throws UnknownCustomerEmailException, UnknownCartIdException, UnknownPartnerIdException {
-        List<IPerkDTO> consumablePerks = perksService.findConsumablePerksForConsumerAtPartner(consumerEmail, partnerId);
+    public ResponseEntity<List<IPerkDTO>> findConsumablePerksForConsumerAtPartner(@RequestParam String consumerEmail)
+            throws UnknownCustomerEmailException {
+        List<IPerkDTO> consumablePerks = perksService.findConsumablePerksForConsumerAtPartner(consumerEmail);
         return ResponseEntity.ok(consumablePerks);
     }
 }

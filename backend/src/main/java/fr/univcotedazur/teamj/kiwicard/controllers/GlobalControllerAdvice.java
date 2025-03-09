@@ -23,7 +23,7 @@ public class GlobalControllerAdvice {
         return new ErrorDTO("Payment was rejected from Customer " + e.getName() + " for amount " + e.getAmount());
     }
 
-    @ExceptionHandler({UnknownPartnerIdException.class, UnknownItemIdException.class, UnknownCustomerEmailException.class, UnknownCartIdException.class, UnknownPerkIdException.class})
+    @ExceptionHandler({UnknownPartnerIdException.class, UnknownItemIdException.class, UnknownCustomerEmailException.class, UnknownCartIdException.class, UnknownPerkIdException.class, NoCartException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorDTO handleExceptions(Exception e) {
         return new ErrorDTO(e.getMessage());

@@ -24,17 +24,14 @@ public class TimedDiscountInPercentPerk extends AbstractPerk{
     private double discountRate;
 
     public TimedDiscountInPercentPerk() {
-        super(PerkType.FINAL);
     }
 
     public TimedDiscountInPercentPerk(LocalTime time, double discountRate) {
-        this();
         this.time = time;
         this.discountRate = discountRate;
     }
 
     public TimedDiscountInPercentPerk(TimedDiscountInPercentPerkDTO dto) {
-        this();
         this.setPerkId(dto.perkId());
         this.time = dto.time();
         this.discountRate = dto.discountRate();

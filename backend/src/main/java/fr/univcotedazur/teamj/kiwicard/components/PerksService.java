@@ -10,8 +10,9 @@ import fr.univcotedazur.teamj.kiwicard.entities.Partner;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.VfpDiscountInPercentPerk;
 import fr.univcotedazur.teamj.kiwicard.exceptions.*;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPerkIdException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.customer.ICustomerFinder;
-import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPartnerManager;
 import fr.univcotedazur.teamj.kiwicard.interfaces.perks.IPerksConsumer;
 import fr.univcotedazur.teamj.kiwicard.interfaces.perks.IPerksFinder;
 import fr.univcotedazur.teamj.kiwicard.mappers.PerkMapper;
@@ -26,18 +27,15 @@ import java.util.List;
 public class PerksService implements IPerksConsumer {
     private final IPerksFinder perksFinder;
     private final ICustomerFinder customerFinder;
-    private final IPartnerManager partnerManager;
 
     @Autowired
     private HappyKidsProxy happyKidsProxy;
 
 
-    public PerksService(IPerksFinder perksRepository, ICustomerFinder customerFinder, IPartnerManager partnerManager) {
+    public PerksService(IPerksFinder perksRepository, ICustomerFinder customerFinder) {
         this.perksFinder = perksRepository;
         this.customerFinder = customerFinder;
-        this.partnerManager = partnerManager;
     }
-
 
     @Override
     @Transactional
@@ -50,14 +48,11 @@ public class PerksService implements IPerksConsumer {
             cart = new Cart();
             customer.setCart(cart);
         }
-
-        if (cart.getPerksToUse().contains(perk)) {
-            return false;
+        if (perk.isConsumableFor(customer)) {
+            cart.addPerkToUse(perk);
+            return true;
         }
-
-        cart.usePerk(perk, customer);
-
-        return true;
+        return false;
     }
 
     public boolean applyHappyKidsPerks(long perkId, Customer customer) throws UnknownPerkIdException, ClosedTimeException, UnreachableExternalServiceException {
@@ -86,9 +81,13 @@ public class PerksService implements IPerksConsumer {
     }
 
     @Override
-    public List<IPerkDTO> findConsumablePerksForConsumerAtPartner(String consumerEmail, long partnerId) throws  UnknownCustomerEmailException, UnknownCartIdException, UnknownPartnerIdException {
-        Customer customer =customerFinder.findCustomerByEmail(consumerEmail);
-        Partner partner = new Partner(partnerManager.findPartnerById(partnerId));
+    public List<IPerkDTO> findConsumablePerksForConsumerAtPartner(String consumerEmail) throws UnknownCustomerEmailException, NoCartException {
+        Customer customer = customerFinder.findCustomerByEmail(consumerEmail);
+        Cart cart = customer.getCart();
+        if (cart == null) {
+            throw new NoCartException(customer.getEmail());
+        }
+        Partner partner = cart.getPartner();
         return partner.getPerkList()
                 .stream()
                 .filter(perk -> perk.isConsumableFor(customer))

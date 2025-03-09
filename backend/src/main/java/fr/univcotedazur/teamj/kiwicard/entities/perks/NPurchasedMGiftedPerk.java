@@ -27,18 +27,15 @@ public class NPurchasedMGiftedPerk extends AbstractPerk {
     private Item item;
 
     public NPurchasedMGiftedPerk() {
-        super(PerkType.INTERMEDIATE);
     }
 
     public NPurchasedMGiftedPerk(int nbPurchased, int nbGifted, Item item) {
-        this();
         this.nbPurchased = nbPurchased;
         this.nbGifted = nbGifted;
         this.item = item;
     }
 
     public NPurchasedMGiftedPerk(NPurchasedMGiftedPerkDTO perkDTO) {
-        this();
         this.setPerkId(perkDTO.perkId());
         this.nbPurchased = perkDTO.nbPurchased();
         this.nbGifted = perkDTO.nbGifted();
