@@ -2,6 +2,7 @@ package fr.univcotedazur.teamj.kiwicard.repositories;
 
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -16,12 +17,14 @@ public interface ICustomerRepository extends JpaRepository<Customer, Long> {
 
     Optional<Customer> findByCardNumber(String cardNumber);
 
-    @Query("SELECT COUNT(c) FROM Customer c" +
-            " WHERE (" +
-            "   SELECT COUNT(p) " +
-            "   FROM c.purchaseList p " +
-            "   WHERE p.payment.timestamp > :lastWeekDate" +
-            " ) >= :nbPurchaseRequired"
+    @Modifying
+    @Query("UPDATE Customer c " +
+           "SET c.vfp = true " +
+           "WHERE (" +
+           "   SELECT COUNT(p) " +
+           "   FROM c.purchaseList p " +
+           "   WHERE p.payment.timestamp > :lastWeekDate" +
+           " ) >= :nbPurchaseRequired"
     )
     int refreshVfpStatus(@Param("nbPurchaseRequired") int nbPurchaseRequired, @Param("lastWeekDate") LocalDateTime lastWeekDate);
 }
