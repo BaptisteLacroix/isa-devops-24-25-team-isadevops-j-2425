@@ -73,11 +73,10 @@ class PartnerCatalogTest extends BaseUnitTest {
     @Transactional
     void findPartnerByIdOK() {
         when(partnerRepository.findById(mockPartner.getPartnerId())).thenReturn(Optional.of(mockPartner));
-        PartnerDTO partnerSaved = new PartnerDTO(mockPartner);
 
-        PartnerDTO partnerFound = assertDoesNotThrow(() -> partnerManager.findPartnerById(mockPartner.getPartnerId()));
+        Partner partnerFound = assertDoesNotThrow(() -> partnerManager.findPartnerById(mockPartner.getPartnerId()));
 
-        assertEquals(partnerSaved, partnerFound);
+        assertEquals(mockPartner, partnerFound);
     }
 
     @Test

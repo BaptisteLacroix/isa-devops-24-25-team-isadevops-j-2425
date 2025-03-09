@@ -3,8 +3,17 @@ package fr.univcotedazur.teamj.kiwicard.entities;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
 import jakarta.persistence.*;
+import fr.univcotedazur.teamj.kiwicard.connectors.CardEditorProxy;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.context.annotation.Bean;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +73,7 @@ public class Customer {
         this.vfp = customerDTO.vfp();
     }
 
-    // Fait pour faire passer les tests, à refaire !!
+    // FIXME: Fait pour faire passer les tests, à refaire !!
     public Customer(String firstName, String email) {
         this.firstName = firstName;
         this.email = email;
@@ -135,6 +144,14 @@ public class Customer {
 
     public void setVfp(@NotNull boolean vfp) {
         this.vfp = vfp;
+    }
+
+    public String getCardNumber() {
+        return cardNumber;
+    }
+
+    public void setCardNumber(String cardNumber) {
+        this.cardNumber = cardNumber;
     }
 
     @Override

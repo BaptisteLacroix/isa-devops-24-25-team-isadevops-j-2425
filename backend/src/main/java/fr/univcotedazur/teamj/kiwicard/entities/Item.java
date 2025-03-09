@@ -1,6 +1,7 @@
 package fr.univcotedazur.teamj.kiwicard.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -75,5 +76,10 @@ public class Item {
 
     public void setPartner(Partner partner) {
         this.partner = partner;
+    }
+
+    @JsonIgnore
+    public Partner getPartner() {
+        return partner;
     }
 }

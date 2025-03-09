@@ -38,6 +38,8 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
     private String customerAntoineFEmail;
     private String customerBaptisteEmail;
     private String customerClementEmail;
+    private final boolean deleteAllData = true;
+    private String customerEmail;
 
     public DataInsertionUseCaseRunner(ICustomerRepository customerRepository, IPartnerRepository partnerRepository, IPerkRepository perkRepository, IPurchaseRepository purchaseRepository, IPartnerManager partnerManager) {
         this.customerRepository = customerRepository;
