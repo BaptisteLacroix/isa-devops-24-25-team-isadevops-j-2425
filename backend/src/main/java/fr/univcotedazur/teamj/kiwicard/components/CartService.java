@@ -2,8 +2,6 @@ package fr.univcotedazur.teamj.kiwicard.components;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CartItemDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.PartnerCreationDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PaymentDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Cart;
@@ -11,6 +9,8 @@ import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import fr.univcotedazur.teamj.kiwicard.entities.Partner;
+import fr.univcotedazur.teamj.kiwicard.exceptions.EmptyCartException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCartException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
@@ -132,6 +132,9 @@ public class CartService implements ICartModifier, ICartFinder {
     @Override
     public Optional<CartDTO> findCustomerCart(String cartOwnerEmail) throws UnknownCustomerEmailException {
         Customer customer = customerCatalog.findCustomerByEmail(cartOwnerEmail);
+        if (customer.getCart() == null) {
+            return Optional.empty();
+        }
         return Optional.of(new CartDTO(customer.getCart()));
     }
 
@@ -143,12 +146,23 @@ public class CartService implements ICartModifier, ICartFinder {
      * @param cartItemDTO    A CartItemDTO representing the item to be removed, including the item ID.
      * @return A CartDTO representing the updated shopping cart after the item has been removed.
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
+     * @throws UnknownCartException          If the customer does not have a cart.
+     * @throws EmptyCartException            If the cart is empty and no items can be removed.
      */
     @Override
     @Transactional
-    public CartDTO removeItemFromCart(String cartOwnerEmail, CartItemDTO cartItemDTO) throws UnknownCustomerEmailException {
+    public CartDTO removeItemFromCart(String cartOwnerEmail, CartItemDTO cartItemDTO) throws UnknownCustomerEmailException, EmptyCartException, UnknownCartException {
         // Check that the customer exists
         Customer customer = customerCatalog.findCustomerByEmail(cartOwnerEmail);
+
+        // Check if the customer has a cart
+        if (customer.getCart() == null) {
+            // If no cart exists, throw an exception or return a specific error response
+            throw new UnknownCartException();
+        }
+        if (customer.getCart().getItemList().isEmpty()) {
+            throw new EmptyCartException(customer.getCart().getCartId());
+        }
 
         // Remove the item from the cart
         customer.getCart().getItemList().removeIf(cartItem -> cartItem.getItem().getItemId().equals(cartItemDTO.itemId()));
@@ -170,12 +184,22 @@ public class CartService implements ICartModifier, ICartFinder {
      * @throws UnknownCustomerEmailException       If no customer is found with the given email.
      * @throws UnreachableExternalServiceException If there is an issue contacting or processing the payment
      *                                             with the external service.
+     * @throws EmptyCartException                  If the cart is empty and cannot be validated.
+     * @throws UnknownCartException                If the customer does not have a cart.
      */
     @Override
     @Transactional
-    public PurchaseDTO validateCart(String cartOwnerEmail) throws UnknownCustomerEmailException, UnreachableExternalServiceException {
+    public PurchaseDTO validateCart(String cartOwnerEmail) throws UnknownCustomerEmailException, UnreachableExternalServiceException, EmptyCartException, UnknownCartException {
         // Check that the customer exists
         Customer customer = customerCatalog.findCustomerByEmail(cartOwnerEmail);
+
+        if (customer.getCart() == null) {
+            throw new UnknownCartException();
+        }
+
+        if (customer.getCart().getItemList().isEmpty()) {
+            throw new EmptyCartException(customer.getCart().getCartId());
+        }
 
         // Create the purchase
         PaymentDTO paymentDTO = payment.makePay(customer);

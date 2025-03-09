@@ -2,8 +2,10 @@ package fr.univcotedazur.teamj.kiwicard.controllers;
 
 import fr.univcotedazur.teamj.kiwicard.dto.ErrorDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyUsedEmailException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.EmptyCartException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.NegativeQuantityException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.PaymentException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCartException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCartIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
@@ -24,7 +26,7 @@ public class GlobalControllerAdvice {
         return new ErrorDTO("External service is unreachable");
     }
 
-    @ExceptionHandler({NegativeQuantityException.class})
+    @ExceptionHandler({NegativeQuantityException.class, EmptyCartException.class, UnknownCartException.class})
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorDTO handleExceptions(NegativeQuantityException e) {
         return new ErrorDTO(e.getMessage());

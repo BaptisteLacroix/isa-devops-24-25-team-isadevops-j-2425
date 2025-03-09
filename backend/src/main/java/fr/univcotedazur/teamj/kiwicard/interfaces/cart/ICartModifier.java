@@ -3,6 +3,9 @@ package fr.univcotedazur.teamj.kiwicard.interfaces.cart;
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CartItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
+import fr.univcotedazur.teamj.kiwicard.exceptions.EmptyCartException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCartException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCartIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
@@ -36,7 +39,7 @@ public interface ICartModifier {
      * @return A CartDTO representing the updated shopping cart after the item has been removed.
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
      */
-    CartDTO removeItemFromCart(String cartOwnerEmail, CartItemDTO cartItemDTO) throws UnknownCustomerEmailException;
+    CartDTO removeItemFromCart(String cartOwnerEmail, CartItemDTO cartItemDTO) throws UnknownCustomerEmailException, UnknownCartException, EmptyCartException;
 
     /**
      * Validates a customer's shopping cart and processes a payment request to the external payment service.
@@ -51,5 +54,5 @@ public interface ICartModifier {
      * @throws UnreachableExternalServiceException If there is an issue contacting or processing the payment
      *                                             with the external service.
      */
-    PurchaseDTO validateCart(String cartOwnerEmail) throws UnknownCustomerEmailException, UnreachableExternalServiceException;
+    PurchaseDTO validateCart(String cartOwnerEmail) throws UnknownCustomerEmailException, UnreachableExternalServiceException, EmptyCartException, UnknownCartException;
 }
