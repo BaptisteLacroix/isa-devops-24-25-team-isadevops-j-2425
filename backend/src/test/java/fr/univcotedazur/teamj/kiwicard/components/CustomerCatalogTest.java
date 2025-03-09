@@ -1,5 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
+import fr.univcotedazur.teamj.kiwicard.BaseUnitTest;
 import fr.univcotedazur.teamj.kiwicard.connectors.CardEditorProxy;
 import fr.univcotedazur.teamj.kiwicard.dto.CardDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
@@ -13,9 +14,10 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceExce
 import fr.univcotedazur.teamj.kiwicard.repositories.ICustomerRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,15 +33,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class CustomerCatalogTest {
+@SpringBootTest
+class CustomerCatalogTest extends BaseUnitTest {
 
-    @Mock
+    @MockitoBean
     private ICustomerRepository customerRepository;
 
-    @Mock
+    @MockitoBean
     private CardEditorProxy cardEditorProxy;
 
-    @InjectMocks
+    @Autowired
     private CustomerCatalog customerCatalog;
 
     @Test
