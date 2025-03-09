@@ -36,26 +36,26 @@ class PartnerCommandsTest {
 
     @BeforeEach
     void init() {
-        commands = new PartnerCommands(WebClient.create(mockWebServer.url("/").toString()),cliSession);
+        commands = new PartnerCommands(WebClient.create(mockWebServer.url("/").toString()), cliSession);
     }
 
     @Test
     void partnersTest() throws Exception {
         mockWebServer.enqueue(new MockResponse()
                 .setBody("""
-                [
-                  {
-                    "id": 1,
-                    "name": "Boulange",
-                    "address": "3 Bread Street"
-                  },
-                  {
-                    "id": 2,
-                    "name": "Charcut",
-                    "address": "2 Meat Street"
-                  }
-                ]
-                """).addHeader("Content-Type", "application/json"));
+                        [
+                          {
+                            "id": 1,
+                            "name": "Boulange",
+                            "address": "3 Bread Street"
+                          },
+                          {
+                            "id": 2,
+                            "name": "Charcut",
+                            "address": "2 Meat Street"
+                          }
+                        ]
+                        """).addHeader("Content-Type", "application/json"));
 
         String retrievedPartnerList = commands.partners();
 
@@ -71,24 +71,24 @@ class PartnerCommandsTest {
     void partnerItemsTest() throws InterruptedException {
         mockWebServer.enqueue(new MockResponse()
                 .setBody("""
-                [
-                    {
-                      "id": 1,
-                      "label": "choc bread",
-                      "price": 9.99
-                    },
-                    {
-                      "id": 3,
-                      "label": "cwoissante",
-                      "price": 5.99
-                    },
-                    {
-                      "id": 6,
-                      "label": "chocolatine",
-                      "price": 0.99
-                    }
-                ]
-                """)
+                        [
+                            {
+                              "id": 1,
+                              "label": "choc bread",
+                              "price": 9.99
+                            },
+                            {
+                              "id": 3,
+                              "label": "cwoissante",
+                              "price": 5.99
+                            },
+                            {
+                              "id": 6,
+                              "label": "chocolatine",
+                              "price": 0.99
+                            }
+                        ]
+                        """)
                 .addHeader("Content-Type", "application/json"));
 
         String retrievedItemList = commands.partnerItems("1");
@@ -105,24 +105,24 @@ class PartnerCommandsTest {
     void partnerItemsLoggedInPartnerTest() throws InterruptedException {
         mockWebServer.enqueue(new MockResponse()
                 .setBody("""
-                [
-                    {
-                      "id": 1,
-                      "label": "choc bread",
-                      "price": 9.99
-                    },
-                    {
-                      "id": 3,
-                      "label": "cwoissante",
-                      "price": 5.99
-                    },
-                    {
-                      "id": 6,
-                      "label": "chocolatine",
-                      "price": 0.99
-                    }
-                ]
-                """)
+                        [
+                            {
+                              "id": 1,
+                              "label": "choc bread",
+                              "price": 9.99
+                            },
+                            {
+                              "id": 3,
+                              "label": "cwoissante",
+                              "price": 5.99
+                            },
+                            {
+                              "id": 6,
+                              "label": "chocolatine",
+                              "price": 0.99
+                            }
+                        ]
+                        """)
                 .addHeader("Content-Type", "application/json"));
         cliSession.logIn(1);
         String retrievedItemList = commands.partnerItems(Constants.LOGGED_IN_ID_PLACEHOLDER);
@@ -132,6 +132,32 @@ class PartnerCommandsTest {
         // Verify the request was made to the correct endpoint
         RecordedRequest recordedRequest = mockWebServer.takeRequest();
         assertEquals("/partners/1/items", recordedRequest.getPath());
+        assertEquals("GET", recordedRequest.getMethod());
+    }
+
+    @Test
+    void consultPartnerPerksTest() throws InterruptedException {
+        mockWebServer.enqueue(new MockResponse()
+                .setBody("""
+                        [
+                            {
+                                "perkId": 1,
+                                "description": "10% off on all products"
+                            },
+                            {
+                                "perkId": 2,
+                                "description": "Free shipping on orders over $50"
+                            }
+                        ]
+                        """)
+                .addHeader("Content-Type", "application/json"));
+
+        // Call the command to retrieve perks for partner with ID 12345
+        commands.consultPartnerPerks("12345");
+
+        // Assert that the request was made to the correct URL
+        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+        assertEquals("/partners/12345/perks", recordedRequest.getPath());
         assertEquals("GET", recordedRequest.getMethod());
     }
 }
