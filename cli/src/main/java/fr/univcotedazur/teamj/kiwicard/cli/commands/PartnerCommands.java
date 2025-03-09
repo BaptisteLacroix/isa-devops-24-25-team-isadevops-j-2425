@@ -1,5 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.cli.commands;
 
+import fr.univcotedazur.teamj.kiwicard.cli.CliSession;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliItem;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliPartner;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliPerk;
@@ -9,11 +10,14 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellOption;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static fr.univcotedazur.teamj.kiwicard.cli.constants.Constants.LOGGED_IN_ID_PLACEHOLDER;
 
 @ShellComponent
 public class PartnerCommands {
@@ -21,10 +25,12 @@ public class PartnerCommands {
     public static final String BASE_URI = "/partners";
 
     private final WebClient webClient;
+    private final CliSession cliSession;
 
     @Autowired
-    public PartnerCommands(WebClient webClient) {
+    public PartnerCommands(WebClient webClient, CliSession cliSession) {
         this.webClient = webClient;
+        this.cliSession = cliSession;
     }
 
     @ShellMethod("Show all partners (partners)")
@@ -38,8 +44,10 @@ public class PartnerCommands {
                 .block();
     }
 
-    @ShellMethod("Show items of a partner (partneritems PARTNER_ID)")
-    public String partneritems(long partnerId) {
+    @ShellMethod(value = "Show items of a partner",key = "partner-items")
+    public String partnerItems(@ShellOption(defaultValue = LOGGED_IN_ID_PLACEHOLDER) String partnerId) {
+        partnerId = cliSession.tryInjectingPartnerId(partnerId);
+        if (partnerId == null) return "Invalid partner id";
         System.out.println("Récupération des items du partenaire " + partnerId + " : ");
         return webClient.get()
                 .uri(BASE_URI + "/" + partnerId + "/items")
