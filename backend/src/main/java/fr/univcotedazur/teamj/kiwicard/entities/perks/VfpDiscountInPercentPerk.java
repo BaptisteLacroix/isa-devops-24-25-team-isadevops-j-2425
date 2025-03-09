@@ -14,11 +14,9 @@ public class VfpDiscountInPercentPerk extends AbstractPerk {
     private double discountRate;
 
     public VfpDiscountInPercentPerk() {
-        super(PerkType.FINAL);
     }
 
     public VfpDiscountInPercentPerk(double discountRate) {
-        this();
         while (discountRate > 1) {
             discountRate = discountRate / 100;
         }
