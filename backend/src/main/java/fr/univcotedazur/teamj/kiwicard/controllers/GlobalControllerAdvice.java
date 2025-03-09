@@ -49,4 +49,9 @@ public class GlobalControllerAdvice {
     public ErrorDTO handleAlreadyUsedEmail(AlreadyUsedEmailException ex) {
         return new ErrorDTO("Email already used");
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
 }
