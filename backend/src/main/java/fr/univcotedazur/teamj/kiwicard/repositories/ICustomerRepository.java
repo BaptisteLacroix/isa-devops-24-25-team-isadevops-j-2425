@@ -17,14 +17,14 @@ public interface ICustomerRepository extends JpaRepository<Customer, Long> {
 
     Optional<Customer> findByCardNumber(String cardNumber);
 
-    @Modifying
-    @Query("UPDATE Customer c " +
-           "SET c.vfp = true " +
-           "WHERE (" +
-           "   SELECT COUNT(p) " +
-           "   FROM c.purchaseList p " +
-           "   WHERE p.payment.timestamp > :lastWeekDate" +
-           " ) >= :nbPurchaseRequired"
-    )
-    int refreshVfpStatus(@Param("nbPurchaseRequired") int nbPurchaseRequired, @Param("lastWeekDate") LocalDateTime lastWeekDate);
+@Modifying
+@Query("UPDATE Customer c " +
+       "SET c.vfp = CASE WHEN (" +
+       "   SELECT COUNT(p) " +
+       "   FROM c.purchaseList p " +
+       "   WHERE p.payment.timestamp >= :startDate" +
+       "   AND p.payment.timestamp < :endDate" +
+       " ) >= :nbPurchaseRequired THEN true ELSE false END"
+)
+    void refreshVfpStatus(@Param("nbPurchaseRequired") int nbPurchaseRequired, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 }

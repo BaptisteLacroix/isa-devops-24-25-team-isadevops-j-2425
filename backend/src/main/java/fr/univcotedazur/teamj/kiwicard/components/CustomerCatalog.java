@@ -101,7 +101,7 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
     }
 
     @Override
-    public int refreshVfpStatus() {
-        return customerRepository.refreshVfpStatus(nbPurchaseRequired, LocalDateTime.now().minusDays(7));
+    public void refreshVfpStatus() {
+        customerRepository.refreshVfpStatus(nbPurchaseRequired, LocalDateTime.now().minusDays(7), LocalDateTime.now());
     }
 }

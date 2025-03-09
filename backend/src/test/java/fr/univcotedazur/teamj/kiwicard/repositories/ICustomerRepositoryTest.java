@@ -8,7 +8,6 @@ import org.springframework.test.context.jdbc.Sql;
 
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -17,27 +16,27 @@ class ICustomerRepositoryTest {
 
     @Autowired
     ICustomerRepository customerRepository;
-    LocalDateTime lastWeekDate = LocalDateTime.of(2025, 3, 1, 0, 0);
+
+    LocalDateTime currentDate = LocalDateTime.of(2025, 3, 10, 0, 0);
+    LocalDateTime lastWeekDate = currentDate.minusWeeks(1);
 
     @Test
-    @Sql(scripts = {"/sql/test_refresh_vfp_status_fail.sql","/sql/test_refresh_vfp_status_limit_case.sql"})
-    void refreshVfpStatusNoCustomerFound() {
-        assertEquals(0, customerRepository.refreshVfpStatus(2, lastWeekDate));
+    @Sql("/sql/test_refresh_vfp_status_does_nothing.sql")
+    void refreshVfpStatusNoStatusChanged() {
+        customerRepository.refreshVfpStatus(2, lastWeekDate, currentDate);
         Customer alice = customerRepository.findByEmail("alice@gmail.com").orElseThrow();
         assertFalse(alice.isVfp());
         Customer bob = customerRepository.findByEmail("bob@gmail.com").orElseThrow();
-        assertFalse(bob.isVfp());
+        assertTrue(bob.isVfp());
     }
 
     @Test
-    @Sql(scripts ={"/sql/test_refresh_vfp_status_success.sql","/sql/test_refresh_vfp_status_limit_case.sql"})
-    void refreshVfpStatusTwoCustomerFound() {
-        assertEquals(2, customerRepository.refreshVfpStatus(2, lastWeekDate));
+    @Sql("/sql/test_refresh_vfp_status_updated.sql")
+    void refreshVfpStatusStatusChanged() {
+        customerRepository.refreshVfpStatus(2, lastWeekDate, currentDate);
         Customer alice = customerRepository.findByEmail("alice@gmail.com").orElseThrow();
-        assertTrue(alice.isVfp());
+        assertFalse(alice.isVfp());
         Customer john = customerRepository.findByEmail("john@gmail.com").orElseThrow();
         assertTrue(john.isVfp());
-        Customer bob = customerRepository.findByEmail("bob@gmail.com").orElseThrow();
-        assertFalse(bob.isVfp());
     }
 }

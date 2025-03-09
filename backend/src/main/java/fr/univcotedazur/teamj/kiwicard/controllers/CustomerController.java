@@ -2,7 +2,6 @@ package fr.univcotedazur.teamj.kiwicard.controllers;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.NumberOfVfpStatusDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyUsedEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCardNumberException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
@@ -52,7 +51,8 @@ public class CustomerController {
 
 
     @PutMapping("/refresh-vfp-status")
-    public ResponseEntity<NumberOfVfpStatusDTO> updateVfpStatus() {
-        return ResponseEntity.ok(new NumberOfVfpStatusDTO(vfpStatus.refreshVfpStatus()));
+    public ResponseEntity<Void> updateVfpStatus() {
+        vfpStatus.refreshVfpStatus();
+        return ResponseEntity.noContent().build();
     }
 }
