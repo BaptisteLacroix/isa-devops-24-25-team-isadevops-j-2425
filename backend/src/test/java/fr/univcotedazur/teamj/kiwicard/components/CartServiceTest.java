@@ -13,8 +13,7 @@ import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import fr.univcotedazur.teamj.kiwicard.entities.Partner;
 import fr.univcotedazur.teamj.kiwicard.exceptions.EmptyCartException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCartException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCartIdException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.NoCartException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
@@ -190,7 +189,7 @@ class CartServiceTest extends BaseUnitTest {
     }
 
     @Test
-    void removeItemFromCart_shouldRemoveItemSuccessfully() throws UnknownCustomerEmailException, EmptyCartException, UnknownCartException {
+    void removeItemFromCart_shouldRemoveItemSuccessfully() throws UnknownCustomerEmailException, EmptyCartException, NoCartException {
         // Given
         when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
         when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
@@ -223,7 +222,7 @@ class CartServiceTest extends BaseUnitTest {
     }
 
     @Test
-    void validateCart_shouldReturnPurchaseDTO_whenCartIsValid() throws UnknownCustomerEmailException, UnreachableExternalServiceException, EmptyCartException, UnknownCartException {
+    void validateCart_shouldReturnPurchaseDTO_whenCartIsValid() throws UnknownCustomerEmailException, UnreachableExternalServiceException, EmptyCartException, NoCartException {
         // Given
         PaymentDTO paymentDTO = mock(PaymentDTO.class);
         when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);

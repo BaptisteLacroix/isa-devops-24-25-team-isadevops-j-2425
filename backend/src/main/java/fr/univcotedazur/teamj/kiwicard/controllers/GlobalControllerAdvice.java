@@ -5,7 +5,7 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyUsedEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.EmptyCartException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.NegativeQuantityException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.PaymentException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCartException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.NoCartException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCartIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
@@ -26,7 +26,7 @@ public class GlobalControllerAdvice {
         return new ErrorDTO("External service is unreachable");
     }
 
-    @ExceptionHandler({NegativeQuantityException.class, EmptyCartException.class, UnknownCartException.class})
+    @ExceptionHandler({NegativeQuantityException.class, EmptyCartException.class})
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorDTO handleExceptions(NegativeQuantityException e) {
         return new ErrorDTO(e.getMessage());
@@ -38,7 +38,7 @@ public class GlobalControllerAdvice {
         return new ErrorDTO("Payment was rejected from Customer " + e.getName() + " for amount " + e.getAmount());
     }
 
-    @ExceptionHandler({UnknownPartnerIdException.class, UnknownItemIdException.class, UnknownCustomerEmailException.class, UnknownCartIdException.class, UnknownPerkIdException.class})
+    @ExceptionHandler({UnknownPartnerIdException.class, UnknownItemIdException.class, UnknownCustomerEmailException.class, UnknownCartIdException.class, UnknownPerkIdException.class, NoCartException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorDTO handleExceptions(Exception e) {
         return new ErrorDTO(e.getMessage());

@@ -10,7 +10,7 @@ import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import fr.univcotedazur.teamj.kiwicard.entities.Partner;
 import fr.univcotedazur.teamj.kiwicard.exceptions.EmptyCartException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCartException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.NoCartException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
@@ -146,19 +146,19 @@ public class CartService implements ICartModifier, ICartFinder {
      * @param cartItemDTO    A CartItemDTO representing the item to be removed, including the item ID.
      * @return A CartDTO representing the updated shopping cart after the item has been removed.
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
-     * @throws UnknownCartException          If the customer does not have a cart.
+     * @throws NoCartException          If the customer does not have a cart.
      * @throws EmptyCartException            If the cart is empty and no items can be removed.
      */
     @Override
     @Transactional
-    public CartDTO removeItemFromCart(String cartOwnerEmail, CartItemDTO cartItemDTO) throws UnknownCustomerEmailException, EmptyCartException, UnknownCartException {
+    public CartDTO removeItemFromCart(String cartOwnerEmail, CartItemDTO cartItemDTO) throws UnknownCustomerEmailException, EmptyCartException, NoCartException {
         // Check that the customer exists
         Customer customer = customerCatalog.findCustomerByEmail(cartOwnerEmail);
 
         // Check if the customer has a cart
         if (customer.getCart() == null) {
             // If no cart exists, throw an exception or return a specific error response
-            throw new UnknownCartException();
+            throw new NoCartException(customer.getEmail());
         }
         if (customer.getCart().getItemList().isEmpty()) {
             throw new EmptyCartException(customer.getCart().getCartId());
@@ -185,16 +185,16 @@ public class CartService implements ICartModifier, ICartFinder {
      * @throws UnreachableExternalServiceException If there is an issue contacting or processing the payment
      *                                             with the external service.
      * @throws EmptyCartException                  If the cart is empty and cannot be validated.
-     * @throws UnknownCartException                If the customer does not have a cart.
+     * @throws NoCartException                If the customer does not have a cart.
      */
     @Override
     @Transactional
-    public PurchaseDTO validateCart(String cartOwnerEmail) throws UnknownCustomerEmailException, UnreachableExternalServiceException, EmptyCartException, UnknownCartException {
+    public PurchaseDTO validateCart(String cartOwnerEmail) throws UnknownCustomerEmailException, UnreachableExternalServiceException, EmptyCartException, NoCartException {
         // Check that the customer exists
         Customer customer = customerCatalog.findCustomerByEmail(cartOwnerEmail);
 
         if (customer.getCart() == null) {
-            throw new UnknownCartException();
+            throw new NoCartException(customer.getEmail());
         }
 
         if (customer.getCart().getItemList().isEmpty()) {

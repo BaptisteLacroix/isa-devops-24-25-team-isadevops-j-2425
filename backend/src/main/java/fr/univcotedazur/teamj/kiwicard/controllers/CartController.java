@@ -4,8 +4,7 @@ import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CartItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.EmptyCartException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCartException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCartIdException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.NoCartException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
@@ -82,7 +81,7 @@ public class CartController {
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
      */
     @DeleteMapping(path = "/{customerEmail}", consumes = APPLICATION_JSON_VALUE)
-    public ResponseEntity<CartDTO> removeItemFromCart(@PathVariable String customerEmail, @RequestBody CartItemDTO cartItemDTO) throws UnknownCustomerEmailException, UnknownCartException, EmptyCartException {
+    public ResponseEntity<CartDTO> removeItemFromCart(@PathVariable String customerEmail, @RequestBody CartItemDTO cartItemDTO) throws UnknownCustomerEmailException, NoCartException, EmptyCartException {
         return ResponseEntity.created(null)
                 .body(modifier.removeItemFromCart(customerEmail, cartItemDTO));
     }
@@ -95,7 +94,7 @@ public class CartController {
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
      */
     @PostMapping(path = "/{customerEmail}/validate", consumes = APPLICATION_JSON_VALUE)
-    public ResponseEntity<PurchaseDTO> validateCart(@PathVariable String customerEmail) throws UnknownCustomerEmailException, UnreachableExternalServiceException, EmptyCartException, UnknownCartException {
+    public ResponseEntity<PurchaseDTO> validateCart(@PathVariable String customerEmail) throws UnknownCustomerEmailException, UnreachableExternalServiceException, EmptyCartException, NoCartException {
         return ResponseEntity.created(null)
                 .body(modifier.validateCart(customerEmail));
     }
