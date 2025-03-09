@@ -14,25 +14,31 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceExce
 import fr.univcotedazur.teamj.kiwicard.interfaces.customer.ICustomerCartSaver;
 import fr.univcotedazur.teamj.kiwicard.interfaces.customer.ICustomerFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.customer.ICustomerRegistration;
+import fr.univcotedazur.teamj.kiwicard.interfaces.customer.IVfpStatus;
 import fr.univcotedazur.teamj.kiwicard.repositories.ICustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
 @Service
-public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, ICustomerCartSaver {
+public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, ICustomerCartSaver, IVfpStatus {
 
     ICustomerRepository customerRepository;
 
     CardEditorProxy cardEditorProxy;
 
+    private final int nbPurchaseRequired;
+
     @Autowired
-    public CustomerCatalog(ICustomerRepository customerRepository, CardEditorProxy cardEditorProxy) {
+    public CustomerCatalog(ICustomerRepository customerRepository, CardEditorProxy cardEditorProxy, @Value("${kiwi-card.vfp-status.purchase-required}") int nbPurchaseRequired) {
         this.customerRepository = customerRepository;
         this.cardEditorProxy = cardEditorProxy;
+        this.nbPurchaseRequired = nbPurchaseRequired;
     }
 
     @Override
@@ -92,5 +98,10 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
         }
         customer.getCart().empty();
         return customerRepository.save(customer);
+    }
+
+    @Override
+    public int refreshVfpStatus() {
+        return customerRepository.refreshVfpStatus(nbPurchaseRequired, LocalDateTime.now().minusDays(7));
     }
 }

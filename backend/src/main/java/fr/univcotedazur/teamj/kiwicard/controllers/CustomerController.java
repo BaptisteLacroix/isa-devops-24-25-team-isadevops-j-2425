@@ -2,12 +2,15 @@ package fr.univcotedazur.teamj.kiwicard.controllers;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.NumberOfVfpStatusDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyUsedEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCardNumberException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.customer.ICustomerFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.customer.ICustomerRegistration;
+import fr.univcotedazur.teamj.kiwicard.interfaces.customer.IVfpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -17,10 +20,12 @@ public class CustomerController {
 
     private final ICustomerFinder customerFinder;
     private final ICustomerRegistration customerRegistration;
+    private final IVfpStatus vfpStatus;
 
-    public CustomerController(ICustomerFinder customerFinder, ICustomerRegistration customerRegistration) {
+    public CustomerController(ICustomerFinder customerFinder, ICustomerRegistration customerRegistration, IVfpStatus vfpStatus) {
         this.customerFinder = customerFinder;
         this.customerRegistration = customerRegistration;
+        this.vfpStatus = vfpStatus;
     }
 
     @PostMapping("")
@@ -45,4 +50,9 @@ public class CustomerController {
         customerFinder.findAll();
     }
 
+
+    @PutMapping("/refresh-vfp-status")
+    public ResponseEntity<NumberOfVfpStatusDTO> updateVfpStatus() {
+        return ResponseEntity.ok(new NumberOfVfpStatusDTO(vfpStatus.refreshVfpStatus()));
+    }
 }
