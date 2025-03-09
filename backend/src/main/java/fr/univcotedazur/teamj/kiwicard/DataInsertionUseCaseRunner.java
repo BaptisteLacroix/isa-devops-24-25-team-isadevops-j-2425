@@ -405,8 +405,8 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         VfpDiscountInPercentPerk perk = new VfpDiscountInPercentPerk(0.05, LocalTime.of(8, 0), LocalTime.of(12, 0));
         TimedDiscountInPercentPerk perk2 = new TimedDiscountInPercentPerk(LocalTime.now(), 20);
 
-        perkRepository.save(perk);
-        perkRepository.save(perk2);
+        partnerBoulange.addPerk(perk);
+        partnerFleuriste.addPerk(perk2);
         customerAntoineF.getCart().addPerkToUse(perk);
         customerAlice.getCart().addPerkToUse(perk2);
 

@@ -45,6 +45,7 @@ public class PerksService implements IPerksConsumer {
         return false;
     }
 
+    @Transactional
     @Override
     public List<IPerkDTO> findConsumablePerksForConsumerAtPartner(String consumerEmail) throws UnknownCustomerEmailException, NoCartException {
         Customer customer = customerFinder.findCustomerByEmail(consumerEmail);
