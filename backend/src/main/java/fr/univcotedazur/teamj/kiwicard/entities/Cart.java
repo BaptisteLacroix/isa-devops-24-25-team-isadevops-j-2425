@@ -2,7 +2,6 @@ package fr.univcotedazur.teamj.kiwicard.entities;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
-import fr.univcotedazur.teamj.kiwicard.entities.perks.PerkType;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -47,7 +46,7 @@ public class Cart {
      */
     @ManyToMany
     @Column
-    private List<AbstractPerk> perkUsed = new ArrayList<>();
+    private List<AbstractPerk> perksUsed = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "cart_id")
@@ -68,22 +67,8 @@ public class Cart {
         return cartId;
     }
 
-    public void addPerk(AbstractPerk perk) {
+    public void addPerkToUse(AbstractPerk perk) {
         this.perksToUse.add(perk);
-    }
-
-    public void usePerk(AbstractPerk perk, Customer customer) {
-        if (perk.getPerkType().equals(PerkType.INTERMEDIATE)){
-            if (!perk.apply(customer)) {
-                throw new IllegalArgumentException("The perk cannot be applied");
-            }
-            this.perkUsed.add(perk);
-            this.perksToUse.remove(perk);
-        }
-        else{
-            this.addPerk(perk);
-        }
-
     }
 
     public void addItem(CartItem item) {
@@ -117,6 +102,10 @@ public class Cart {
 
     public List<AbstractPerk> getPerksToUse() {
         return perksToUse;
+    }
+
+    public List<AbstractPerk> getPerksUsed() {
+        return perksUsed;
     }
 
     public double getTotalPercentageReduction() {
