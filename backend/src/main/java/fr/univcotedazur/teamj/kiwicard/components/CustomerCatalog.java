@@ -75,22 +75,22 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
     }
 
     @Override
-    public void setCart(String customerEmail, CartDTO cartDto) throws UnknownCustomerEmailException {
+    public Customer setCart(String customerEmail, Cart cart) throws UnknownCustomerEmailException {
         Customer customer = customerRepository.findByEmail(customerEmail).orElse(null);
         if (customer == null) {
             throw new UnknownCustomerEmailException(customerEmail);
         }
-        customer.setCart(new Cart(cartDto));
-        customerRepository.save(customer);
+        customer.setCart(cart);
+        return customerRepository.save(customer);
     }
 
     @Override
-    public void emptyCart(String customerEmail) throws UnknownCustomerEmailException {
+    public Customer emptyCart(String customerEmail) throws UnknownCustomerEmailException {
         Customer customer = customerRepository.findByEmail(customerEmail).orElse(null);
         if (customer == null) {
             throw new UnknownCustomerEmailException(customerEmail);
         }
         customer.getCart().empty();
-        customerRepository.save(customer);
+        return customerRepository.save(customer);
     }
 }

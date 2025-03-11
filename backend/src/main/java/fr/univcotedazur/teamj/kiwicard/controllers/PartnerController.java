@@ -44,7 +44,7 @@ public class PartnerController {
     @GetMapping("/{partnerId}")
     public ResponseEntity<PartnerDTO> getPartnerById(@PathVariable long partnerId) throws UnknownPartnerIdException {
         return ResponseEntity.ok()
-                .body(partnerManager.findPartnerById(partnerId));
+                .body(new PartnerDTO(partnerManager.findPartnerById(partnerId)));
     }
 
     @GetMapping

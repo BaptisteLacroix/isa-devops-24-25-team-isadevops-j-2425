@@ -15,7 +15,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CustomerControllerTest {
@@ -53,7 +56,7 @@ class CustomerControllerTest {
     void findCustomerByEmail() throws Exception {
         String email = "test@example.com";
         String dummyCard = "ignored"; // Ce paramètre n'est pas utilisé si email != null
-        CustomerDTO customerDTO = new CustomerDTO("test@example.com", "Roxane", "Roxx", false);
+        CustomerDTO customerDTO = new CustomerDTO("test@example.com", "Roxane", "Roxx", false, null, null);
         Customer customer = new Customer(customerDTO);
         when(customerCatalog.findCustomerByEmail(email)).thenReturn(customer);
 
@@ -66,7 +69,7 @@ class CustomerControllerTest {
     @Test
     void findCustomerByCardNumber() throws Exception {
         String cardNumber = "CARD123";
-        CustomerDTO customerDTO = new CustomerDTO("someone@example.com", "FirstName", "LastName", false);
+        CustomerDTO customerDTO = new CustomerDTO("someone@example.com", "FirstName", "LastName", false, null, cardNumber);
         when(customerCatalog.findCustomerByCardNum(cardNumber)).thenReturn(customerDTO);
 
         CustomerDTO result = customerController.findCustomerByEmailOrByCardNumber(null, cardNumber);

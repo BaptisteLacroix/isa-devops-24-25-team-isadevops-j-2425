@@ -2,7 +2,6 @@ package fr.univcotedazur.teamj.kiwicard.components;
 
 import fr.univcotedazur.teamj.kiwicard.connectors.CardEditorProxy;
 import fr.univcotedazur.teamj.kiwicard.dto.CardDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Cart;
@@ -22,8 +21,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CustomerCatalogTest {
@@ -145,8 +150,7 @@ class CustomerCatalogTest {
         when(customerRepository.findByEmail("test@example.com"))
                 .thenReturn(Optional.of(customer));
 
-        CartDTO cartDto = new CartDTO(123456);
-        customerCatalog.setCart("test@example.com", cartDto);
+        customerCatalog.setCart("test@example.com", new Cart());
 
         assertNotNull(customer.getCart());
         verify(customerRepository, times(1)).findByEmail("test@example.com");
@@ -157,19 +161,16 @@ class CustomerCatalogTest {
     void setCartCustomerNotFound() {
         when(customerRepository.findByEmail("inconnu@example.com"))
                 .thenReturn(Optional.empty());
-        CartDTO cartDto = new CartDTO(123456);
         assertThrows(UnknownCustomerEmailException.class, () ->
-                customerCatalog.setCart("inconnu@example.com", cartDto));
+                customerCatalog.setCart("inconnu@example.com", new Cart()));
         verify(customerRepository, times(1)).findByEmail("inconnu@example.com");
         verify(customerRepository, times(0)).save(any());
     }
 
     @Test
     void emptyCart() throws Exception {
-        CartDTO cartDto = new CartDTO(789101112);
         Customer customer = new Customer("test@example.com", "Roxane", "Roxx", "2 passage Marie Antoinette", false);
-        Cart cart = new Cart(cartDto);
-        customer.setCart(cart);
+        customer.setCart(new Cart());
         when(customerRepository.findByEmail("test@example.com"))
                 .thenReturn(Optional.of(customer));
 

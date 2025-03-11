@@ -6,15 +6,15 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceExce
 import fr.univcotedazur.teamj.kiwicard.interfaces.ICardCreation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @Component
-public class CardEditorProxy  implements ICardCreation {
+public class CardEditorProxy implements ICardCreation {
 
     private final WebClient webClient;
     private final String cardEditorBaseUrl;

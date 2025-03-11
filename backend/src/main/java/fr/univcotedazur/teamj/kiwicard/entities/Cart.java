@@ -57,7 +57,13 @@ public class Cart {
     }
 
     public Cart(CartDTO cartDTO) {
-        this.cartId = cartDTO.CartId();
+        this.cartId = cartDTO.cartId();
+    }
+
+    public Cart(Partner partner, Set<CartItem> itemList, List<AbstractPerk> perks) {
+        this.partner = partner;
+        this.itemList = itemList;
+        this.perksToUse = perks;
     }
 
     public void setPartner(Partner partner) {
@@ -123,5 +129,14 @@ public class Cart {
     public double addToTotalPercentageReduction(double amount) {
         this.totalPercentageReduction += amount;
         return this.totalPercentageReduction;
+    }
+
+    public double resetTotalPercentageReduction() {
+        this.totalPercentageReduction = 0;
+        return this.totalPercentageReduction;
+    }
+
+    public double getTotalPrice() {
+        return getItemList().stream().mapToDouble(CartItem::getPrice).sum();
     }
 }
