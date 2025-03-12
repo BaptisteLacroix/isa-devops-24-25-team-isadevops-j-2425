@@ -42,6 +42,20 @@ class CustomerCommandsTest {
 
     @Test
     void registerClientSuccessTest() throws Exception {
+        // Simulate a successful registration response
+        mockWebServer.enqueue(new MockResponse()
+                .setBody("""
+                        {
+                          "email": "john.doe@example.com",
+                          "surname": "Doe",
+                          "firstname": "John",
+                          "address": "123 Main St, City, Country",
+                          "vfp": false
+                        }
+                        """)
+                .addHeader("Content-Type", "application/json")
+                .setResponseCode(HttpStatus.OK.value()));
+
         // Call the method
         String mail = "john.doe@example.com";
         String response = customerCommands.registerClient("Doe", "John", mail, "123 Main St, City, Country");
@@ -56,7 +70,7 @@ class CustomerCommandsTest {
     }
 
     @Test
-    void payCommandTest() {
+    void payCommandTest() throws InterruptedException {
         mockWebServer.enqueue(new MockResponse()
                 .setBody("""
                         {
@@ -85,6 +99,12 @@ class CustomerCommandsTest {
                         """).addHeader("Content-Type", "application/json"));
 
         String result = customerCommands.payCommand("doesnotmatter@yahoo.fr");
+
+        // Verify the request made to the correct endpoint
+        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+        assertEquals("/cart/doesnotmatter@yahoo.fr/validate", recordedRequest.getPath());
+        assertEquals("POST", recordedRequest.getMethod());
+
         assertEquals("""
             Cart was purchased successfully, purchase details :\s
             \towner email : test@customer.com
