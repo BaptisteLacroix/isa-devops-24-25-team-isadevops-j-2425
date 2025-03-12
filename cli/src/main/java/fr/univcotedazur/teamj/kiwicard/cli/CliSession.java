@@ -27,9 +27,9 @@ public class CliSession {
     }
 
     /**
-     * Preprocess the partner id to check if it is a valid number, and if it is equal to "sessionValue", replace it with the logged in partner id
-     * @param partnerId the partner id to preprocess
-     * @return the preprocessed partner id, or null if the partner id is not a valid number
+     * Preprocess the partner perkId to check if it is a valid number, and if it is equal to "sessionValue", replace it with the logged in partner perkId
+     * @param partnerId the partner perkId to preprocess
+     * @return the preprocessed partner perkId, or null if the partner perkId is not a valid number
      */
     public String tryInjectingPartnerId(String partnerId) {
         if (partnerId.equals(LOGGED_IN_ID_PLACEHOLDER)) {
@@ -38,7 +38,7 @@ public class CliSession {
         try {
             Long.parseLong(partnerId);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid partner id");
+            throw new IllegalArgumentException("Invalid partner perkId");
         }
         return partnerId;
     }

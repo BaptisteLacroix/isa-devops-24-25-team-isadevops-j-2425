@@ -132,7 +132,7 @@ public class CartService implements ICartModifier, ICartFinder {
     private CartDTO createCart(CartItemAddItemToCartDTO cartItemDTO, Customer customer, Item item) throws UnknownPartnerIdException, UnknownCustomerEmailException {
         // Create the list of CartItem
         CartItem cartItem = new CartItem(item, cartItemDTO.quantity(), cartItemDTO.startTime(), cartItemDTO.endTime());
-        Partner partner = partnerManager.findPartnerById(item.getItemId());
+        Partner partner = partnerManager.findPartnerById(item.getPartner().getPartnerId());
         // Create the cart
         Cart cart = new Cart(partner, Set.of(cartItem), new ArrayList<>());
         customer = customerCatalog.setCart(customer.getEmail(), cart);

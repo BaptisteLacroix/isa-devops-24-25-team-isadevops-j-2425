@@ -63,7 +63,7 @@ public class PerksController {
      */
     @PostMapping("/{perkId}/apply")
     public ResponseEntity<String> applyPerk(@PathVariable long perkId, @RequestBody ApplyPerkRequest payload)
-            throws UnknownPerkIdException, UnknownCustomerEmailException {
+            throws UnknownPerkIdException, UnknownCustomerEmailException, NoCartException {
         return ResponseEntity.ok(String.valueOf(perksService.applyPerk(perkId, payload.emailCustomer())));
     }
 

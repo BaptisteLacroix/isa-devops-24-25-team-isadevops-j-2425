@@ -1,5 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.cli.commands;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.univcotedazur.teamj.kiwicard.cli.CliSession;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -16,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class CustomerCommandsTest {
 
     private CustomerCommands customerCommands;
-
+    private static ObjectMapper mapper = new ObjectMapper();
     private static MockWebServer mockWebServer;
     private static CliSession cliSession;
 
@@ -64,5 +65,44 @@ class CustomerCommandsTest {
         RecordedRequest recordedRequest = mockWebServer.takeRequest();
         assertEquals("/customers", recordedRequest.getPath());
         assertEquals("POST", recordedRequest.getMethod());
+    }
+
+    @Test
+    void payCartTest() throws InterruptedException {
+        mockWebServer.enqueue(new MockResponse()
+                .setBody("""
+                        {
+                          "cartOwnerEmail" : "test@customer.com",
+                          "cartDTO" : {
+                            "cartId" : 100,
+                            "partner" : {
+                              "id" : 1,
+                              "name" : "Antoine Le Fadda",
+                              "address" : "Draguignangz"
+                            },
+                            "items" : [ {
+                              "quantity" : 2,
+                              "startTime" : null,
+                              "endTime" : null,
+                              "itemId" : 10
+                            } ],
+                            "perksList" : [ ]
+                          },
+                          "paymentDTO" : {
+                            "cardNumber" : "1234-5678-9012-3456",
+                            "amount" : 23.0,
+                            "authorized" : true
+                          }
+                        }
+                        """).addHeader("Content-Type", "application/json"));
+
+        String result = customerCommands.payCart("doesnotmatter@yahoo.fr");
+
+        // Verify the request made to the correct endpoint
+        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+        assertEquals("/cart/doesnotmatter@yahoo.fr/validate", recordedRequest.getPath());
+        assertEquals("POST", recordedRequest.getMethod());
+
+        assertNotNull(result);
     }
 }
