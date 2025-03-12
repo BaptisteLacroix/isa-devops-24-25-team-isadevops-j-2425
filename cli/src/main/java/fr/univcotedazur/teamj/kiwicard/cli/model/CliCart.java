@@ -9,12 +9,12 @@ public record CliCart(long cartId, CliPartner partner, Set<CliCartItem> items, L
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Cart:").append("\n\t");
-        sb.append("Partner ").append(partner).append("\n\t");
+        sb.append("Panier : ").append("\n\t");
+        sb.append("Partenaire : ").append(partner).append("\n\t");
 
-        sb.append("Items in Cart:\n");
+        sb.append("Article(s) dans le panier : \n");
         if (items.isEmpty()) {
-            sb.append("No items in the cart.\n");
+            sb.append("Panier vide : Pas d'articles dans le panier.\n");
         } else {
             for (CliCartItem item : items) {
                 sb.append("\t\t").append(item).append("\n");
@@ -22,12 +22,12 @@ public record CliCart(long cartId, CliPartner partner, Set<CliCartItem> items, L
         }
 
         if (!perksList.isEmpty()) {
-            sb.append("Perks:\n");
+            sb.append("Avantages : \n");
             for (CliPerk perk : perksList) {
                 sb.append("\t\t").append(perk).append("\n");
             }
         } else {
-            sb.append("\tNo perks applied.\n");
+            sb.append("\tPas d'avantage(s) appliqué(s).\n");
         }
 
         return sb.toString();

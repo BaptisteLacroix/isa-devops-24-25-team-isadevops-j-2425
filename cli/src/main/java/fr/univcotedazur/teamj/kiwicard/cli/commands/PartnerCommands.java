@@ -2,7 +2,6 @@ package fr.univcotedazur.teamj.kiwicard.cli.commands;
 
 import fr.univcotedazur.teamj.kiwicard.cli.CliSession;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliCart;
-import fr.univcotedazur.teamj.kiwicard.cli.model.CliCartItem;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliCartItemToSent;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliItem;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliPartner;
@@ -16,7 +15,6 @@ import org.springframework.shell.standard.ShellOption;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -87,7 +85,7 @@ public class PartnerCommands {
             """, key = "partner-items")
     public String partnerItems(@ShellOption(defaultValue = LOGGED_IN_ID_PLACEHOLDER) String partnerId) {
         partnerId = cliSession.tryInjectingPartnerId(partnerId);
-        if (partnerId == null) return "Invalid partner perkId";
+        if (partnerId == null) return "Erreur : ID de partenaire invalide.";
         System.out.println("Récupération des items du partenaire " + partnerId + " : ");
         return webClient.get()
                 .uri(BASE_URI + "/" + partnerId + "/items")
@@ -128,7 +126,7 @@ public class PartnerCommands {
                 .collectList()
                 .block();
         if (perksList == null) {
-            System.out.println("No perks available for this partner.");
+            System.out.println("Pas d'avantages disponibles pour ce partenaire.");
             return;
         }
         printPerks(perksList);
@@ -141,10 +139,10 @@ public class PartnerCommands {
      */
     private void printPerks(List<CliPerk> perks) {
         if (perks.isEmpty()) {
-            System.out.println("No perks available for this partner.");
+            System.out.println("Pas d'avantages disponibles pour ce partenaire.");
             return;
         }
-        System.out.println("List of Perks:\n");
+        System.out.println("Liste des réductions : \n");
         perks.forEach(System.out::println);
     }
 
@@ -176,7 +174,7 @@ public class PartnerCommands {
             Integer quantity
     ) {
         if (itemId == null || quantity == null || quantity <= 0) {
-            System.out.println("Error: itemId and quantity must be provided, and quantity must be greater than zero.");
+            System.out.println("Erreur : Veuillez spécifier un ID d'item valide et une quantité supérieure à 0.");
             return;
         }
 
@@ -184,10 +182,10 @@ public class PartnerCommands {
         CliCart updatedCart = sendCartRequest(customerEmail, cartItemDTO);
 
         if (updatedCart != null) {
-            System.out.println("Item successfully added to the cart:");
+            System.out.println("Article ajouté au panier avec succès : ");
             System.out.println(updatedCart);
         } else {
-            System.out.println("Failed to add the item to the cart.");
+            System.out.println("Erreur lors de l'ajout de l'article au panier : ");
         }
     }
 

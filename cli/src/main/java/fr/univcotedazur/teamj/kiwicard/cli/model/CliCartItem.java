@@ -10,7 +10,7 @@ public record CliCartItem(
 ) {
     @Override
     public String toString() {
-        return String.format("Item %s, Quantity: %d, Time: [%s - %s]",
+        return String.format("Article %s, Quantité: %d, Horaires: [%s - %s]",
                 item(), quantity(),
                 startTime() != null ? startTime().toString() : "N/A",
                 endTime() != null ? endTime().toString() : "N/A");
