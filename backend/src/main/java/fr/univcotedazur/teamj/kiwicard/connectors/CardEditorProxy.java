@@ -19,6 +19,12 @@ public class CardEditorProxy implements ICardCreation {
     private final WebClient webClient;
     private final String cardEditorBaseUrl;
 
+
+    /**
+     * Constructeur de la classe CardEditorProxy
+     *
+     * @param cardEditorBaseUrl l'url de base du service externe
+     */
     @Autowired
     public CardEditorProxy(@Value("${cardeditor.host.baseurl}") String cardEditorBaseUrl) {
         this.cardEditorBaseUrl = cardEditorBaseUrl;
@@ -27,6 +33,14 @@ public class CardEditorProxy implements ICardCreation {
                 .build();
     }
 
+    /**
+     * Commander une carte pour un client à partir de son email et de son adresse
+     *
+     * @param email   l'email du client
+     * @param address l'adresse du client
+     * @return la carte commandée
+     * @throws UnreachableExternalServiceException si le service externe est injoignable
+     */
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public CardDTO orderACard(String email, String address) throws UnreachableExternalServiceException {

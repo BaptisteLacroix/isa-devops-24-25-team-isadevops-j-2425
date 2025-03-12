@@ -26,26 +26,54 @@ public class PerksController {
         this.perksService = perksService;
     }
 
+    /**
+     * Obtenir un perk par son id à partir de l'URI /perks/{perkId}
+     *
+     * @param perkId l'id du perk à obtenir
+     * @return le perk correspondant à l'id
+     * @throws UnknownPerkIdException si le perk n'existe pas
+     */
     @GetMapping("/{perkId}")
     public ResponseEntity<IPerkDTO> getPerkById(@PathVariable long perkId) throws UnknownPerkIdException {
         IPerkDTO perk = perksManager.findPerkById(perkId);
         return ResponseEntity.ok(perk);
     }
 
+    /**
+     * Obtenir la liste de tous les perks à partir de l'URI /perks
+     *
+     * @return la liste de tous les perks
+     */
     @GetMapping
     public ResponseEntity<List<IPerkDTO>> listAllPerks() {
         List<IPerkDTO> perks = perksManager.findAllPerks();
         return ResponseEntity.ok(perks);
     }
 
-    public record ApplyPerkRequest(String emailCustomer) {}
+    public record ApplyPerkRequest(String emailCustomer) {
+    }
 
+    /**
+     * Appliquer un perk à un client à partir de l'URI /perks/{perkId}/apply
+     * @param perkId l'id du perk à appliquer
+     * @param payload l'email du client
+     * @return true si le perk a été appliqué, false sinon
+     * @throws UnknownPerkIdException si le perk n'existe pas
+     * @throws UnknownCustomerEmailException si le client n'existe pas
+     */
     @PostMapping("/{perkId}/apply")
     public ResponseEntity<String> applyPerk(@PathVariable long perkId, @RequestBody ApplyPerkRequest payload)
             throws UnknownPerkIdException, UnknownCustomerEmailException {
         return ResponseEntity.ok(String.valueOf(perksService.applyPerk(perkId, payload.emailCustomer())));
     }
 
+    /**
+     * Obtenir la liste des perks consommables pour un client chez un partenaire à partir de l'URI /perks/consumable
+     * @param consumerEmail l'email du client
+     * @return la liste des perks consommables pour le client chez le partenaire
+     * @throws UnknownCustomerEmailException si le client n'existe pas
+     * @throws NoCartException si le client n'a pas de panier
+     */
     @GetMapping("/consumable")
     public ResponseEntity<List<IPerkDTO>> findConsumablePerksForConsumerAtPartner(@RequestParam String consumerEmail)
             throws UnknownCustomerEmailException, NoCartException {
