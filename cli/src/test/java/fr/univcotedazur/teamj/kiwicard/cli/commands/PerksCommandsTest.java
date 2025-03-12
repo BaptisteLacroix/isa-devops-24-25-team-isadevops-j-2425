@@ -4,6 +4,7 @@ import fr.univcotedazur.teamj.kiwicard.cli.CliSession;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
+import org.junit.Assert;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,8 +42,8 @@ class PerksCommandsTest {
         mockWebServer.enqueue(new MockResponse()
                 .setBody("""
                         [
-                            {"id": 1, "name": "Perk1"},
-                            {"id": 2, "name": "Perk2"}
+                            {"perkId": 1, "name": "Perk1"},
+                            {"perkId": 2, "name": "Perk2"}
                         ]
                         """)
                 .addHeader("Content-Type", "application/json"));
@@ -74,5 +75,19 @@ class PerksCommandsTest {
         RecordedRequest request = mockWebServer.takeRequest();
         assertEquals("/perks/consumable?consumerEmail=inconnu@example.com", request.getPath());
         assertEquals("GET", request.getMethod());
+    }
+
+    @Test
+    void applyPerkSuccessTest() throws Exception {
+        mockWebServer.enqueue(new MockResponse()
+                .setBody("true")
+                .addHeader("Content-Type", "application/json"));
+
+        String result = commands.applyPerk(1, "customer@example.com");
+
+        RecordedRequest request = mockWebServer.takeRequest();
+        assertEquals("Successfully applied perk with ID 1 to customer customer@example.com", result);
+        assertEquals("/perks/1/apply", request.getPath());
+        assertEquals("POST", request.getMethod());
     }
 }

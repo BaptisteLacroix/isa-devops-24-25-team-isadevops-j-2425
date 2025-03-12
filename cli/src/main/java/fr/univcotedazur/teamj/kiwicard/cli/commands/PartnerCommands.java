@@ -87,7 +87,7 @@ public class PartnerCommands {
             """, key = "partner-items")
     public String partnerItems(@ShellOption(defaultValue = LOGGED_IN_ID_PLACEHOLDER) String partnerId) {
         partnerId = cliSession.tryInjectingPartnerId(partnerId);
-        if (partnerId == null) return "Invalid partner id";
+        if (partnerId == null) return "Invalid partner perkId";
         System.out.println("Récupération des items du partenaire " + partnerId + " : ");
         return webClient.get()
                 .uri(BASE_URI + "/" + partnerId + "/items")

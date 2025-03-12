@@ -1,6 +1,8 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
+import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.perks.NPurchasedMGiftedPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Cart;
 import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
@@ -63,14 +65,29 @@ class PerksServiceTest {
         Item item = spy(new Item("Chocolatine", 1.5));
         when(item.getItemId()).thenReturn(1L);
         CartItem cartItem = spy(new CartItem(item, 3));
-        AbstractPerk dummyPerk = spy(new NPurchasedMGiftedPerk(3, 1, item));
-        IPerkDTO dummyPerkDTO = dummyPerk.accept(new PerkToDTOVisitor());
+
+        ItemDTO itemDTO= mock(ItemDTO.class);
+        when(itemDTO.itemId()).thenReturn(1L);
+        when(itemDTO.label()).thenReturn("Chocolatine");
+        when(itemDTO.price()).thenReturn(1.5);
+
+        NPurchasedMGiftedPerkDTO dummyPerkDTO = new NPurchasedMGiftedPerkDTO(perkId, 3, itemDTO,  1);
+        when(perksFinder.findPerkById(perkId)).thenReturn(dummyPerkDTO);
+
+        AbstractPerk dummyPerk = spy(new NPurchasedMGiftedPerk(dummyPerkDTO));
         when(perksFinder.findPerkById(perkId)).thenReturn(dummyPerkDTO);
 
         Customer customer = spy(new Customer(email, "John", "tester", "3 passe", true));
         when(customerFinder.findCustomerByEmail(email)).thenReturn(customer);
         Cart cart = spy(new Cart());
         cart.addItem(cartItem);
+
+        Partner partner = mock(Partner.class);
+        when(partner.getPartnerId()).thenReturn(1L);
+        when(partner.getPerkList()).thenReturn(List.of(dummyPerk));
+        when(partnerRepository.findById(anyLong())).thenReturn(Optional.of(partner));
+
+        when(cart.getPartner()).thenReturn(partner);
 
         when(customer.getCart()).thenReturn(cart);
         MockedConstruction<Item> itemMockedConstruction = mockConstruction(Item.class, (mock, context) -> {
