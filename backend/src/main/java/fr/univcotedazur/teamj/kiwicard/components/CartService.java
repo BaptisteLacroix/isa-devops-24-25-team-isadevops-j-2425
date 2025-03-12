@@ -86,23 +86,45 @@ public class CartService implements ICartModifier, ICartFinder {
      * @throws UnknownCustomerEmailException If the customer does not exist in the database.
      * @throws NoCartException               If the customer does not have a cart.
      */
-    private CartDTO addItemToCart(CartItemDTO cartItemDTO, Customer customer, Item item) throws UnknownPartnerIdException, UnknownItemIdException, UnknownCustomerEmailException, NoCartException {
+    private CartDTO addItemToCart(CartItemDTO cartItemDTO, Customer customer, Item item)
+            throws UnknownPartnerIdException, UnknownItemIdException, UnknownCustomerEmailException, NoCartException {
+
         Cart customerCart = customer.getCart();
         if (customerCart == null) {
             throw new NoCartException(customer.getEmail());
         }
+
         // Check that the item belongs to the partner's catalog
         Partner partner = customerCart.getPartner();
         List<Item> partnerItems = partnerManager.findAllPartnerItems(partner.getPartnerId());
         if (partnerItems.stream().noneMatch(partnerItem -> partnerItem.getItemId().equals(item.getItemId()))) {
             throw new UnknownItemIdException(item.getItemId());
         }
-        // Add the item to the cart
-        CartItem cartItem = new CartItem(item, cartItemDTO.quantity(), cartItemDTO.startTime(), cartItemDTO.endTime());
-        customerCart.getItemList().add(cartItem);
+
+        // Check if the item already exists in the cart
+        boolean itemExists = false;
+        for (CartItem existingCartItem : customerCart.getItemList()) {
+            if (existingCartItem.getItem().getItemId().equals(item.getItemId())) {
+                // If the item exists, update the quantity
+                existingCartItem.setQuantity(existingCartItem.getQuantity() + cartItemDTO.quantity());
+                existingCartItem.setStartTime(cartItemDTO.startTime());
+                existingCartItem.setEndTime(cartItemDTO.endTime());
+                itemExists = true;
+                break;
+            }
+        }
+
+        // If the item doesn't exist, add a new item to the cart
+        if (!itemExists) {
+            CartItem newCartItem = new CartItem(item, cartItemDTO.quantity(), cartItemDTO.startTime(), cartItemDTO.endTime());
+            customerCart.getItemList().add(newCartItem);
+        }
+
+        // Update the customer's cart
         Customer updatedCustomer = customerCatalog.setCart(customer.getEmail(), customerCart);
         return new CartDTO(updatedCustomer.getCart());
     }
+
 
     /**
      * Creates a new cart for the customer with the given item. The item is added to the new cart
@@ -136,6 +158,7 @@ public class CartService implements ICartModifier, ICartFinder {
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
      */
     @Override
+    @Transactional
     public Optional<CartDTO> findCustomerCart(String cartOwnerEmail) throws UnknownCustomerEmailException {
         Customer customer = customerCatalog.findCustomerByEmail(cartOwnerEmail);
         Cart cart = customer.getCart();
