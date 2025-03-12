@@ -86,7 +86,7 @@ class PerksCommandsTest {
         String result = commands.applyPerk(1, "customer@example.com");
 
         RecordedRequest request = mockWebServer.takeRequest();
-        assertEquals("Successfully applied perk with ID 1 to customer customer@example.com", result);
+        assertEquals("Ajout de l'avantage ayant l'ID : 1 au client customer@example.com", result);
         assertEquals("/perks/1/apply", request.getPath());
         assertEquals("POST", request.getMethod());
     }

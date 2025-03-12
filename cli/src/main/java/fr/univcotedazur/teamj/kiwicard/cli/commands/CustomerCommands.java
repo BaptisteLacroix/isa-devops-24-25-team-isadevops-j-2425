@@ -69,7 +69,7 @@ public class CustomerCommands {
                 .toBodilessEntity()
                 .block();
         cliSession.logIn(email);
-        return "Register client successfuly, you are now logged in as " + email;
+        return "Client enregistré avec succès. Vous êtes maintenant connecté en tant que : " + email;
     }
 
     /**
