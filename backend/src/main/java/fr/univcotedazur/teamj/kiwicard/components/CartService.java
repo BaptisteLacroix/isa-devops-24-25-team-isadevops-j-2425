@@ -5,17 +5,8 @@ import fr.univcotedazur.teamj.kiwicard.dto.CartItemAddItemToCartDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CartItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PaymentDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
-import fr.univcotedazur.teamj.kiwicard.entities.Cart;
-import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
-import fr.univcotedazur.teamj.kiwicard.entities.Customer;
-import fr.univcotedazur.teamj.kiwicard.entities.Item;
-import fr.univcotedazur.teamj.kiwicard.entities.Partner;
-import fr.univcotedazur.teamj.kiwicard.exceptions.EmptyCartException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.NoCartException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
+import fr.univcotedazur.teamj.kiwicard.entities.*;
+import fr.univcotedazur.teamj.kiwicard.exceptions.*;
 import fr.univcotedazur.teamj.kiwicard.interfaces.IPayment;
 import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartModifier;
@@ -209,7 +200,7 @@ public class CartService implements ICartModifier, ICartFinder {
      */
     @Override
     @Transactional
-    public PurchaseDTO validateCart(String cartOwnerEmail) throws UnknownCustomerEmailException, UnreachableExternalServiceException, EmptyCartException, NoCartException {
+    public PurchaseDTO validateCart(String cartOwnerEmail) throws UnknownCustomerEmailException, UnreachableExternalServiceException, EmptyCartException, NoCartException, ClosedTimeException {
         // Check that the customer exists
         Customer customer = customerCatalog.findCustomerByEmail(cartOwnerEmail);
         Cart cart = verifyCart(customer);

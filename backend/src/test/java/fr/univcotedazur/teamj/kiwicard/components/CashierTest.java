@@ -9,6 +9,7 @@ import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
+import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -70,7 +71,7 @@ class CashierTest extends BaseUnitTest {
     }
 
     @Test
-    void makePaySuccess() throws UnreachableExternalServiceException {
+    void makePaySuccess() throws UnreachableExternalServiceException, ClosedTimeException {
         // Mock the bank response
         PaymentDTO paymentDTO = mock(PaymentDTO.class);
         when(bankProxy.askPayment(any(PaymentRequestDTO.class))).thenReturn(paymentDTO);
@@ -94,7 +95,7 @@ class CashierTest extends BaseUnitTest {
     }
 
     @Test
-    void makePayWithZeroPercentageDiscount() throws UnreachableExternalServiceException {
+    void makePayWithZeroPercentageDiscount() throws UnreachableExternalServiceException, ClosedTimeException {
         // Set up customer with no discount
         when(customer.getCart().getTotalPercentageReduction()).thenReturn(0.0);
 
@@ -111,7 +112,7 @@ class CashierTest extends BaseUnitTest {
     }
 
     @Test
-    void makePayWithMultiplePerksApplied() throws UnreachableExternalServiceException {
+    void makePayWithMultiplePerksApplied() throws UnreachableExternalServiceException, ClosedTimeException {
         // Create a second perk and mock behavior
         AbstractPerk perk2 = mock(AbstractPerk.class);
         when(customer.getCart().getPerksToUse()).thenReturn(Arrays.asList(perk, perk2));
@@ -124,8 +125,8 @@ class CashierTest extends BaseUnitTest {
         PaymentDTO result = cashier.makePay(customer);
 
         // Verify perks were applied
-        verify(perk).apply(customer);
-        verify(perk2).apply(customer);
+        verify(perk).apply(any());
+        verify(perk2).apply(any());
         verify(bankProxy).askPayment(any(PaymentRequestDTO.class));
         assertNotNull(result);
     }

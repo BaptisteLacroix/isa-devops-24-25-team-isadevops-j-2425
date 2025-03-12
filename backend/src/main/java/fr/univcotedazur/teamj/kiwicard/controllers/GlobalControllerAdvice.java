@@ -1,17 +1,7 @@
 package fr.univcotedazur.teamj.kiwicard.controllers;
 
 import fr.univcotedazur.teamj.kiwicard.dto.ErrorDTO;
-import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyUsedEmailException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.EmptyCartException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.NegativeQuantityException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.NoCartException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.PaymentException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCartIdException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPerkIdException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -35,7 +25,7 @@ public class GlobalControllerAdvice {
     @ExceptionHandler({PaymentException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorDTO handleExceptions(PaymentException e) {
-        return new ErrorDTO("Payment was rejected from Customer " + e.getName() + " for amount " + e.getAmount());
+        return new ErrorDTO("Payment was rejected from Customer " + e.getName() + " for totalPrice " + e.getAmount());
     }
 
     @ExceptionHandler({UnknownPartnerIdException.class, UnknownItemIdException.class, UnknownCustomerEmailException.class, UnknownCartIdException.class, UnknownPerkIdException.class, NoCartException.class})

@@ -18,6 +18,10 @@ public class CartItem {
     @Column
     private LocalDateTime startTime;
 
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
     private double price;
 
     @Column

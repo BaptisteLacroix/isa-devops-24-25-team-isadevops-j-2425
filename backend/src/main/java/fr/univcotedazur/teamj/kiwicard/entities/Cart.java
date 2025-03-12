@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -79,6 +80,13 @@ public class Cart {
 
     public void addItem(CartItem item) {
         this.itemList.add(item);
+    }
+
+    public List<CartItem> getHKItems(@Value("${happykids.item.name}") String itemName) {
+        return this.itemList.stream()
+                .filter(item -> item.getItem().getLabel().contains(itemName))
+                .toList();
+
     }
 
     public CartItem getItemById(Long itemId) {
