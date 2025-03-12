@@ -6,6 +6,7 @@
 - [Antoine MAISTRE - RICE](https://github.com/Antoine-MR)
 - [Baptiste LACROIX](https://github.com/BaptisteLacroix)
 - [Clément LEFEVRE](https://github.com/Firelods)
+- [Roxane BACON](https://github.com/RoxaneBacon)
 
 Cette étude de cas illustre les différentes technologies mises en œuvre dans le projet **KIWICARD**.
 Ce projet innovant s’inscrit dans une démarche de dynamisation des commerces de proximité en proposant une solution de
