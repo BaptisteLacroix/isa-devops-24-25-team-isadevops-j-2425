@@ -36,7 +36,7 @@ public class SessionService {
             String partnerName = loginPartner(partnerId);
             return "Logged in as partner " + partnerName;
         } else {
-            return "Please provide either a customer email (-c <email>) or a partner id (-p <id>)";
+            return "Please provide either a customer email (-c <email>) or a partner perkId (-p <perkId>)";
         }
     }
 
