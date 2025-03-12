@@ -9,8 +9,8 @@ public record CliCart(long cartId, CliPartner partner, Set<CliCartItem> items, L
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Cart ID: ").append(cartId).append("\n\t");
-        sb.append("Partner: ").append(partner).append("\n\t");
+        sb.append("Cart:").append("\n\t");
+        sb.append("Partner ").append(partner).append("\n\t");
 
         sb.append("Items in Cart:\n");
         if (items.isEmpty()) {

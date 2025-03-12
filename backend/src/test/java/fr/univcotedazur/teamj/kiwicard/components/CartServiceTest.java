@@ -2,8 +2,10 @@ package fr.univcotedazur.teamj.kiwicard.components;
 
 import fr.univcotedazur.teamj.kiwicard.BaseUnitTest;
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.CartItemAddItemToCartDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CartItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PaymentDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
@@ -65,6 +67,7 @@ class CartServiceTest extends BaseUnitTest {
     @Mock
     private Item item;
     private CartItemDTO cartItemDTO;
+    private CartItemAddItemToCartDTO cartItemAddItemToCartDTO;
     @Mock
     private CartDTO cartDTO;
     @Mock
@@ -83,7 +86,8 @@ class CartServiceTest extends BaseUnitTest {
         when(item.getLabel()).thenReturn("Item");
         when(item.getPrice()).thenReturn(10.0);
         when(item.getPartner()).thenReturn(partner);
-        cartItemDTO = new CartItemDTO(2, null, null, 1L);
+        cartItemDTO = new CartItemDTO(2, null, null, new ItemDTO(item));
+        cartItemAddItemToCartDTO = new CartItemAddItemToCartDTO(2, null, null, item.getItemId());
 
         cartItem = mock(CartItem.class);
         when(cartItem.getCartItemId()).thenReturn(1L);
@@ -132,7 +136,7 @@ class CartServiceTest extends BaseUnitTest {
         when(customerCatalog.findCustomerByEmail(anyString())).thenThrow(UnknownCustomerEmailException.class);
 
         // When & Then
-        assertThrows(UnknownCustomerEmailException.class, () -> cartService.addItemToCart("nonexistent@example.com", cartItemDTO, null));
+        assertThrows(UnknownCustomerEmailException.class, () -> cartService.addItemToCart("nonexistent@example.com", cartItemAddItemToCartDTO, null));
     }
 
     @Test
@@ -143,7 +147,7 @@ class CartServiceTest extends BaseUnitTest {
         when(itemRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         // When & Then
-        assertThrows(UnknownItemIdException.class, () -> cartService.addItemToCart("customer@example.com", cartItemDTO, null));
+        assertThrows(UnknownItemIdException.class, () -> cartService.addItemToCart("customer@example.com", cartItemAddItemToCartDTO, null));
     }
 
     @Test
@@ -156,7 +160,7 @@ class CartServiceTest extends BaseUnitTest {
         when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
 
         // When
-        CartDTO result = cartService.addItemToCart("customer@example.com", cartItemDTO, null);
+        CartDTO result = cartService.addItemToCart("customer@example.com", cartItemAddItemToCartDTO, null);
 
         // Then
         assertNotNull(result);
@@ -172,7 +176,7 @@ class CartServiceTest extends BaseUnitTest {
         when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
 
         // When
-        CartDTO result = cartService.addItemToCart("customer@example.com", cartItemDTO, cartDTO);
+        CartDTO result = cartService.addItemToCart("customer@example.com", cartItemAddItemToCartDTO, cartDTO);
 
         // Then
         assertNotNull(result);

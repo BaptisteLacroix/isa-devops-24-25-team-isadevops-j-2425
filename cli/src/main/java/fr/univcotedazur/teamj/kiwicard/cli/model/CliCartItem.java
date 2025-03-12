@@ -6,12 +6,12 @@ public record CliCartItem(
         int quantity,
         LocalDateTime startTime,
         LocalDateTime endTime,
-        Long itemId
+        CliItem item
 ) {
     @Override
     public String toString() {
-        return String.format("Item ID: %d, Quantity: %d, Time: [%s - %s]",
-                itemId(), quantity(),
+        return String.format("Item %s, Quantity: %d, Time: [%s - %s]",
+                item(), quantity(),
                 startTime() != null ? startTime().toString() : "N/A",
                 endTime() != null ? endTime().toString() : "N/A");
     }

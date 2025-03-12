@@ -3,6 +3,7 @@ package fr.univcotedazur.teamj.kiwicard.cli.commands;
 import fr.univcotedazur.teamj.kiwicard.cli.CliSession;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliCart;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliCartItem;
+import fr.univcotedazur.teamj.kiwicard.cli.model.CliCartItemToSent;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliItem;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliPartner;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliPerk;
@@ -179,7 +180,7 @@ public class PartnerCommands {
             return;
         }
 
-        CliCartItem cartItemDTO = new CliCartItem(quantity, null, null, itemId);
+        CliCartItemToSent cartItemDTO = new CliCartItemToSent(quantity, null, null, itemId);
         CliCart updatedCart = sendCartRequest(customerEmail, cartItemDTO);
 
         if (updatedCart != null) {
@@ -197,7 +198,7 @@ public class PartnerCommands {
      * @param cartItemDTO   The details of the cart item being added or updated.
      * @return The updated cart.
      */
-    private CliCart sendCartRequest(String customerEmail, CliCartItem cartItemDTO) {
+    private CliCart sendCartRequest(String customerEmail, CliCartItemToSent cartItemDTO) {
         return webClient.put()
                 .uri(CART_BASE_URI + "/" + customerEmail)
                 .bodyValue(cartItemDTO)
