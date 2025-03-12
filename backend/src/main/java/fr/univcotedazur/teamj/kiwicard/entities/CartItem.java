@@ -1,6 +1,5 @@
 package fr.univcotedazur.teamj.kiwicard.entities;
 
-import fr.univcotedazur.teamj.kiwicard.dto.CartItemDTO;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -57,9 +56,6 @@ public class CartItem {
         return cartItemId;
     }
 
-    public void setCartItemId(Long cartItemId) {
-        this.cartItemId = cartItemId;
-    }
 
     public int getQuantity() {
         return quantity;

@@ -69,7 +69,7 @@ public class CustomerCommands {
                 .toBodilessEntity()
                 .block();
         cliSession.logIn(email);
-        return "Register client successfuly, you are now logged in as " + email;
+        return "Client enregistré avec succès. Vous êtes maintenant connecté en tant que : " + email;
     }
 
     /**
@@ -83,8 +83,8 @@ public class CustomerCommands {
     @ShellMethod(value="Pay cart", key="pay-cart")
     public String payCart(@ShellOption(defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail) {
         customerEmail = cliSession.tryInjectingCustomerEmail(customerEmail);
-        if (customerEmail == null) return "Invalid customer email";
-        System.out.println("Validation et paiment du panier du client " + customerEmail + " : ");
+        if (customerEmail == null) return "Erreur : Veuillez vous connecter ou spécifier un email de client valide.";
+        System.out.println("Validation et paiement du panier du client " + customerEmail + " : ");
 
         return webClient.post()
                 .uri( BASE_CART_URI + "/" + customerEmail + "/validate")
@@ -92,7 +92,7 @@ public class CustomerCommands {
                 .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(CliError.class)
                         .flatMap(error -> Mono.error(new RuntimeException(error.errorMessage()))))
                 .bodyToMono(CliPurchase.class)
-                .map(res -> "Cart was purchased successfully, purchase details : \n" + res.toString().replaceAll("(?m)^", "\t"))
+                .map(res -> "Le panier a été validé avec succès ! Plus de détails : " + res.toString().replaceAll("(?m)^", "\t"))
                 .block();
     }
 }

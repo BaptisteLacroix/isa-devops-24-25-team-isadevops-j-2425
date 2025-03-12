@@ -22,6 +22,14 @@ public class PerkApplicationVisitorImpl implements PerkApplicationVisitor {
         this.happyKidsProxy = happyKidsProxy;
     }
 
+    /**
+     * Application d'une réduction pour la garde d'enfants HappyKids
+     *
+     * @param perk le perk à appliquer
+     * @return true si le perk a été appliqué, false sinon
+     * @throws ClosedTimeException                 si le service externe est fermé
+     * @throws UnreachableExternalServiceException si le service externe est injoignable
+     */
     @Override
     public boolean visit(VfpDiscountInPercentPerk perk) throws ClosedTimeException, UnreachableExternalServiceException {
         List<CartItem> hkItems = customer.getCart().getHKItems(null);
@@ -41,6 +49,12 @@ public class PerkApplicationVisitorImpl implements PerkApplicationVisitor {
         return true;
     }
 
+    /**
+     * Application d'une réduction à partir d'une certaine heure
+     *
+     * @param perk le perk à appliquer
+     * @return true si le perk a été appliqué, false sinon
+     */
     @Override
     public boolean visit(TimedDiscountInPercentPerk perk) {
         // Application d'une réduction temporelle
@@ -51,6 +65,11 @@ public class PerkApplicationVisitorImpl implements PerkApplicationVisitor {
         return true;
     }
 
+    /**
+     * Application pour le perk "Buy N get M free"
+     * @param perk le perk à appliquer
+     * @return true si le perk a été appliqué, false sinon
+     */
     @Override
     public boolean visit(NPurchasedMGiftedPerk perk) {
         // Application pour le perk "Buy N get M free"

@@ -118,10 +118,6 @@ public class Cart {
         return perksToUse;
     }
 
-    public List<AbstractPerk> getPerksUsed() {
-        return perksUsed;
-    }
-
     public double getTotalPercentageReduction() {
         return totalPercentageReduction;
     }

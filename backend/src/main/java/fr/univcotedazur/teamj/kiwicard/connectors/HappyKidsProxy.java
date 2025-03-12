@@ -18,6 +18,11 @@ public class HappyKidsProxy implements IHappyKids {
     private final WebClient webClient;
     private final String happyKidsBaseUrl;
 
+    /**
+     * Contruit un proxy pour l'API HappyKids avec l'URL de base spécifiée.
+     *
+     * @param happyKidsBaseUrl L'URL de base de l'API HappyKids.
+     */
     @Autowired
     public HappyKidsProxy(@Value("${happykids.host.baseurl}") String happyKidsBaseUrl) {
         this.happyKidsBaseUrl = happyKidsBaseUrl;
@@ -26,6 +31,15 @@ public class HappyKidsProxy implements IHappyKids {
                 .build();
     }
 
+    /**
+     * Calcule le montant de la réduction à appliquer à un article du panier.
+     *
+     * @param item         L'article du panier pour lequel calculer la réduction.
+     * @param discountRate Le taux de réduction à appliquer.
+     * @return Le DTO contenant le montant de la réduction.
+     * @throws ClosedTimeException                 Si le service externe est fermé.
+     * @throws UnreachableExternalServiceException Si le service externe est injoignable.
+     */
     @Override
     public HappyKidsDiscountDTO computeDiscount(CartItem item, double discountRate) throws ClosedTimeException, UnreachableExternalServiceException {
         HappyKidsDiscountDTO happyKidsDiscountDto = new HappyKidsDiscountDTO(item.getPrice());

@@ -84,10 +84,6 @@ public class Partner {
         return perkList;
     }
 
-    public List<Purchase> getPurchaseList() {
-        return purchaseList;
-    }
-
     public void addItem(Item item) {
         itemList.add(item);
         item.setPartner(this);

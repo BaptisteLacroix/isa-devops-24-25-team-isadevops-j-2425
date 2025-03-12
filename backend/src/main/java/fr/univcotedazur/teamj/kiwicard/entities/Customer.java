@@ -2,8 +2,6 @@ package fr.univcotedazur.teamj.kiwicard.entities;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
-import jakarta.persistence.*;
-import fr.univcotedazur.teamj.kiwicard.connectors.CardEditorProxy;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,7 +11,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.context.annotation.Bean;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,7 +82,6 @@ public class Customer {
         this.address = customerSubscribeDTO.address();
         this.email = customerSubscribeDTO.email();
         this.vfp = false;
-        // TODO : ajouter un numéro de carte via CardEditorProxy
         this.cardNumber = cardNumber;
     }
 
@@ -97,28 +93,12 @@ public class Customer {
         return cart;
     }
 
-    public void removeCart() {
-        this.cart = null;
-    }
-
-    public void addPurchase(Purchase purchase) {
-        this.purchaseList.add(purchase);
-    }
-
     public @NotBlank String getFirstName() {
         return firstName;
     }
 
-    public void setFirstName(@NotBlank String firstName) {
-        this.firstName = firstName;
-    }
-
     public @NotBlank String getSurname() {
         return surname;
-    }
-
-    public void setSurname(@NotBlank String surname) {
-        this.surname = surname;
     }
 
     public @NotBlank String getAddress() {
@@ -148,10 +128,6 @@ public class Customer {
 
     public String getCardNumber() {
         return cardNumber;
-    }
-
-    public void setCardNumber(String cardNumber) {
-        this.cardNumber = cardNumber;
     }
 
     @Override

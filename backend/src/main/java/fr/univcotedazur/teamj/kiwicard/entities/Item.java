@@ -61,17 +61,9 @@ public class Item {
         return label;
     }
 
-    public void setLabel(@NotNull String label) {
-        this.label = label;
-    }
-
     @NotNull
     public double getPrice() {
         return price;
-    }
-
-    public void setPrice(@NotNull double price) {
-        this.price = price;
     }
 
     public void setPartner(Partner partner) {
