@@ -174,18 +174,15 @@ public class PartnerCommands {
             Long itemId,
             Integer quantity
     ) {
-        if (quantity <= 0) {
-            throw new RuntimeException("Error: Quantity must be greater than zero.");
-        }
-
+        checkQuantity(quantity);
         CliCartItemToSent cartItemDTO = new CliCartItemToSent(quantity, null, null, itemId);
         CliCart updatedCart = sendCartRequest(customerEmail, cartItemDTO);
 
         if (updatedCart != null) {
-            System.out.println("Item successfully added to the cart:");
+            System.out.println("L'item a été ajouté au panier avec succès:");
             System.out.println(updatedCart);
         } else {
-            System.out.println("Failed to add the item to the cart.");
+            System.out.println("Impossible d'ajouter l'item au panier.");
         }
     }
 
@@ -222,10 +219,7 @@ public class PartnerCommands {
             LocalDateTime endTime,
             Integer quantity
     ) {
-        if (quantity <= 0) {
-            throw new RuntimeException("Erreur: La quantité doit être supérieur ou égale à 0.");
-        }
-
+        checkQuantity(quantity);
         CliCartItemToSent cartItemDTO = new CliCartItemToSent(quantity, startTime, endTime, itemId);
         CliCart updatedCart = sendCartRequest(customerEmail, cartItemDTO);
 
@@ -234,6 +228,12 @@ public class PartnerCommands {
             System.out.println(updatedCart);
         } else {
             System.out.println("Impossible de réserver le créneau horaire.");
+        }
+    }
+
+    private void checkQuantity(int quantity) {
+        if (quantity <= 0) {
+            throw new RuntimeException("Erreur: La quantité doit être supérieur ou égale à 0.");
         }
     }
 

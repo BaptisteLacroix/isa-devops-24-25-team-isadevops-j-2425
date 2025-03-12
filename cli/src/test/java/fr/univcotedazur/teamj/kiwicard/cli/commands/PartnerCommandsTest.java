@@ -12,8 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
-import java.time.ZoneId;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -228,8 +227,8 @@ class PartnerCommandsTest {
         String customerEmail = "customer@example.com";
 
         commands.reserveTimeSlot(customerEmail, 1L,
-        new Date().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
-        new Date().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().plusHours(1), 1);
+                LocalDateTime.now(),
+                LocalDateTime.now().plusHours(1), 1);
 
         // Verify that the request was made to the correct endpoint
         RecordedRequest recordedRequest = mockWebServer.takeRequest();
