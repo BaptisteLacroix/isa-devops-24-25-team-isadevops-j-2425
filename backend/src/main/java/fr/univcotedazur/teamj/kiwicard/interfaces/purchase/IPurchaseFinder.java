@@ -13,4 +13,6 @@ import java.util.List;
 public interface IPurchaseFinder {
     Purchase findPurchaseById(long purchaseId) throws UnknownPartnerIdException, UnknownPurchaseIdException;
     List<Purchase> findPurchasesByCustomerAndPartner(String customerEmail, long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException;
+
+    List<Purchase> findPurchaseByPartnerId(long partnerId) throws UnknownPartnerIdException;
 }

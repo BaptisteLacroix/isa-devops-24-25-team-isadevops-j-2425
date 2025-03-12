@@ -80,5 +80,11 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
         this.partnerManager.findPartnerById(partnerId);
         return this.purchaseRepository.findAllByCustomerAndPartner(customerEmail, partnerId);
     }
+
+    @Override
+    public List<Purchase> findPurchaseByPartnerId(long partnerId) throws UnknownPartnerIdException {
+        this.partnerManager.findPartnerById(partnerId);
+        return this.purchaseRepository.findAllByPartner(partnerId);
+    }
 }
 

@@ -1,6 +1,7 @@
 package fr.univcotedazur.teamj.kiwicard.repositories;
 
 
+import fr.univcotedazur.teamj.kiwicard.entities.Partner;
 import fr.univcotedazur.teamj.kiwicard.entities.Purchase;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -49,6 +50,14 @@ public interface IPurchaseRepository extends JpaRepository<Purchase, Long> {
     )
     List<Purchase> findAllByCustomer(@Param("customerEmail") String customerEmail, @Param("nbPurchases") int nbPurchases);
 
+    @Query(
+            """
+                SELECT p FROM Purchase p
+                    where p.cart.partner.partnerId = :partnerId
+                    ORDER BY p.payment.timestamp DESC
+            """
+    )
+    List<Purchase> findAllByPartner(@Param("partnerId") long partnerId);
 
 //    @Query(
 //            """
