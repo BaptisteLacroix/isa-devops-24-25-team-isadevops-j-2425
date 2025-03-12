@@ -29,14 +29,16 @@ public class PerksService implements IPerksConsumer {
 
     @Override
     @Transactional
-    public boolean applyPerk(long perkId, String cartOwnerEmail) throws UnknownPerkIdException, UnknownCustomerEmailException {
+    public boolean applyPerk(long perkId, String cartOwnerEmail) throws UnknownPerkIdException, UnknownCustomerEmailException, NoCartException {
         AbstractPerk perk = PerkMapper.fromDTO(perksFinder.findPerkById(perkId));
         Customer customer = customerFinder.findCustomerByEmail(cartOwnerEmail);
 
         Cart cart = customer.getCart();
         if (cart == null) {
-            cart = new Cart();
-            customer.setCart(cart);
+            throw new NoCartException(customer.getEmail());
+        }
+        if (cart.getPartner().getPerkList().stream().map(AbstractPerk::getPerkId).noneMatch(id -> id.equals(perkId))) {
+            throw new UnknownPerkIdException(perkId);
         }
         if (perk.isConsumableFor(customer)) {
             cart.addPerkToUse(perk);
