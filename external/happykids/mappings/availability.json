@@ -1,16 +1,23 @@
 {
   "request": {
-    "method": "GET",
-    "urlPattern": "/availability\\?time=.*"
+    "method": "POST",
+    "url": "/perks",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$.price"
+      },
+      {
+        "matchesJsonPath": "$.discountRate"
+      }
+    ]
   },
   "response": {
-    "status": 200,
+    "status": 201,
     "headers": {
       "Content-Type": "application/json"
     },
     "jsonBody": {
-      "time": "{{request.query.time}}",
-      "available": "{{#if (matches request.query.time '.*[24680]')}}true{{/if}}{{#if (matches request.query.time '.*[13579]')}}false{{/if}}"
+      "price": "{{math (jsonPath request.body '$.price') '*' (jsonPath request.body '$.discountRate')}}"
     }
   }
 }

@@ -73,14 +73,8 @@ public class NPurchasedMGiftedPerk extends AbstractPerk {
     }
 
     @Override
-    public boolean apply(Customer customer) {
-        Cart cart = customer.getCart();
-        CartItem cartItem = cart.getItemById(this.item.getItemId());
-        if (isEligibleForGift(cartItem)) {
-            cartItem.increaseQuantity(nbGifted);
-            return true;
-        }
-        return false;
+    public boolean apply(PerkApplicationVisitor visitor) {
+        return visitor.visit(this);
     }
 
     @Override
