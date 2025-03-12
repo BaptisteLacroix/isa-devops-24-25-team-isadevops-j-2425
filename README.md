@@ -24,7 +24,6 @@ Pour faire fonctionner ce code de démonstration, vous devez disposer des logici
 - **Configuration d’environnement et build :** Maven ≥3.9.9 (avec wrapper Maven fourni)
 - **Langage d’implémentation :** Java ≥21 avec Spring Boot 3.4.1
 - **Base de données :** PostgreSQL 17.2 (en image Docker)
-- **Services d’intégration :** NestJS 10.4.15 (Node ≥22, npm ≥11)
 - **Containerisation :** Docker Engine (avec Compose) ≥27.x
 
 ---
