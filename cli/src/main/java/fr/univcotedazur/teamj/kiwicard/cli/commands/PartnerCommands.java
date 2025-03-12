@@ -202,6 +202,8 @@ public class PartnerCommands {
                 .uri(CART_BASE_URI + "/" + customerEmail)
                 .bodyValue(cartItemDTO)
                 .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(CliError.class)
+                        .flatMap(error -> Mono.error(new RuntimeException(error.errorMessage()))))
                 .bodyToMono(CliCart.class)
                 .block();
     }
