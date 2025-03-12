@@ -1,6 +1,7 @@
 package fr.univcotedazur.teamj.kiwicard.controllers;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.CartItemAddItemToCartDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CartItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.*;
@@ -43,7 +44,7 @@ public class CartController {
      * If the customer already has a cart, the item will be added to the cart; otherwise, a new cart will be created.
      *
      * @param customerEmail The email address of the customer whose cart will be modified.
-     * @param cartItemDTO   A CartItemDTO containing the details of the item to be added.
+     * @param cartItemDTO   A CartItemAddItemToCartDTO containing the details of the item to be added.
      * @return A ResponseEntity containing the updated CartDTO, representing the customer's cart.
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
      * @throws UnknownPartnerIdException     If no partner is found for the item in the cart.
@@ -52,7 +53,7 @@ public class CartController {
     @PutMapping(path = "/{customerEmail}", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<CartDTO> createOrAddItemToCart(
             @PathVariable String customerEmail,
-            @RequestBody CartItemDTO cartItemDTO
+            @RequestBody CartItemAddItemToCartDTO cartItemDTO
     ) throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException, NoCartException {
         CartDTO existingCart = finder.findCustomerCart(customerEmail).orElse(null);
         return ResponseEntity.ok()

@@ -1,9 +1,16 @@
 package fr.univcotedazur.teamj.kiwicard.interfaces.cart;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.CartItemAddItemToCartDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CartItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
-import fr.univcotedazur.teamj.kiwicard.exceptions.*;
+import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.EmptyCartException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.NoCartException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 
 /**
  * Modification de panier lors de l'application d'un avantage
@@ -15,14 +22,14 @@ public interface ICartModifier {
      * the correct partner's catalog before adding it to the cart.
      *
      * @param customerEmail The email address of the customer whose cart the item will be added to.
-     * @param cartItemDTO   A CartItemDTO containing details of the item to be added.
+     * @param cartItemDTO   A CartItemAddItemToCartDTO containing details of the item to be added.
      * @param cartDTO       An existing CartDTO representing the customer's current cart. If null, a new cart is created.
      * @return A CartDTO representing the updated shopping cart after the item has been added.
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
      * @throws UnknownPartnerIdException     If no partner is found for the item in the cart.
      * @throws UnknownItemIdException        If the item does not exist in the item repository.
      */
-    CartDTO addItemToCart(String customerEmail, CartItemDTO cartItemDTO, CartDTO cartDTO) throws UnknownCustomerEmailException, UnknownItemIdException, UnknownPartnerIdException, NoCartException;
+    CartDTO addItemToCart(String customerEmail, CartItemAddItemToCartDTO cartItemDTO, CartDTO cartDTO) throws UnknownCustomerEmailException, UnknownItemIdException, UnknownPartnerIdException, NoCartException;
 
     /**
      * Removes a specified item from the customer's shopping cart. The method first validates that the customer exists,

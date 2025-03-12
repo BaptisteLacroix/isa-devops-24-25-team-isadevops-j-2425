@@ -160,4 +160,41 @@ class PartnerCommandsTest {
         assertEquals("/partners/12345/perks", recordedRequest.getPath());
         assertEquals("GET", recordedRequest.getMethod());
     }
+
+    @Test
+    void addItemToCartTest() throws InterruptedException {
+        mockWebServer.enqueue(new MockResponse()
+                .setBody("""
+                        {
+                            "cartId": 11,
+                            "partner": {
+                              "id": 1,
+                              "name": "Boulange",
+                              "address": "14 rue du paindemie, Draguignan"
+                            },
+                            "items": [
+                              {
+                                "quantity": 9,
+                                "item": {
+                                  "itemId": 1,
+                                  "label": "croissant",
+                                  "price": 1.0
+                                }
+                              }
+                            ],
+                            "perksList": []
+                          }
+                        """)
+                .addHeader("Content-Type", "application/json"));
+
+        String customerEmail = "customer@example.com";
+
+        commands.addItemToCart(customerEmail, 1L, 2);
+
+        // Verify that the request was made to the correct endpoint
+        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+        assertEquals("/cart/" + customerEmail, recordedRequest.getPath());
+        assertEquals("PUT", recordedRequest.getMethod());
+    }
+
 }
