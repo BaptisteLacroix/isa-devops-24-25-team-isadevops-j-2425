@@ -77,7 +77,15 @@ public class CustomerCommands {
         return "Register client successfuly, you are now logged in as " + email;
     }
 
-    @ShellMethod(value = "Pay cart",key = "customer-email")
+    /**
+     * CLI command to pay a customer's cart.
+     * Example usage:
+     * pay-cart --customer-email pierre.dupont@email.com
+     *
+     * @param customerEmail The email of the customer whose cart should be paid. If unspecified, uses the logged-in customer.
+     * @return Confirmation message with purchase details or error message
+     */
+    @ShellMethod(value="Pay cart", key="pay-cart")
     public String payCommand(@ShellOption(defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail) {
         customerEmail = cliSession.tryInjectingCustomerEmail(customerEmail);
         if (customerEmail == null) return "Invalid customer email";
