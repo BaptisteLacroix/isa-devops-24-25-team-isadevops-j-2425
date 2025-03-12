@@ -1,6 +1,5 @@
 package fr.univcotedazur.teamj.kiwicard.cli.commands;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.univcotedazur.teamj.kiwicard.cli.CliSession;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -17,7 +16,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class CustomerCommandsTest {
 
     private CustomerCommands customerCommands;
-    private static ObjectMapper mapper = new ObjectMapper();
     private static MockWebServer mockWebServer;
     private static CliSession cliSession;
 
