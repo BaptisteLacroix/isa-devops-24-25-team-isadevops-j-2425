@@ -27,6 +27,15 @@ public class PerksService implements IPerksConsumer {
         this.customerFinder = customerFinder;
     }
 
+    /**
+     * Ajoute un perks à la liste des perks à utiliser pour le client
+     *
+     * @param perkId         l'id du perk à ajouter
+     * @param cartOwnerEmail l'email du client
+     * @return true si le perk a été ajouté, false sinon
+     * @throws UnknownPerkIdException        si le perk n'existe pas
+     * @throws UnknownCustomerEmailException si le client n'existe pas
+     */
     @Override
     @Transactional
     public boolean applyPerk(long perkId, String cartOwnerEmail) throws UnknownPerkIdException, UnknownCustomerEmailException, NoCartException {
@@ -47,6 +56,14 @@ public class PerksService implements IPerksConsumer {
         return false;
     }
 
+    /**
+     * Cherche les perks consommables pour un client chez un partenaire
+     *
+     * @param consumerEmail l'email du client
+     * @return la liste des perks consommables pour le client chez le partenaire
+     * @throws UnknownCustomerEmailException si le client n'existe pas
+     * @throws NoCartException               si le client n'a pas de panier
+     */
     @Transactional
     @Override
     public List<IPerkDTO> findConsumablePerksForConsumerAtPartner(String consumerEmail) throws UnknownCustomerEmailException, NoCartException {

@@ -26,23 +26,33 @@ public class SessionService {
         this.session = session;
     }
 
+    /**
+     * Commande CLI pour se connecter en tant que client ou partenaire.
+     * Exemple d'utilisation :
+     * login -c
+     *
+     * @param customerEmail L'email du client
+     * @param partnerId     L'identifiant du partenaire
+     * @return Message de confirmation ou message d'erreur
+     */
     @ShellMethod(value = "login")
     public String login(@ShellOption(value = {"-c", "--customer"}, defaultValue = "") String customerEmail,
                         @ShellOption(value = {"-p", "--partner"}, defaultValue = "-1") Long partnerId) {
         if (!Objects.equals(customerEmail, "") && partnerId == -1) {
             loginAsCustomer(customerEmail);
-            return "Logged in as customer " + customerEmail;
+            return "Connecté en tant que client " + customerEmail;
         } else if (partnerId != -1 && Objects.equals(customerEmail, "")) {
             String partnerName = loginPartner(partnerId);
-            return "Logged in as partner " + partnerName;
+            return "Connecté en tant que partenaire " + partnerName;
         } else {
-            return "Please provide either a customer email (-c <email>) or a partner perkId (-p <perkId>)";
+            return "Veuillez spécifier soit un client avec un email (-c <email>) ou bien un partenaire avec son identifiant (-p <partnerId>)";
         }
     }
 
+
     private void loginAsCustomer(String customerEmail) {
         if (!customerEmail.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$")) {
-            throw new IllegalArgumentException("Invalid email format");
+            throw new IllegalArgumentException("Format d'email invalide");
         }
         webClient.get()
                 .uri("/customers?email=" + customerEmail)

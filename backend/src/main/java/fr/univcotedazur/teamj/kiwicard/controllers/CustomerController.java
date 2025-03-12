@@ -27,11 +27,26 @@ public class CustomerController {
         this.vfpStatus = vfpStatus;
     }
 
+    /**
+     * Enregistre un nouveau client dans la base de données et lui attribue une carte
+     *
+     * @param customer les informations du client à enregistrer
+     * @throws UnreachableExternalServiceException si le service externe est injoignable
+     * @throws AlreadyUsedEmailException           si l'adresse email est déjà utilisée
+     */
     @PostMapping("")
     public void createCustomer(@RequestBody CustomerSubscribeDTO customer) throws UnreachableExternalServiceException, AlreadyUsedEmailException {
         customerRegistration.register(customer);
     }
 
+    /**
+     * Récupère un client par son adresse email ou son numéro de carte
+     * @param email l'adresse email du client
+     * @param cardNumber le numéro de carte du client
+     * @return le DTO du client
+     * @throws UnknownCustomerEmailException si l'adresse email est inconnue
+     * @throws UnknownCardNumberException si le numéro de carte est inconnu
+     */
     @GetMapping("")
     public CustomerDTO findCustomerByEmailOrByCardNumber(@RequestParam(required = false) String email, @RequestParam(required = false) String cardNumber) throws UnknownCustomerEmailException, UnknownCardNumberException {
         if (email == null && cardNumber == null) {
@@ -44,12 +59,17 @@ public class CustomerController {
         }
     }
 
+    /**
+     * Récupère tous les clients
+     */
     @GetMapping("/")
     public void findAllCustomers() {
         customerFinder.findAll();
     }
 
-
+    /**
+     * Met à jour le statut VFP
+     */
     @PutMapping("/refresh-vfp-status")
     public ResponseEntity<Void> updateVfpStatus() {
         vfpStatus.refreshVfpStatus();

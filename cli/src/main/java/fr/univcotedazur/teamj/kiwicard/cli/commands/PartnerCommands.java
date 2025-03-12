@@ -86,7 +86,7 @@ public class PartnerCommands {
             """, key = "partner-items")
     public String partnerItems(@ShellOption(defaultValue = LOGGED_IN_ID_PLACEHOLDER) String partnerId) {
         partnerId = cliSession.tryInjectingPartnerId(partnerId);
-        if (partnerId == null) return "Invalid partner perkId";
+        if (partnerId == null) return "Erreur : ID de partenaire invalide.";
         System.out.println("Récupération des items du partenaire " + partnerId + " : ");
         return webClient.get()
                 .uri(BASE_URI + "/" + partnerId + "/items")
@@ -127,7 +127,7 @@ public class PartnerCommands {
                 .collectList()
                 .block();
         if (perksList == null) {
-            System.out.println("No perks available for this partner.");
+            System.out.println("Pas d'avantages disponibles pour ce partenaire.");
             return;
         }
         printPerks(perksList);
@@ -140,10 +140,10 @@ public class PartnerCommands {
      */
     private void printPerks(List<CliPerk> perks) {
         if (perks.isEmpty()) {
-            System.out.println("No perks available for this partner.");
+            System.out.println("Pas d'avantages disponibles pour ce partenaire.");
             return;
         }
-        System.out.println("List of Perks:\n");
+        System.out.println("Liste des réductions : \n");
         perks.forEach(System.out::println);
     }
 
@@ -179,10 +179,10 @@ public class PartnerCommands {
         CliCart updatedCart = sendCartRequest(customerEmail, cartItemDTO);
 
         if (updatedCart != null) {
-            System.out.println("L'item a été ajouté au panier avec succès:");
+            System.out.println("Article ajouté au panier avec succès :");
             System.out.println(updatedCart);
         } else {
-            System.out.println("Impossible d'ajouter l'item au panier.");
+            System.out.println("Erreur lors de l'ajout de l'article au panier.");
         }
     }
 

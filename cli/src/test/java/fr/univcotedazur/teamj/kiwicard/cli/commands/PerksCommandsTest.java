@@ -4,7 +4,6 @@ import fr.univcotedazur.teamj.kiwicard.cli.CliSession;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.junit.Assert;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -86,7 +85,7 @@ class PerksCommandsTest {
         String result = commands.applyPerk(1, "customer@example.com");
 
         RecordedRequest request = mockWebServer.takeRequest();
-        assertEquals("Successfully applied perk with ID 1 to customer customer@example.com", result);
+        assertEquals("Ajout de l'avantage ayant l'ID : 1 au client customer@example.com", result);
         assertEquals("/perks/1/apply", request.getPath());
         assertEquals("POST", request.getMethod());
     }

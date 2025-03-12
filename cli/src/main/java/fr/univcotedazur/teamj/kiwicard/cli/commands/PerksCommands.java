@@ -50,7 +50,7 @@ public class PerksCommands {
             """)
     public String listPerks(String customerEmail) {
         customerEmail = cliSession.tryInjectingCustomerEmail(customerEmail);
-        if (customerEmail == null) return "Invalid customer email";
+        if (customerEmail == null) return "Erreur : email client invalide";
         return webClient.get()
                 .uri(BASE_URI + "/consumable?consumerEmail=" + customerEmail)
                 .retrieve()
@@ -93,7 +93,7 @@ public class PerksCommands {
                 .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(CliError.class)
                         .flatMap(error -> Mono.error(new RuntimeException(error.errorMessage()))))
                 .bodyToMono(String.class)
-                .map(response -> "Successfully applied perk with ID " + perkId + " to customer " + emailCustomer)
+                .map(response -> "Ajout de l'avantage ayant l'ID : " + perkId + " au client " + emailCustomer)
                 .block();
     }
 }

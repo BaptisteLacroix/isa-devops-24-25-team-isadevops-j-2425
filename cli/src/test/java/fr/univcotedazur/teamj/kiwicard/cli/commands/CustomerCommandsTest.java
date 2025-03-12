@@ -1,6 +1,5 @@
 package fr.univcotedazur.teamj.kiwicard.cli.commands;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.univcotedazur.teamj.kiwicard.cli.CliSession;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -17,7 +16,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class CustomerCommandsTest {
 
     private CustomerCommands customerCommands;
-    private static ObjectMapper mapper = new ObjectMapper();
     private static MockWebServer mockWebServer;
     private static CliSession cliSession;
 
@@ -59,7 +57,7 @@ class CustomerCommandsTest {
         String response = customerCommands.registerClient("Doe", "John", mail, "123 Main St, City, Country");
 
         // Assert that the response matches the registered customer's details
-        assertEquals("Register client successfuly, you are now logged in as "+ mail, response);
+        assertEquals("Client enregistré avec succès. Vous êtes maintenant connecté en tant que : " + mail, response);
 
         // Verify the request made to the correct endpoint
         RecordedRequest recordedRequest = mockWebServer.takeRequest();
