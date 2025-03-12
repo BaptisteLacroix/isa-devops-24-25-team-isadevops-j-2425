@@ -3,11 +3,12 @@ package fr.univcotedazur.teamj.kiwicard.cli.e2e;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
+import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.containers.ComposeContainer;
 import org.testcontainers.containers.ContainerState;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
-import org.slf4j.LoggerFactory;
+
 import java.io.File;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -16,9 +17,9 @@ public abstract class EndToEndBaseTest {
 
 private static final ComposeContainer environment = new ComposeContainer(new File("./src/test/resources/docker-compose.yml"))
     .withExposedService("postgres", 5432)
-    .withExposedService("wiremock-bank", 9090)
-    .withExposedService("wiremock-card", 9091)
-    .withExposedService("wiremock-happykids", 9092)
+        .withExposedService("wiremock-bank", 8080)
+        .withExposedService("wiremock-card", 8080)
+        .withExposedService("wiremock-happykids", 8080)
     .withExposedService("kiwicard-server", 8080)
     .withLogConsumer("postgres", new Slf4jLogConsumer(LoggerFactory.getLogger("postgres")))
     .withLogConsumer("wiremock-bank", new Slf4jLogConsumer(LoggerFactory.getLogger("wiremock-bank")))
@@ -61,7 +62,7 @@ private static final ComposeContainer environment = new ComposeContainer(new Fil
         return "http://localhost:" + getMappedPort("kiwicard-server", 8080);
     }
 
-    private static int getMappedPort(String serviceName, int originalPort) {
+    static int getMappedPort(String serviceName, int originalPort) {
         ContainerState service = environment.getContainerByServiceName(serviceName).orElseThrow();
         return service.getMappedPort(originalPort);
     }
