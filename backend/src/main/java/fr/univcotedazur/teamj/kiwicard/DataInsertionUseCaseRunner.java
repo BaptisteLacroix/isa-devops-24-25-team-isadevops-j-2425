@@ -217,10 +217,10 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
 
 
         // Item Boulange
-        ItemDTO itemDTOcroissant = new ItemDTO("croissant", 1.0);
-        ItemDTO itemDTO2baguette = new ItemDTO("baguette", 1.2);
-        ItemDTO itemDTO3choco = new ItemDTO("chocolatine", 1.5);
-        ItemDTO itemDTO4raisin = new ItemDTO("pain au raisin", 1.8);
+        ItemDTO itemDTOcroissant = new ItemDTO(1, "croissant", 1.0);
+        ItemDTO itemDTO2baguette = new ItemDTO(2, "baguette", 1.2);
+        ItemDTO itemDTO3choco = new ItemDTO(3, "chocolatine", 1.5);
+        ItemDTO itemDTO4raisin = new ItemDTO(4, "pain au raisin", 1.8);
 
         partnerManager.addItemToPartnerCatalog(partnerBoulange.getPartnerId(), itemDTOcroissant);
         partnerManager.addItemToPartnerCatalog(partnerBoulange.getPartnerId(), itemDTO2baguette);
@@ -233,10 +233,10 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         Item raisin = partnerManager.findAllPartnerItems(partnerBoulange.getPartnerId()).get(3);
 
         // Item Fleuriste
-        ItemDTO itemDTOrose = new ItemDTO("rose", 1.0);
-        ItemDTO itemDTO2tulipe = new ItemDTO("tulipe", 1.2);
-        ItemDTO itemDTO3muguet = new ItemDTO("muguet", 1.5);
-        ItemDTO itemDTO4orchidee = new ItemDTO("orchidee", 1.8);
+        ItemDTO itemDTOrose = new ItemDTO(1, "rose", 1.0);
+        ItemDTO itemDTO2tulipe = new ItemDTO(2, "tulipe", 1.2);
+        ItemDTO itemDTO3muguet = new ItemDTO(3, "muguet", 1.5);
+        ItemDTO itemDTO4orchidee = new ItemDTO(4, "orchidee", 1.8);
 
         partnerManager.addItemToPartnerCatalog(partnerFleuriste.getPartnerId(), itemDTOrose);
         partnerManager.addItemToPartnerCatalog(partnerFleuriste.getPartnerId(), itemDTO2tulipe);
@@ -249,10 +249,10 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         Item orchidee = partnerManager.findAllPartnerItems(partnerFleuriste.getPartnerId()).get(3);
 
         // Item Boucherie
-        ItemDTO itemDTOsteak = new ItemDTO("steak", 1.0);
-        ItemDTO itemDTO2saucisse = new ItemDTO("saucisse", 1.2);
-        ItemDTO itemDTO3jambon = new ItemDTO("jambon", 1.5);
-        ItemDTO itemDTO4poulet = new ItemDTO("poulet", 1.8);
+        ItemDTO itemDTOsteak = new ItemDTO(1, "steak", 1.0);
+        ItemDTO itemDTO2saucisse = new ItemDTO(2, "saucisse", 1.2);
+        ItemDTO itemDTO3jambon = new ItemDTO(3, "jambon", 1.5);
+        ItemDTO itemDTO4poulet = new ItemDTO(4, "poulet", 1.8);
 
         partnerManager.addItemToPartnerCatalog(partnerBoucherie.getPartnerId(), itemDTOsteak);
         partnerManager.addItemToPartnerCatalog(partnerBoucherie.getPartnerId(), itemDTO2saucisse);
@@ -265,10 +265,10 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         Item poulet = partnerManager.findAllPartnerItems(partnerBoucherie.getPartnerId()).get(3);
 
         // Item Poissonnerie
-        ItemDTO itemDTOsaumon = new ItemDTO("saumon", 1.0);
-        ItemDTO itemDTO2cabillaud = new ItemDTO("cabillaud", 1.2);
-        ItemDTO itemDTO3sardine = new ItemDTO("sardine", 1.5);
-        ItemDTO itemDTO4thon = new ItemDTO("thon", 1.8);
+        ItemDTO itemDTOsaumon = new ItemDTO(1, "saumon", 1.0);
+        ItemDTO itemDTO2cabillaud = new ItemDTO(2, "cabillaud", 1.2);
+        ItemDTO itemDTO3sardine = new ItemDTO(3, "sardine", 1.5);
+        ItemDTO itemDTO4thon = new ItemDTO(4, "thon", 1.8);
 
         partnerManager.addItemToPartnerCatalog(partnerPoissonnerie.getPartnerId(), itemDTOsaumon);
         partnerManager.addItemToPartnerCatalog(partnerPoissonnerie.getPartnerId(), itemDTO2cabillaud);
@@ -281,10 +281,10 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         Item thon = partnerManager.findAllPartnerItems(partnerPoissonnerie.getPartnerId()).get(3);
 
         // Item Fromagerie
-        ItemDTO itemDTOcamembert = new ItemDTO("camembert", 1.0);
-        ItemDTO itemDTO2roquefort = new ItemDTO("roquefort", 1.2);
-        ItemDTO itemDTO3brie = new ItemDTO("brie", 1.5);
-        ItemDTO itemDTO4comte = new ItemDTO("comte", 1.8);
+        ItemDTO itemDTOcamembert = new ItemDTO(1, "camembert", 1.0);
+        ItemDTO itemDTO2roquefort = new ItemDTO(2, "roquefort", 1.2);
+        ItemDTO itemDTO3brie = new ItemDTO(3, "brie", 1.5);
+        ItemDTO itemDTO4comte = new ItemDTO(4, "comte", 1.8);
 
         partnerManager.addItemToPartnerCatalog(partnerFromagerie.getPartnerId(), itemDTOcamembert);
         partnerManager.addItemToPartnerCatalog(partnerFromagerie.getPartnerId(), itemDTO2roquefort);
@@ -382,7 +382,6 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         cartFromagerie.addItem(cartItemFromagerie);
 
         customerRepository.save(customerClement);
-
 
 
         // Perk (Vfp discount in %)

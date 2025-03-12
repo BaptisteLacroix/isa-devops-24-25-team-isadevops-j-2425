@@ -1,8 +1,8 @@
 package fr.univcotedazur.teamj.kiwicard.cli.model;
 
-public record CliItem(long id, String label, double price) {
+public record CliItem(long itemId, String label, double price) {
     @Override
     public String toString() {
-        return "• " + id + " : " + label + "\t\t" + price + "€";
+        return "• " + itemId + " : " + label + "\t\t" + price + "€";
     }
 }
