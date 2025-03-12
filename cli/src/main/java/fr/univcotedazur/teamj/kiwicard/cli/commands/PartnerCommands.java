@@ -15,6 +15,7 @@ import org.springframework.shell.standard.ShellOption;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -173,19 +174,66 @@ public class PartnerCommands {
             Long itemId,
             Integer quantity
     ) {
-        if (itemId == null || quantity == null || quantity <= 0) {
-            System.out.println("Erreur : Veuillez spécifier un ID d'item valide et une quantité supérieure à 0.");
-            return;
-        }
-
+        checkQuantity(quantity);
         CliCartItemToSent cartItemDTO = new CliCartItemToSent(quantity, null, null, itemId);
         CliCart updatedCart = sendCartRequest(customerEmail, cartItemDTO);
 
         if (updatedCart != null) {
-            System.out.println("Article ajouté au panier avec succès : ");
+            System.out.println("Article ajouté au panier avec succès :");
             System.out.println(updatedCart);
         } else {
-            System.out.println("Erreur lors de l'ajout de l'article au panier : ");
+            System.out.println("Erreur lors de l'ajout de l'article au panier.");
+        }
+    }
+
+    /**
+     * Reserves a time slot for a customer's cart.
+     * <p>
+     * Example usage:
+     * reserve-time-slot --customerEmail <customerEmail> --startTime <startTime> --endTime <endTime> --quantity <quantity> --itemId <itemId>
+     *
+     * @param customerEmail The email of the customer to whom the cart belongs.
+     * @param startTime     The start time for the time slot.
+     * @param endTime       The end time for the time slot.
+     * @param quantity      The quantity of the item to be added to the cart.
+     * @param itemId        The ID of the item to be added to the cart.
+     */
+    @ShellMethod("""
+                Reserve a time slot for a customer:
+                Usage: reserve-time-slot --customerEmail <customerEmail> --startTime <startTime> --endTime <endTime> --quantity <quantity> --itemId <itemId>
+            
+                Parameters:
+                    --customerEmail  The email of the customer to whom the cart belongs.
+                    --startTime      The start time for the item in the cart.
+                    --endTime        The end time for the item in the cart.
+                    --quantity       The quantity of the item to add to the cart.
+                    --itemId         The ID of the item to be added to the cart.
+            
+                Example:
+                    reserve-time-slot --customerEmail "customer@example.com" --startTime "2025-03-12T10:00:00" --endTime "2025-03-12T18:00:00" --quantity 2 --itemId 123
+            """)
+    public void reserveTimeSlot(
+            String customerEmail,
+            Long itemId,
+            LocalDateTime startTime,
+            LocalDateTime endTime,
+            Integer quantity
+    ) {
+        checkQuantity(quantity);
+        CliCartItemToSent cartItemDTO = new CliCartItemToSent(quantity, startTime, endTime, itemId);
+        CliCart updatedCart = sendCartRequest(customerEmail, cartItemDTO);
+
+        if (updatedCart != null) {
+            System.out.println("La réservation du créneau horaire a été effectuée avec succès:");
+            System.out.println(updatedCart);
+        } else {
+            System.out.println("Impossible de réserver le créneau horaire.");
+        }
+    }
+
+    private void checkQuantity(int quantity) {
+        if (quantity <= 0) {
+            throw new RuntimeException("Erreur: La quantité doit être supérieur ou égale à 0.");
         }
     }
 

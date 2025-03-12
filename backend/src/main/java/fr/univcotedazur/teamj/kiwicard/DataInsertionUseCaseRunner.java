@@ -293,6 +293,10 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
 
         Item happyKids = new Item("Heure de garde HappyKids", 10.0);
 
+        Partner partnerHappyKids = new Partner("HappyKids", "1 rue des enfants, Nice");
+        partnerHappyKids.addItem(happyKids);
+        partnerRepository.save(partnerHappyKids);
+
         // CartItem with cart and item and quantity Boulange
         CartItem cartItem = new CartItem();
 
