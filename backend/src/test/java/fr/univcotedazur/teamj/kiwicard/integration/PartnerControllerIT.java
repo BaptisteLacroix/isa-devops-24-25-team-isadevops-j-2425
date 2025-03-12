@@ -22,7 +22,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -256,8 +256,8 @@ class PartnerControllerIT extends BaseUnitTest {
     @Test
     void listAllPerksFromPartnerOK() throws Exception {
         Partner partner = new Partner(chezJohnCreationDTO);
-        VfpDiscountInPercentPerk perk1 = new VfpDiscountInPercentPerk(0.1, LocalDateTime.of(2025, 6, 1, 10, 0, 0), LocalDateTime.of(2025, 6, 1, 12, 0, 0));
-        VfpDiscountInPercentPerk perk2 = new VfpDiscountInPercentPerk(0.2, LocalDateTime.of(2025, 6, 1, 10, 0, 0), LocalDateTime.of(2025, 6, 1, 12, 0, 0));
+        VfpDiscountInPercentPerk perk1 = new VfpDiscountInPercentPerk(0.1, LocalTime.of(10, 0, 0), LocalTime.of(12, 0, 0));
+        VfpDiscountInPercentPerk perk2 = new VfpDiscountInPercentPerk(0.2, LocalTime.of(10, 0, 0), LocalTime.of(12, 0, 0));
         partner.addPerk(perk1);
         partner.addPerk(perk2);
         partnerRepository.save(partner);

@@ -2,12 +2,7 @@ package fr.univcotedazur.teamj.kiwicard;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
-import fr.univcotedazur.teamj.kiwicard.entities.Cart;
-import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
-import fr.univcotedazur.teamj.kiwicard.entities.Customer;
-import fr.univcotedazur.teamj.kiwicard.entities.Item;
-import fr.univcotedazur.teamj.kiwicard.entities.Partner;
-import fr.univcotedazur.teamj.kiwicard.entities.Payment;
+import fr.univcotedazur.teamj.kiwicard.entities.*;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.TimedDiscountInPercentPerk;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.VfpDiscountInPercentPerk;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
@@ -407,7 +402,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
 
 
         // Perk (Vfp discount in %)
-        VfpDiscountInPercentPerk perk = new VfpDiscountInPercentPerk(0.05, LocalDateTime.of(2025, 6, 1, 9, 0, 0), LocalDateTime.of(2025, 6, 1, 12, 0, 0));
+        VfpDiscountInPercentPerk perk = new VfpDiscountInPercentPerk(0.05, LocalTime.of(8, 0), LocalTime.of(12, 0));
         TimedDiscountInPercentPerk perk2 = new TimedDiscountInPercentPerk(LocalTime.now(), 20);
 
         perkRepository.save(perk);
