@@ -1,20 +1,29 @@
 package fr.univcotedazur.teamj.kiwicard.cli.commands;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.univcotedazur.teamj.kiwicard.cli.model.CliCart;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliCustomerSubscribe;
+import fr.univcotedazur.teamj.kiwicard.cli.model.CliItem;
+import fr.univcotedazur.teamj.kiwicard.cli.model.CliPurchase;
 import fr.univcotedazur.teamj.kiwicard.cli.model.error.CliError;
 import fr.univcotedazur.teamj.kiwicard.cli.CliSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellOption;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+
+import java.util.stream.Collectors;
+
+import static fr.univcotedazur.teamj.kiwicard.cli.constants.Constants.LOGGED_IN_ID_PLACEHOLDER;
 
 @ShellComponent
 public class CustomerCommands {
 
     public static final String BASE_URI = "/customers";
-
+    public static final String BASE_CART_URI = "/cart";
     private final WebClient webClient;
 
     private final CliSession cliSession;
@@ -66,5 +75,21 @@ public class CustomerCommands {
                 .block();
         cliSession.logIn(email);
         return "Register client successfuly, you are now logged in as " + email;
+    }
+
+    @ShellMethod(value = "Pay cart",key = "customer-email")
+    public String payCommand(@ShellOption(defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail) {
+        customerEmail = cliSession.tryInjectingCustomerEmail(customerEmail);
+        if (customerEmail == null) return "Invalid customer email";
+        System.out.println("Récupération du cart du customer " + customerEmail + " : ");
+
+        return webClient.post()
+                .uri( BASE_CART_URI + "/" + customerEmail + "/validate")
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(CliError.class)
+                        .flatMap(error -> Mono.error(new RuntimeException(error.errorMessage()))))
+                .bodyToMono(CliPurchase.class)
+                .map(res -> "Cart was purchased successfully, purchase details : \n" + res.toString().replaceAll("(?m)^", "\t"))
+                .block();
     }
 }
