@@ -2,7 +2,6 @@ package fr.univcotedazur.teamj.kiwicard.entities;
 
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -19,6 +18,10 @@ public class Purchase {
     @JoinColumn(name = "cart_id", unique = true)
     private Cart cart;
 
+    @ManyToOne
+    @JoinColumn(name = "partner_id")
+    private Partner partner;
+
     @NotNull
     @Column
     private boolean alreadyConsumedInAPerk;
@@ -30,24 +33,6 @@ public class Purchase {
         this.payment = payment;
         this.cart = cart;
         this.alreadyConsumedInAPerk = false;
-    }
-
-    public Long getPurchaseId() {
-        return purchaseId;
-    }
-
-    public void setPurchaseId(Long purchaseId) {
-        this.purchaseId = purchaseId;
-    }
-
-
-    @NotNull
-    public boolean isAlreadyConsumedInAPerk() {
-        return alreadyConsumedInAPerk;
-    }
-
-    public void setAlreadyConsumedInAPerk(@NotNull boolean alreadyConsumedInAPerk) {
-        this.alreadyConsumedInAPerk = alreadyConsumedInAPerk;
     }
 
     public Cart getCart() {
@@ -64,5 +49,9 @@ public class Purchase {
 
     public void setPayment(Payment payment) {
         this.payment = payment;
+    }
+
+    public void setPartner(Partner partner) {
+        this.partner = partner;
     }
 }

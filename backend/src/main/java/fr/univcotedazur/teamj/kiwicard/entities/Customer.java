@@ -1,18 +1,32 @@
 package fr.univcotedazur.teamj.kiwicard.entities;
 
-import jakarta.persistence.*;
+import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 public class Customer {
 
     @Id
-    @GeneratedValue
-    private Long customerId;
+    @NotBlank
+    @Column
+    private String email;
+
+    @NotBlank
+    @Column
+    private String cardNumber;
 
     @NotBlank
     @Column
@@ -25,10 +39,6 @@ public class Customer {
     @NotBlank
     @Column
     private String address;
-
-    @NotBlank
-    @Column
-    private String email;
 
     @NotNull
     @Column
@@ -53,13 +63,27 @@ public class Customer {
         this.vfp = vfp;
     }
 
-    // Fait pour faire passer les tests, à refaire !!
+    public Customer(CustomerDTO customerDTO) {
+        this.email = customerDTO.email();
+        this.firstName = customerDTO.firstName();
+        this.surname = customerDTO.surname();
+        this.vfp = customerDTO.vfp();
+    }
+
+    // FIXME: Fait pour faire passer les tests, à refaire !!
     public Customer(String firstName, String email) {
         this.firstName = firstName;
         this.email = email;
     }
 
-
+    public Customer(CustomerSubscribeDTO customerSubscribeDTO, String cardNumber) {
+        this.firstName = customerSubscribeDTO.firstName();
+        this.surname = customerSubscribeDTO.surname();
+        this.address = customerSubscribeDTO.address();
+        this.email = customerSubscribeDTO.email();
+        this.vfp = false;
+        this.cardNumber = cardNumber;
+    }
 
     public void setCart(Cart cart) {
         this.cart = cart;
@@ -69,36 +93,12 @@ public class Customer {
         return cart;
     }
 
-    public void removeCart() {
-        this.cart = null;
-    }
-
-    public Long getCustomerId() {
-        return customerId;
-    }
-
-    public void setCustomerId(Long customerId) {
-        this.customerId = customerId;
-    }
-
-    public void addPurchase(Purchase purchase) {
-        this.purchaseList.add(purchase);
-    }
-
     public @NotBlank String getFirstName() {
         return firstName;
     }
 
-    public void setFirstName(@NotBlank String firstName) {
-        this.firstName = firstName;
-    }
-
     public @NotBlank String getSurname() {
         return surname;
-    }
-
-    public void setSurname(@NotBlank String surname) {
-        this.surname = surname;
     }
 
     public @NotBlank String getAddress() {
@@ -126,4 +126,19 @@ public class Customer {
         this.vfp = vfp;
     }
 
+    public String getCardNumber() {
+        return cardNumber;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Customer customer = (Customer) o;
+        return Objects.equals(email, customer.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(email);
+    }
 }

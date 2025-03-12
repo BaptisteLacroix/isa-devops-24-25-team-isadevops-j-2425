@@ -1,4 +1,4 @@
 package fr.univcotedazur.teamj.kiwicard.dto;
 
-public class PaymentDTO {
+public record PaymentDTO(String cardNumber, double amount, boolean authorized) {
 }

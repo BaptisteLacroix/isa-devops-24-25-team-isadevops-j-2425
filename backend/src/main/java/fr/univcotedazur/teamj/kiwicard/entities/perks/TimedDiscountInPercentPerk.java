@@ -1,47 +1,76 @@
 package fr.univcotedazur.teamj.kiwicard.entities.perks;
 
+import fr.univcotedazur.teamj.kiwicard.dto.perks.TimedDiscountInPercentPerkDTO;
+import fr.univcotedazur.teamj.kiwicard.entities.Customer;
+import fr.univcotedazur.teamj.kiwicard.mappers.PerkVisitor;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 public class TimedDiscountInPercentPerk extends AbstractPerk{
 
+    /**
+     * The time after which the discount can be applied
+     */
     @NotNull
     @Column
-    private LocalDateTime time;
+    private LocalTime time;
 
     @NotNull
     @Column
-    private double quantity;
+    private double discountRate;
 
     public TimedDiscountInPercentPerk() {
     }
 
-    public TimedDiscountInPercentPerk(LocalDateTime time, double quantity) {
+    public TimedDiscountInPercentPerk(LocalTime time, double discountRate) {
         this.time = time;
-        this.quantity = quantity;
+        this.discountRate = discountRate;
     }
 
-    public @NotNull LocalDateTime getTime() {
+    public TimedDiscountInPercentPerk(TimedDiscountInPercentPerkDTO dto) {
+        this.setPerkId(dto.perkId());
+        this.time = dto.time();
+        this.discountRate = dto.discountRate();
+    }
+
+    public @NotNull LocalTime getTime() {
         return time;
     }
 
-    public void setTime(@NotNull LocalDateTime time) {
+    public void setTime(@NotNull LocalTime time) {
         this.time = time;
     }
 
     @NotNull
-    public double getQuantity() {
-        return quantity;
+    public double getDiscountRate() {
+        return discountRate;
     }
 
-    public void setQuantity(@NotNull double quantity) {
-        this.quantity = quantity;
+    public void setDiscountRate(@NotNull double quantity) {
+        this.discountRate = quantity;
     }
 
+    @Override
+    public String toString() {
+        return "Discount of " + discountRate + "% after " + time + " on all items";
+    }
 
+    @Override
+    public boolean apply(PerkApplicationVisitor visitor) {
+        return visitor.visit(this);
+    }
+
+    @Override
+    public boolean isConsumableFor(Customer customer) {
+        return LocalTime.now().isAfter(time);
+    }
+
+    @Override
+    public <T> T accept(PerkVisitor<T> visitor) {
+        return visitor.toDTO(this);
+    }
 }
