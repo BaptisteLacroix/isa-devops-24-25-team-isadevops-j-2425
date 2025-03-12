@@ -47,6 +47,8 @@ public class PerksCommands {
                     list-perks --customer-email pierre.dupont@email.com
             """)
     public String listPerks(String customerEmail) {
+        customerEmail = cliSession.tryInjectingCustomerEmail(customerEmail);
+        if (customerEmail == null) return "Invalid customer email";
         return webClient.get()
                 .uri(BASE_URI + "/consumable?consumerEmail=" + customerEmail)
                 .retrieve()
