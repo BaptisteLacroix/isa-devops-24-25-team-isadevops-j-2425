@@ -8,14 +8,6 @@
 - [Clément LEFEVRE](https://github.com/Firelods)
 - [Roxane BACON](https://github.com/RoxaneBacon)
 
-Cette étude de cas illustre les différentes technologies mises en œuvre dans le projet **KIWICARD**.
-Ce projet innovant s’inscrit dans une démarche de dynamisation des commerces de proximité en proposant une solution de
-fidélisation basée sur une carte multi-fidélités.
-Au lieu de concentrer les avantages sur un seul magasin, cette approche permet aux clients de cumuler des points et de
-bénéficier d’avantages dans l’ensemble d’une zone commerciale.
-Ainsi, les commerçants locaux, en collaborant avec les collectivités, peuvent rivaliser avec les grands centres
-commerciaux en attirant et en fidélisant une clientèle diverse et engagée.
-
 ---
 
 ## Technologies Requises
@@ -24,7 +16,7 @@ Pour faire fonctionner ce code de démonstration, vous devez disposer des logici
 
 - **Configuration d’environnement et build :** Maven ≥3.9.9 (avec wrapper Maven fourni)
 - **Langage d’implémentation :** Java ≥21 avec Spring Boot 3.4.1
-- **Base de données :** PostgreSQL 17.2 (en image Docker)
+- **Base de données :** PostgreSQL 17.2 (en image Docker) sur le port 5432 OU docker pour lancer le docker-compose à la racine
 - **Containerisation :** Docker Engine (avec Compose) ≥27.x
 
 ---
@@ -47,10 +39,10 @@ La documentation de build et d’exécution est divisée en deux parties: une ve
 «build et exécution manuels». La première méthode utilise Docker Compose pour orchestrer l’ensemble des services, tandis
 que la seconde décrit en détail chaque étape de compilation et d’exécution.
 
-### Tout Containerisé
+### Tout Conteneurisé
 
 Le système se compose de plusieurs sous-systèmes: le backend Spring Boot, une interface en ligne de commande (CLI) et
-des services externes, le tout containerisé. Le fichier Docker Compose orchestre le déploiement en incluant, entre
+des services externes, le tout conteneurisé. Le fichier Docker Compose orchestre le déploiement en incluant, entre
 autres, l’image officielle de PostgreSQL qui est configurée à l’aide de variables d’environnement (voir le
 chapitre [Persistance](chapters/Persistence.md)).
 
@@ -71,8 +63,6 @@ docker compose up -d
 
 Lorsque tous les containers sont démarrés et que leurs vérifications de santé sont validées, vous pouvez vous connecter
 au container CLI avec:
-
-(TODO)
 
 ```bash
 docker attach cli
