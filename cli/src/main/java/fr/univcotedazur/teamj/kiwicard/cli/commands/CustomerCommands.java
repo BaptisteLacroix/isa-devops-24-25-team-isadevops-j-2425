@@ -1,9 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.cli.commands;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.univcotedazur.teamj.kiwicard.cli.model.CliCart;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliCustomerSubscribe;
-import fr.univcotedazur.teamj.kiwicard.cli.model.CliItem;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliPurchase;
 import fr.univcotedazur.teamj.kiwicard.cli.model.error.CliError;
 import fr.univcotedazur.teamj.kiwicard.cli.CliSession;
@@ -14,8 +11,6 @@ import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
-import java.util.stream.Collectors;
 
 import static fr.univcotedazur.teamj.kiwicard.cli.constants.Constants.LOGGED_IN_ID_PLACEHOLDER;
 
@@ -86,7 +81,7 @@ public class CustomerCommands {
      * @return Confirmation message with purchase details or error message
      */
     @ShellMethod(value="Pay cart", key="pay-cart")
-    public String payCommand(@ShellOption(defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail) {
+    public String payCart(@ShellOption(defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail) {
         customerEmail = cliSession.tryInjectingCustomerEmail(customerEmail);
         if (customerEmail == null) return "Invalid customer email";
         System.out.println("Récupération du cart du customer " + customerEmail + " : ");

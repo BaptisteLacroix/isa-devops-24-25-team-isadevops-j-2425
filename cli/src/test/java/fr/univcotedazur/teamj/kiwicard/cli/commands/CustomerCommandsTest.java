@@ -1,9 +1,7 @@
 package fr.univcotedazur.teamj.kiwicard.cli.commands;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.univcotedazur.teamj.kiwicard.cli.CliSession;
-import fr.univcotedazur.teamj.kiwicard.cli.model.CliCart;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -70,7 +68,7 @@ class CustomerCommandsTest {
     }
 
     @Test
-    void payCommandTest() throws InterruptedException {
+    void payCartTest() throws InterruptedException {
         mockWebServer.enqueue(new MockResponse()
                 .setBody("""
                         {
@@ -98,7 +96,7 @@ class CustomerCommandsTest {
                         }
                         """).addHeader("Content-Type", "application/json"));
 
-        String result = customerCommands.payCommand("doesnotmatter@yahoo.fr");
+        String result = customerCommands.payCart("doesnotmatter@yahoo.fr");
 
         // Verify the request made to the correct endpoint
         RecordedRequest recordedRequest = mockWebServer.takeRequest();
