@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
+import java.time.ZoneId;
+import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -190,6 +192,44 @@ class PartnerCommandsTest {
         String customerEmail = "customer@example.com";
 
         commands.addItemToCart(customerEmail, 1L, 2);
+
+        // Verify that the request was made to the correct endpoint
+        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+        assertEquals("/cart/" + customerEmail, recordedRequest.getPath());
+        assertEquals("PUT", recordedRequest.getMethod());
+    }
+
+    @Test
+    void addReservationToCartTest() throws InterruptedException {
+        mockWebServer.enqueue(new MockResponse()
+                .setBody("""
+                        {
+                            "cartId": 1,
+                            "partner": {
+                              "id": 6,
+                              "name": "HappyKids",
+                              "address": "1 rue des enfants, Nice"
+                            },
+                            "items": [
+                              {
+                                "quantity": 1,
+                                "item": {
+                                  "itemId": 21,
+                                  "label": "Heure de garde HappyKids",
+                                  "price": 1.0
+                                }
+                              }
+                            ],
+                            "perksList": []
+                          }
+                        """)
+                .addHeader("Content-Type", "application/json"));
+
+        String customerEmail = "customer@example.com";
+
+        commands.reserveTimeSlot(customerEmail, 1L,
+        new Date().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
+        new Date().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().plusHours(1), 1);
 
         // Verify that the request was made to the correct endpoint
         RecordedRequest recordedRequest = mockWebServer.takeRequest();

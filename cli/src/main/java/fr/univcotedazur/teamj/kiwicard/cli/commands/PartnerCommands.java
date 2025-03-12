@@ -2,7 +2,6 @@ package fr.univcotedazur.teamj.kiwicard.cli.commands;
 
 import fr.univcotedazur.teamj.kiwicard.cli.CliSession;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliCart;
-import fr.univcotedazur.teamj.kiwicard.cli.model.CliCartItem;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliCartItemToSent;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliItem;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliPartner;
@@ -175,9 +174,8 @@ public class PartnerCommands {
             Long itemId,
             Integer quantity
     ) {
-        if (itemId == null || quantity == null || quantity <= 0) {
-            System.out.println("Error: itemId and quantity must be provided, and quantity must be greater than zero.");
-            return;
+        if (quantity <= 0) {
+            throw new RuntimeException("Error: Quantity must be greater than zero.");
         }
 
         CliCartItemToSent cartItemDTO = new CliCartItemToSent(quantity, null, null, itemId);
@@ -188,6 +186,54 @@ public class PartnerCommands {
             System.out.println(updatedCart);
         } else {
             System.out.println("Failed to add the item to the cart.");
+        }
+    }
+
+    /**
+     * Reserves a time slot for a customer's cart.
+     * <p>
+     * Example usage:
+     * reserve-time-slot --customerEmail <customerEmail> --startTime <startTime> --endTime <endTime> --quantity <quantity> --itemId <itemId>
+     *
+     * @param customerEmail The email of the customer to whom the cart belongs.
+     * @param startTime     The start time for the time slot.
+     * @param endTime       The end time for the time slot.
+     * @param quantity      The quantity of the item to be added to the cart.
+     * @param itemId        The ID of the item to be added to the cart.
+     */
+    @ShellMethod("""
+                Reserve a time slot for a customer:
+                Usage: reserve-time-slot --customerEmail <customerEmail> --startTime <startTime> --endTime <endTime> --quantity <quantity> --itemId <itemId>
+            
+                Parameters:
+                    --customerEmail  The email of the customer to whom the cart belongs.
+                    --startTime      The start time for the item in the cart.
+                    --endTime        The end time for the item in the cart.
+                    --quantity       The quantity of the item to add to the cart.
+                    --itemId         The ID of the item to be added to the cart.
+            
+                Example:
+                    reserve-time-slot --customerEmail "customer@example.com" --startTime "2025-03-12T10:00:00" --endTime "2025-03-12T18:00:00" --quantity 2 --itemId 123
+            """)
+    public void reserveTimeSlot(
+            String customerEmail,
+            Long itemId,
+            LocalDateTime startTime,
+            LocalDateTime endTime,
+            Integer quantity
+    ) {
+        if (quantity <= 0) {
+            throw new RuntimeException("Erreur: La quantité doit être supérieur ou égale à 0.");
+        }
+
+        CliCartItemToSent cartItemDTO = new CliCartItemToSent(quantity, startTime, endTime, itemId);
+        CliCart updatedCart = sendCartRequest(customerEmail, cartItemDTO);
+
+        if (updatedCart != null) {
+            System.out.println("La réservation du créneau horaire a été effectuée avec succès:");
+            System.out.println(updatedCart);
+        } else {
+            System.out.println("Impossible de réserver le créneau horaire.");
         }
     }
 

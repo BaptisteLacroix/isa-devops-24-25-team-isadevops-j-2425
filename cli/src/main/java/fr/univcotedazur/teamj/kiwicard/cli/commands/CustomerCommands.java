@@ -84,7 +84,7 @@ public class CustomerCommands {
     public String payCart(@ShellOption(defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail) {
         customerEmail = cliSession.tryInjectingCustomerEmail(customerEmail);
         if (customerEmail == null) return "Invalid customer email";
-        System.out.println("Validation et paiment du panier du client " + customerEmail + " : ");
+        System.out.println("Validation et paiement du panier du client " + customerEmail + " : ");
 
         return webClient.post()
                 .uri( BASE_CART_URI + "/" + customerEmail + "/validate")
