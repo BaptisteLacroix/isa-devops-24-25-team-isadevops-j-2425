@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalTime;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -58,8 +59,8 @@ class PartnerControllerIT extends BaseUnitTest {
     void setUp() {
         chezJohnCreationDTO = new PartnerCreationDTO("Chez John", " 2 boulevard Wilson");
         chezPaulCreationDTO = new PartnerCreationDTO("Chez Paul", "3 rue de la Paix");
-        croissantDTO = new ItemDTO("Croissant", 1.2);
-        painAuChocolatDTO = new ItemDTO("Pain au chocolat", 1.8);
+        croissantDTO = new ItemDTO(1, "Croissant", 1.2);
+        painAuChocolatDTO = new ItemDTO(2, "Pain au chocolat", 1.8);
 
         partnerRepository.deleteAll();
     }
@@ -255,8 +256,8 @@ class PartnerControllerIT extends BaseUnitTest {
     @Test
     void listAllPerksFromPartnerOK() throws Exception {
         Partner partner = new Partner(chezJohnCreationDTO);
-        VfpDiscountInPercentPerk perk1 = new VfpDiscountInPercentPerk(0.1);
-        VfpDiscountInPercentPerk perk2 = new VfpDiscountInPercentPerk(0.2);
+        VfpDiscountInPercentPerk perk1 = new VfpDiscountInPercentPerk(0.1, LocalTime.of(10, 0, 0), LocalTime.of(12, 0, 0));
+        VfpDiscountInPercentPerk perk2 = new VfpDiscountInPercentPerk(0.2, LocalTime.of(10, 0, 0), LocalTime.of(12, 0, 0));
         partner.addPerk(perk1);
         partner.addPerk(perk2);
         partnerRepository.save(partner);

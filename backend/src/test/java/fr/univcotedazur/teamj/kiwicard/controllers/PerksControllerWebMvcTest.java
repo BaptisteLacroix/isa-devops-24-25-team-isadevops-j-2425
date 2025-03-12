@@ -57,7 +57,7 @@ class PerksControllerWebMvcTest extends BaseUnitTest {
 
     @BeforeEach
     void setUp() {
-        perk1 = new NPurchasedMGiftedPerkDTO(1L, 3, new ItemDTO("Pain au chocolat", 1.5), 1);
+        perk1 = new NPurchasedMGiftedPerkDTO(1L, 3, new ItemDTO(1, "Pain au chocolat", 1.5), 1);
         perk2 = new TimedDiscountInPercentPerkDTO(2L, LocalTime.now().minusMinutes(10), 30);
     }
 

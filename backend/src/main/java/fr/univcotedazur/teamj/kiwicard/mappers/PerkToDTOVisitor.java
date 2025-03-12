@@ -37,7 +37,9 @@ public class PerkToDTOVisitor implements PerkVisitor<IPerkDTO> {
     public IPerkDTO toDTO(VfpDiscountInPercentPerk perk) {
         return new VfpDiscountInPercentPerkDTO(
                 perk.getPerkId(),
-                perk.getDiscountRate()
+                perk.getDiscountRate(),
+                perk.getStartHour(),
+                perk.getEndHour()
         );
     }
 }

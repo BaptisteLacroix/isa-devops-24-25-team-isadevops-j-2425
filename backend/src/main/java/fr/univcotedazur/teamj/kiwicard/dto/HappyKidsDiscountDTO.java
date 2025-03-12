@@ -1,4 +1,7 @@
 package fr.univcotedazur.teamj.kiwicard.dto;
 
-public record HappyKidsDiscountDTO() {
+public record HappyKidsDiscountDTO(
+        double price
+) {
+
 }

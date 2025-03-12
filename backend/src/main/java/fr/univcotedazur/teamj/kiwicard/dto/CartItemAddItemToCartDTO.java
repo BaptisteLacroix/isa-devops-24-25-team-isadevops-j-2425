@@ -4,18 +4,18 @@ import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
 
 import java.time.LocalDateTime;
 
-public record CartItemDTO(
+public record CartItemAddItemToCartDTO(
         int quantity,
         LocalDateTime startTime,
         LocalDateTime endTime,
-        ItemDTO item
+        long itemId
 ) {
-    public CartItemDTO(CartItem entity) {
+    public CartItemAddItemToCartDTO(CartItem entity) {
         this(
                 entity.getQuantity(),
                 entity.getStartTime(),
                 entity.getEndTime(),
-                new ItemDTO(entity.getItem())
+                entity.getItem().getItemId()
         );
     }
 }
