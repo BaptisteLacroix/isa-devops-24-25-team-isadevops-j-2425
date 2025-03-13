@@ -100,7 +100,7 @@ class CartServiceTest extends BaseUnitTest {
         Cart cart = mock(Cart.class);
         when(cart.getCartId()).thenReturn(1L);
         when(cart.getPartner()).thenReturn(partner);
-        when(cart.getItemList()).thenReturn(new HashSet<>(List.of(cartItem)));
+        when(cart.getItems()).thenReturn(new HashSet<>(List.of(cartItem)));
         when(cart.getPerksToUse()).thenReturn(new ArrayList<>());
 
         when(customer.getEmail()).thenReturn("customer@email.com");

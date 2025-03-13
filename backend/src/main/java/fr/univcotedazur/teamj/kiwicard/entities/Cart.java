@@ -133,6 +133,6 @@ public class Cart {
     }
 
     public double getTotalPrice() {
-        return getItemList().stream().mapToDouble(CartItem::getPrice).sum();
+        return this.getItems().stream().mapToDouble(CartItem::getPrice).sum();
     }
 }

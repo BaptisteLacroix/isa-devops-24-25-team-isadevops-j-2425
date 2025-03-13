@@ -3,8 +3,6 @@ package fr.univcotedazur.teamj.kiwicard.components;
 import fr.univcotedazur.teamj.kiwicard.BaseUnitTest;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.PaymentDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.*;
 import fr.univcotedazur.teamj.kiwicard.exceptions.*;
 import fr.univcotedazur.teamj.kiwicard.repositories.IPurchaseRepository;
@@ -12,8 +10,6 @@ import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
