@@ -11,7 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class CustomerCommandsTest {
 
@@ -100,6 +101,44 @@ class CustomerCommandsTest {
         RecordedRequest recordedRequest = mockWebServer.takeRequest();
         assertEquals("/cart/doesnotmatter@yahoo.fr/validate", recordedRequest.getPath());
         assertEquals("POST", recordedRequest.getMethod());
+
+        assertNotNull(result);
+    }
+
+    @Test
+    void getCartTest() throws InterruptedException {
+        mockWebServer.enqueue(new MockResponse()
+                .setBody("""
+                        {
+                          "cartId": 12,
+                          "partner": {
+                            "id": 2,
+                            "name": "Fleuriste",
+                            "address": "13 rue des roses, Lorgues"
+                          },
+                          "items": [
+                            {
+                              "quantity": 2,
+                              "startTime": null,
+                              "endTime": null,
+                              "item": {
+                                "itemId": 5,
+                                "label": "rose",
+                                "price": 1.0
+                              }
+                            }
+                          ],
+                          "perksList": []
+                        }
+                        
+                        """).addHeader("Content-Type", "application/json"));
+
+        String result = customerCommands.getCart("doesnotmatter@yahoo.fr");
+
+        // Verify the request made to the correct endpoint
+        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+        assertEquals("/cart/doesnotmatter@yahoo.fr", recordedRequest.getPath());
+        assertEquals("GET", recordedRequest.getMethod());
 
         assertNotNull(result);
     }

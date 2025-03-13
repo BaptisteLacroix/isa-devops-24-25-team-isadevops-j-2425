@@ -95,10 +95,10 @@ public class CartController {
      * @return A ResponseEntity containing the CartDTO representing the customer's cart, with HTTP status 200 (OK).
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
      */
-    @GetMapping(path = "/{customerEmail}", consumes = APPLICATION_JSON_VALUE)
-    public ResponseEntity<CartDTO> getCart(@PathVariable String customerEmail) throws UnknownCustomerEmailException {
+    @GetMapping(path = "/{customerEmail}")
+    public ResponseEntity<CartDTO> getCart(@PathVariable String customerEmail) throws UnknownCustomerEmailException, NoCartException {
         return ResponseEntity.ok()
-                .body(finder.findCustomerCart(customerEmail).orElseThrow());
+                .body(finder.findCustomerCart(customerEmail).orElseThrow(() -> new NoCartException(customerEmail)));
     }
 }
 
