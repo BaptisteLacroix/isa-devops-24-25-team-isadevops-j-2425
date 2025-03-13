@@ -22,7 +22,7 @@ public class MonitoringController {
         this.purchaseCatalog = purchaseCatalog;
     }
 
-    @GetMapping("/partnerHistory/{partnerId}}")
+    @GetMapping("/partnerHistory/{partnerId}")
     public List<Purchase> partnerHistory(@PathVariable long partnerId) throws UnknownPartnerIdException {
         return purchaseCatalog.findPurchaseByPartnerId(partnerId);
     }
