@@ -42,16 +42,14 @@ public class CustomerCommands {
      * @return Message de confirmation ou message d'erreur
      */
     @ShellMethod("""
-            
+
                 Register a new client:
                 Usage: register-client --surname <surname> --firstname <firstname> --email <email> --address <address>
-            
                 Parameters:
                     --surname   The surname of the client.
                     --firstname The first name of the client.
                     --email     The email address of the client.
                     --address   The address of the client.
-            
                 Example:
                     register-client --surname "Doe" --firstname "John" --email "john.doe@example.com" --address "123 Main St, City, Country"
             """)
@@ -80,14 +78,21 @@ public class CustomerCommands {
      * @param customerEmail The email of the customer whose cart should be paid. If unspecified, uses the logged-in customer.
      * @return Confirmation message with purchase details or error message
      */
-    @ShellMethod(value="Pay cart", key="pay-cart")
+    @ShellMethod(value = """
+                    Pay a customer's cart:
+                    Usage: pay-cart --customer-email <customer-email>
+                    Parameters:
+                        --customer-email The email of the customer whose cart should be paid.
+                    Example:
+                        pay-cart --customer-email "
+            """, key = "pay-cart")
     public String payCart(@ShellOption(defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail) {
         customerEmail = cliSession.tryInjectingCustomerEmail(customerEmail);
         if (customerEmail == null) return "Erreur : Veuillez vous connecter ou spécifier un email de client valide.";
         System.out.println("Validation et paiement du panier du client " + customerEmail + " : ");
 
         return webClient.post()
-                .uri( BASE_CART_URI + "/" + customerEmail + "/validate")
+                .uri(BASE_CART_URI + "/" + customerEmail + "/validate")
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(CliError.class)
                         .flatMap(error -> Mono.error(new RuntimeException(error.errorMessage()))))
