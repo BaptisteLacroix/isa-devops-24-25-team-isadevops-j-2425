@@ -2,7 +2,6 @@ package fr.univcotedazur.teamj.kiwicard.entities;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
-import fr.univcotedazur.teamj.kiwicard.entities.perks.PerkType;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,6 +13,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -47,7 +47,7 @@ public class Cart {
      */
     @ManyToMany
     @Column
-    private List<AbstractPerk> perkUsed = new ArrayList<>();
+    private List<AbstractPerk> perksUsed = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "cart_id")
@@ -57,7 +57,13 @@ public class Cart {
     }
 
     public Cart(CartDTO cartDTO) {
-        this.cartId = cartDTO.CartId();
+        this.cartId = cartDTO.cartId();
+    }
+
+    public Cart(Partner partner, Set<CartItem> itemList, List<AbstractPerk> perks) {
+        this.partner = partner;
+        this.itemList = itemList;
+        this.perksToUse = perks;
     }
 
     public void setPartner(Partner partner) {
@@ -68,26 +74,19 @@ public class Cart {
         return cartId;
     }
 
-    public void addPerk(AbstractPerk perk) {
+    public void addPerkToUse(AbstractPerk perk) {
         this.perksToUse.add(perk);
-    }
-
-    public void usePerk(AbstractPerk perk, Customer customer) {
-        if (perk.getPerkType().equals(PerkType.INTERMEDIATE)){
-            if (!perk.apply(customer)) {
-                throw new IllegalArgumentException("The perk cannot be applied");
-            }
-            this.perkUsed.add(perk);
-            this.perksToUse.remove(perk);
-        }
-        else{
-            this.addPerk(perk);
-        }
-
     }
 
     public void addItem(CartItem item) {
         this.itemList.add(item);
+    }
+
+    public List<CartItem> getHKItems(@Value("${happykids.item.name}") String itemName) {
+        return this.itemList.stream()
+                .filter(item -> item.getItem().getLabel().contains(itemName))
+                .toList();
+
     }
 
     public CartItem getItemById(Long itemId) {
@@ -126,5 +125,14 @@ public class Cart {
     public double addToTotalPercentageReduction(double amount) {
         this.totalPercentageReduction += amount;
         return this.totalPercentageReduction;
+    }
+
+    public double resetTotalPercentageReduction() {
+        this.totalPercentageReduction = 0;
+        return this.totalPercentageReduction;
+    }
+
+    public double getTotalPrice() {
+        return getItemList().stream().mapToDouble(CartItem::getPrice).sum();
     }
 }

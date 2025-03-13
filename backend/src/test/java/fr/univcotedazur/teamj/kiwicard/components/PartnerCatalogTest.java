@@ -73,11 +73,10 @@ class PartnerCatalogTest extends BaseUnitTest {
     @Transactional
     void findPartnerByIdOK() {
         when(partnerRepository.findById(mockPartner.getPartnerId())).thenReturn(Optional.of(mockPartner));
-        PartnerDTO partnerSaved = new PartnerDTO(mockPartner);
 
-        PartnerDTO partnerFound = assertDoesNotThrow(() -> partnerManager.findPartnerById(mockPartner.getPartnerId()));
+        Partner partnerFound = assertDoesNotThrow(() -> partnerManager.findPartnerById(mockPartner.getPartnerId()));
 
-        assertEquals(partnerSaved, partnerFound);
+        assertEquals(mockPartner, partnerFound);
     }
 
     @Test
@@ -91,7 +90,7 @@ class PartnerCatalogTest extends BaseUnitTest {
         when(partnerRepository.findById(mockPartner.getPartnerId())).thenReturn(Optional.of(mockPartner));
 
 
-        ItemDTO itemDTO = new ItemDTO("Croissant", 1.0);
+        ItemDTO itemDTO = new ItemDTO(1, "Croissant", 1.0);
         assertDoesNotThrow(() -> partnerManager.addItemToPartnerCatalog(mockPartner.getPartnerId(), itemDTO));
 
         verify(mockPartner).addItem(any(Item.class));
@@ -104,7 +103,7 @@ class PartnerCatalogTest extends BaseUnitTest {
         when(itemRepository.findById(painAuChocolat.getItemId())).thenReturn(Optional.of(painAuChocolat));
         when(mockPartner.getItemList()).thenReturn(List.of(painAuChocolat));
         when(partnerRepository.findById(mockPartner.getPartnerId())).thenReturn(Optional.of(mockPartner));
-        ItemDTO croissantDTO = new ItemDTO("Croissant", 1.0);
+        ItemDTO croissantDTO = new ItemDTO(1, "Croissant", 1.0);
 
         assertDoesNotThrow(() -> partnerManager.addItemToPartnerCatalog(mockPartner.getPartnerId(), croissantDTO));
 
@@ -114,7 +113,7 @@ class PartnerCatalogTest extends BaseUnitTest {
     @Test
     @Transactional
     void addItemToPartnerCatalogWithPartnerNotFoundShouldThrow() {
-        ItemDTO itemDTO = new ItemDTO("Croissant", 1.0);
+        ItemDTO itemDTO = new ItemDTO(1, "Croissant", 1.0);
 
         assertThrows(UnknownPartnerIdException.class, () -> partnerManager.addItemToPartnerCatalog(mockPartner.getPartnerId(), itemDTO));
     }

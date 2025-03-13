@@ -27,18 +27,15 @@ public class NPurchasedMGiftedPerk extends AbstractPerk {
     private Item item;
 
     public NPurchasedMGiftedPerk() {
-        super(PerkType.INTERMEDIATE);
     }
 
     public NPurchasedMGiftedPerk(int nbPurchased, int nbGifted, Item item) {
-        this();
         this.nbPurchased = nbPurchased;
         this.nbGifted = nbGifted;
         this.item = item;
     }
 
     public NPurchasedMGiftedPerk(NPurchasedMGiftedPerkDTO perkDTO) {
-        this();
         this.setPerkId(perkDTO.perkId());
         this.nbPurchased = perkDTO.nbPurchased();
         this.nbGifted = perkDTO.nbGifted();
@@ -76,14 +73,8 @@ public class NPurchasedMGiftedPerk extends AbstractPerk {
     }
 
     @Override
-    public boolean apply(Customer customer) {
-        Cart cart = customer.getCart();
-        CartItem cartItem = cart.getItemById(this.item.getItemId());
-        if (isEligibleForGift(cartItem)) {
-            cartItem.increaseQuantity(nbGifted);
-            return true;
-        }
-        return false;
+    public boolean apply(PerkApplicationVisitor visitor) {
+        return visitor.visit(this);
     }
 
     @Override

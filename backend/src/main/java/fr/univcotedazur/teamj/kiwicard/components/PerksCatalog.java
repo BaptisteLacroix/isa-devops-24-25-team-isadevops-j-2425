@@ -18,6 +18,12 @@ public class PerksCatalog implements IPerkManager {
         this.perksRepository = perksRepository;
     }
 
+    /**
+     * Creates a new perk in the catalog.
+     *
+     * @param perkToCreate The DTO containing the information of the perk to create.
+     * @return The DTO of the created perk.
+     */
     @Override
     public IPerkDTO createPerk(IPerkDTO perkToCreate) {
         throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);
@@ -34,13 +40,20 @@ public class PerksCatalog implements IPerkManager {
         return perksRepository.findAll().stream().map(PerkMapper::toDTO).toList();
     }
 
+    /**
+     * Updates the information of a perk in the catalog.
+     *
+     * @param perkId  The ID of the perk to update.
+     * @param newPerk The DTO containing the new information of the perk.
+     * @throws UnknownPerkIdException If the perk with the specified ID does not exist.
+     */
     @Override
-    public void updatePerk(long perkId, IPerkDTO newPerk) throws UnknownPerkIdException {
+    public void updatePerk(long perkId, IPerkDTO newPerk) {
         throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);
     }
 
     @Override
-    public void deletePerk(long perkId) throws UnknownPerkIdException {
+    public void deletePerk(long perkId) {
         throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);
     }
 }

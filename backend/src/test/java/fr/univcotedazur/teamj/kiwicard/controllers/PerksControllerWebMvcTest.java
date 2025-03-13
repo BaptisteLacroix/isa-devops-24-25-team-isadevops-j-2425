@@ -7,7 +7,7 @@ import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.NPurchasedMGiftedPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.TimedDiscountInPercentPerkDTO;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.NoCartException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCartIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPerkIdException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPerkManager;
@@ -58,7 +57,7 @@ class PerksControllerWebMvcTest extends BaseUnitTest {
 
     @BeforeEach
     void setUp() {
-        perk1 = new NPurchasedMGiftedPerkDTO(1L, 3, new ItemDTO("Pain au chocolat", 1.5), 1);
+        perk1 = new NPurchasedMGiftedPerkDTO(1L, 3, new ItemDTO(1, "Pain au chocolat", 1.5), 1);
         perk2 = new TimedDiscountInPercentPerkDTO(2L, LocalTime.now().minusMinutes(10), 30);
     }
 
@@ -147,7 +146,7 @@ class PerksControllerWebMvcTest extends BaseUnitTest {
 
     @Test
     void findConsumablePerksForConsumerAtPartnerOK() throws Exception {
-        when(perksService.findConsumablePerksForConsumerAtPartner("client@example.com", 1L))
+        when(perksService.findConsumablePerksForConsumerAtPartner("client@example.com"))
                 .thenReturn(List.of(perk1));
         mockMvc.perform(get(PerksController.BASE_URI + "/consumable")
                         .param("consumerEmail", "client@example.com")
@@ -162,7 +161,7 @@ class PerksControllerWebMvcTest extends BaseUnitTest {
 
     @Test
     void findConsumablePerksForConsumerAtPartnerUnknownCustomer() throws Exception {
-        when(perksService.findConsumablePerksForConsumerAtPartner("unknown@example.com", 1L))
+        when(perksService.findConsumablePerksForConsumerAtPartner("unknown@example.com"))
                 .thenThrow(new UnknownCustomerEmailException("unknown@example.com"));
         mockMvc.perform(get(PerksController.BASE_URI + "/consumable")
                         .param("consumerEmail", "unknown@example.com")
@@ -174,11 +173,12 @@ class PerksControllerWebMvcTest extends BaseUnitTest {
     }
 
     @Test
-    void findConsumablePerksForConsumerAtPartnerUnknownCart() throws Exception {
-        when(perksService.findConsumablePerksForConsumerAtPartner("client@example.com", 1L))
-                .thenThrow(new UnknownCartIdException(1L));
+    void findConsumablePerksForConsumerAtPartnerNoCart() throws Exception {
+        String consumerEmail = "client@example.com";
+        when(perksService.findConsumablePerksForConsumerAtPartner(consumerEmail))
+                .thenThrow(new NoCartException(consumerEmail));
         mockMvc.perform(get(PerksController.BASE_URI + "/consumable")
-                        .param("consumerEmail", "client@example.com")
+                        .param("consumerEmail", consumerEmail)
                         .param("partnerId", "1")
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
@@ -186,16 +186,4 @@ class PerksControllerWebMvcTest extends BaseUnitTest {
                 .andExpect(content().contentType(APPLICATION_JSON));
     }
 
-    @Test
-    void findConsumablePerksForConsumerAtPartnerUnknownPartner() throws Exception {
-        when(perksService.findConsumablePerksForConsumerAtPartner("client@example.com", 2L))
-                .thenThrow(new UnknownPartnerIdException(2L));
-        mockMvc.perform(get(PerksController.BASE_URI + "/consumable")
-                        .param("consumerEmail", "client@example.com")
-                        .param("partnerId", "2")
-                        .contentType(APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotFound())
-                .andExpect(content().contentType(APPLICATION_JSON));
-    }
 }

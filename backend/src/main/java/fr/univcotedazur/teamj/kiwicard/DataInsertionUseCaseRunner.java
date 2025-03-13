@@ -2,12 +2,7 @@ package fr.univcotedazur.teamj.kiwicard;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
-import fr.univcotedazur.teamj.kiwicard.entities.Cart;
-import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
-import fr.univcotedazur.teamj.kiwicard.entities.Customer;
-import fr.univcotedazur.teamj.kiwicard.entities.Item;
-import fr.univcotedazur.teamj.kiwicard.entities.Partner;
-import fr.univcotedazur.teamj.kiwicard.entities.Payment;
+import fr.univcotedazur.teamj.kiwicard.entities.*;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.TimedDiscountInPercentPerk;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.VfpDiscountInPercentPerk;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
@@ -38,6 +33,8 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
     private String customerAntoineFEmail;
     private String customerBaptisteEmail;
     private String customerClementEmail;
+    private final boolean deleteAllData = true;
+    private String customerEmail;
 
     public DataInsertionUseCaseRunner(ICustomerRepository customerRepository, IPartnerRepository partnerRepository, IPerkRepository perkRepository, IPurchaseRepository purchaseRepository, IPartnerManager partnerManager) {
         this.customerRepository = customerRepository;
@@ -215,10 +212,10 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
 
 
         // Item Boulange
-        ItemDTO itemDTOcroissant = new ItemDTO("croissant", 1.0);
-        ItemDTO itemDTO2baguette = new ItemDTO("baguette", 1.2);
-        ItemDTO itemDTO3choco = new ItemDTO("chocolatine", 1.5);
-        ItemDTO itemDTO4raisin = new ItemDTO("pain au raisin", 1.8);
+        ItemDTO itemDTOcroissant = new ItemDTO(1, "croissant", 1.0);
+        ItemDTO itemDTO2baguette = new ItemDTO(2, "baguette", 1.2);
+        ItemDTO itemDTO3choco = new ItemDTO(3, "chocolatine", 1.5);
+        ItemDTO itemDTO4raisin = new ItemDTO(4, "pain au raisin", 1.8);
 
         partnerManager.addItemToPartnerCatalog(partnerBoulange.getPartnerId(), itemDTOcroissant);
         partnerManager.addItemToPartnerCatalog(partnerBoulange.getPartnerId(), itemDTO2baguette);
@@ -231,10 +228,10 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         Item raisin = partnerManager.findAllPartnerItems(partnerBoulange.getPartnerId()).get(3);
 
         // Item Fleuriste
-        ItemDTO itemDTOrose = new ItemDTO("rose", 1.0);
-        ItemDTO itemDTO2tulipe = new ItemDTO("tulipe", 1.2);
-        ItemDTO itemDTO3muguet = new ItemDTO("muguet", 1.5);
-        ItemDTO itemDTO4orchidee = new ItemDTO("orchidee", 1.8);
+        ItemDTO itemDTOrose = new ItemDTO(1, "rose", 1.0);
+        ItemDTO itemDTO2tulipe = new ItemDTO(2, "tulipe", 1.2);
+        ItemDTO itemDTO3muguet = new ItemDTO(3, "muguet", 1.5);
+        ItemDTO itemDTO4orchidee = new ItemDTO(4, "orchidee", 1.8);
 
         partnerManager.addItemToPartnerCatalog(partnerFleuriste.getPartnerId(), itemDTOrose);
         partnerManager.addItemToPartnerCatalog(partnerFleuriste.getPartnerId(), itemDTO2tulipe);
@@ -247,10 +244,10 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         Item orchidee = partnerManager.findAllPartnerItems(partnerFleuriste.getPartnerId()).get(3);
 
         // Item Boucherie
-        ItemDTO itemDTOsteak = new ItemDTO("steak", 1.0);
-        ItemDTO itemDTO2saucisse = new ItemDTO("saucisse", 1.2);
-        ItemDTO itemDTO3jambon = new ItemDTO("jambon", 1.5);
-        ItemDTO itemDTO4poulet = new ItemDTO("poulet", 1.8);
+        ItemDTO itemDTOsteak = new ItemDTO(1, "steak", 1.0);
+        ItemDTO itemDTO2saucisse = new ItemDTO(2, "saucisse", 1.2);
+        ItemDTO itemDTO3jambon = new ItemDTO(3, "jambon", 1.5);
+        ItemDTO itemDTO4poulet = new ItemDTO(4, "poulet", 1.8);
 
         partnerManager.addItemToPartnerCatalog(partnerBoucherie.getPartnerId(), itemDTOsteak);
         partnerManager.addItemToPartnerCatalog(partnerBoucherie.getPartnerId(), itemDTO2saucisse);
@@ -263,10 +260,10 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         Item poulet = partnerManager.findAllPartnerItems(partnerBoucherie.getPartnerId()).get(3);
 
         // Item Poissonnerie
-        ItemDTO itemDTOsaumon = new ItemDTO("saumon", 1.0);
-        ItemDTO itemDTO2cabillaud = new ItemDTO("cabillaud", 1.2);
-        ItemDTO itemDTO3sardine = new ItemDTO("sardine", 1.5);
-        ItemDTO itemDTO4thon = new ItemDTO("thon", 1.8);
+        ItemDTO itemDTOsaumon = new ItemDTO(1, "saumon", 1.0);
+        ItemDTO itemDTO2cabillaud = new ItemDTO(2, "cabillaud", 1.2);
+        ItemDTO itemDTO3sardine = new ItemDTO(3, "sardine", 1.5);
+        ItemDTO itemDTO4thon = new ItemDTO(4, "thon", 1.8);
 
         partnerManager.addItemToPartnerCatalog(partnerPoissonnerie.getPartnerId(), itemDTOsaumon);
         partnerManager.addItemToPartnerCatalog(partnerPoissonnerie.getPartnerId(), itemDTO2cabillaud);
@@ -279,10 +276,10 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         Item thon = partnerManager.findAllPartnerItems(partnerPoissonnerie.getPartnerId()).get(3);
 
         // Item Fromagerie
-        ItemDTO itemDTOcamembert = new ItemDTO("camembert", 1.0);
-        ItemDTO itemDTO2roquefort = new ItemDTO("roquefort", 1.2);
-        ItemDTO itemDTO3brie = new ItemDTO("brie", 1.5);
-        ItemDTO itemDTO4comte = new ItemDTO("comte", 1.8);
+        ItemDTO itemDTOcamembert = new ItemDTO(1, "camembert", 1.0);
+        ItemDTO itemDTO2roquefort = new ItemDTO(2, "roquefort", 1.2);
+        ItemDTO itemDTO3brie = new ItemDTO(3, "brie", 1.5);
+        ItemDTO itemDTO4comte = new ItemDTO(4, "comte", 1.8);
 
         partnerManager.addItemToPartnerCatalog(partnerFromagerie.getPartnerId(), itemDTOcamembert);
         partnerManager.addItemToPartnerCatalog(partnerFromagerie.getPartnerId(), itemDTO2roquefort);
@@ -294,6 +291,11 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         Item brie = partnerManager.findAllPartnerItems(partnerFromagerie.getPartnerId()).get(2);
         Item comte = partnerManager.findAllPartnerItems(partnerFromagerie.getPartnerId()).get(3);
 
+        Item happyKids = new Item("Heure de garde HappyKids", 10.0);
+
+        Partner partnerHappyKids = new Partner("HappyKids", "1 rue des enfants, Nice");
+        partnerHappyKids.addItem(happyKids);
+        partnerRepository.save(partnerHappyKids);
 
         // CartItem with cart and item and quantity Boulange
         CartItem cartItem = new CartItem();
@@ -309,6 +311,8 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         cartItem.setItem(chocolatine);
         cartItem.setQuantity(3);
         cartBoulange.addItem(cartItem);
+
+        customerAntoineM.setCart(cartBoulange);
 
         customerRepository.save(customerAntoineM);
 
@@ -327,6 +331,8 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         cartItemFleuriste.setQuantity(3);
         cartFleuriste.addItem(cartItemFleuriste);
 
+        customerRoxane.setCart(cartFleuriste);
+
         customerRepository.save(customerRoxane);
 
         // CartItem with cart and item and quantity Boucherie
@@ -344,6 +350,8 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         cartItemBoucherie.setQuantity(3);
         cartBoucherie.addItem(cartItemBoucherie);
 
+        customerAntoineF.setCart(cartBoucherie);
+
         customerRepository.save(customerAntoineF);
 
         // CartItem with cart and item and quantity Poissonnerie
@@ -360,6 +368,8 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         cartItemPoissonnerie.setItem(sardine);
         cartItemPoissonnerie.setQuantity(3);
         cartPoissonnerie.addItem(cartItemPoissonnerie);
+
+        customerBaptiste.setCart(cartPoissonnerie);
 
         customerRepository.save(customerBaptiste);
 
@@ -381,16 +391,27 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
 
         customerRepository.save(customerClement);
 
+        Cart cartHappyKids = new Cart();
 
+        CartItem cartItemHappyKids = new CartItem();
+
+        cartItemHappyKids.setItem(happyKids);
+        cartItemHappyKids.setStartTime(LocalDateTime.of(2025, 6, 1, 10, 0, 0));
+        cartItemHappyKids.setQuantity(1);
+        cartHappyKids.addItem(cartItemHappyKids);
+
+        customerAlice.setCart(cartHappyKids);
+
+        customerRepository.save(customerAlice);
 
         // Perk (Vfp discount in %)
-        VfpDiscountInPercentPerk perk = new VfpDiscountInPercentPerk(0.05);
+        VfpDiscountInPercentPerk perk = new VfpDiscountInPercentPerk(0.05, LocalTime.of(8, 0), LocalTime.of(12, 0));
         TimedDiscountInPercentPerk perk2 = new TimedDiscountInPercentPerk(LocalTime.now(), 20);
 
-        perkRepository.save(perk);
-        perkRepository.save(perk2);
-        cartBoulange.addPerk(perk);
-        cartFleuriste.addPerk(perk2);
+        partnerBoulange.addPerk(perk);
+        partnerFleuriste.addPerk(perk2);
+        customerAntoineF.getCart().addPerkToUse(perk);
+        customerAlice.getCart().addPerkToUse(perk2);
 
         // Payment
         Payment payment = new Payment(40, LocalDateTime.now());

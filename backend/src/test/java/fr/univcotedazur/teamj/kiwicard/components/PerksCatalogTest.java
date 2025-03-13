@@ -30,7 +30,7 @@ class PerksCatalogTest {
 
     public final PerkToDTOVisitor perkToDTOVisitor = new PerkToDTOVisitor();
     public final AbstractPerk timedDiscountInPercentPerk = new TimedDiscountInPercentPerk(LocalTime.now(), 10);
-    public final AbstractPerk nPurchasedMGiftedPerk = new NPurchasedMGiftedPerk(3, 1, new Item("Chocolatine", 1.5));
+    public AbstractPerk nPurchasedMGiftedPerk;
     private IPerkRepository perkRepository;
     private PerksCatalog perksCatalog;
 
@@ -38,6 +38,11 @@ class PerksCatalogTest {
     void setUp() {
         perkRepository = mock(IPerkRepository.class);
         perksCatalog = new PerksCatalog(perkRepository);
+        Item item = mock(Item.class);
+        when(item.getItemId()).thenReturn(1L);
+        when(item.getLabel()).thenReturn("Chocolatine");
+        when(item.getPrice()).thenReturn(1.5);
+        nPurchasedMGiftedPerk = new NPurchasedMGiftedPerk(3, 1, item);
     }
 
     @Test

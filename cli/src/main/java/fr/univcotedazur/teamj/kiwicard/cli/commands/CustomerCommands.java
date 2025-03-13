@@ -1,24 +1,32 @@
 package fr.univcotedazur.teamj.kiwicard.cli.commands;
 
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliCustomerSubscribe;
+import fr.univcotedazur.teamj.kiwicard.cli.model.CliPurchase;
 import fr.univcotedazur.teamj.kiwicard.cli.model.error.CliError;
+import fr.univcotedazur.teamj.kiwicard.cli.CliSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellOption;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+
+import static fr.univcotedazur.teamj.kiwicard.cli.constants.Constants.LOGGED_IN_ID_PLACEHOLDER;
 
 @ShellComponent
 public class CustomerCommands {
 
     public static final String BASE_URI = "/customers";
-
+    public static final String BASE_CART_URI = "/cart";
     private final WebClient webClient;
 
+    private final CliSession cliSession;
+
     @Autowired
-    public CustomerCommands(WebClient webClient) {
+    public CustomerCommands(WebClient webClient, CliSession cliSession) {
         this.webClient = webClient;
+        this.cliSession = cliSession;
     }
 
     /**
@@ -60,6 +68,31 @@ public class CustomerCommands {
                         .flatMap(error -> Mono.error(new RuntimeException(error.errorMessage()))))
                 .toBodilessEntity()
                 .block();
-        return "User registered successfully";
+        cliSession.logIn(email);
+        return "Client enregistré avec succès. Vous êtes maintenant connecté en tant que : " + email;
+    }
+
+    /**
+     * CLI command to pay a customer's cart.
+     * Example usage:
+     * pay-cart --customer-email pierre.dupont@email.com
+     *
+     * @param customerEmail The email of the customer whose cart should be paid. If unspecified, uses the logged-in customer.
+     * @return Confirmation message with purchase details or error message
+     */
+    @ShellMethod(value="Pay cart", key="pay-cart")
+    public String payCart(@ShellOption(defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail) {
+        customerEmail = cliSession.tryInjectingCustomerEmail(customerEmail);
+        if (customerEmail == null) return "Erreur : Veuillez vous connecter ou spécifier un email de client valide.";
+        System.out.println("Validation et paiement du panier du client " + customerEmail + " : ");
+
+        return webClient.post()
+                .uri( BASE_CART_URI + "/" + customerEmail + "/validate")
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(CliError.class)
+                        .flatMap(error -> Mono.error(new RuntimeException(error.errorMessage()))))
+                .bodyToMono(CliPurchase.class)
+                .map(res -> "Le panier a été validé avec succès ! Plus de détails : " + res.toString().replaceAll("(?m)^", "\t"))
+                .block();
     }
 }

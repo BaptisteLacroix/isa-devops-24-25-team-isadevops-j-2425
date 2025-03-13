@@ -2,7 +2,6 @@ package fr.univcotedazur.teamj.kiwicard.components;
 
 import fr.univcotedazur.teamj.kiwicard.connectors.CardEditorProxy;
 import fr.univcotedazur.teamj.kiwicard.dto.CardDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Cart;
@@ -14,27 +13,41 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceExce
 import fr.univcotedazur.teamj.kiwicard.interfaces.customer.ICustomerCartSaver;
 import fr.univcotedazur.teamj.kiwicard.interfaces.customer.ICustomerFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.customer.ICustomerRegistration;
+import fr.univcotedazur.teamj.kiwicard.interfaces.customer.IVfpStatus;
 import fr.univcotedazur.teamj.kiwicard.repositories.ICustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
 @Service
-public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, ICustomerCartSaver {
+public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, ICustomerCartSaver, IVfpStatus {
 
     ICustomerRepository customerRepository;
 
     CardEditorProxy cardEditorProxy;
 
+    private final int nbPurchaseRequired;
+
     @Autowired
-    public CustomerCatalog(ICustomerRepository customerRepository, CardEditorProxy cardEditorProxy) {
+    public CustomerCatalog(ICustomerRepository customerRepository, CardEditorProxy cardEditorProxy, @Value("${kiwi-card.vfp-status.purchase-required}") int nbPurchaseRequired) {
         this.customerRepository = customerRepository;
         this.cardEditorProxy = cardEditorProxy;
+        this.nbPurchaseRequired = nbPurchaseRequired;
     }
 
+    /**
+     * Enregistre un nouveau client dans la base de données et lui attribue une carte
+     *
+     * @param customerSubscribeDTO les informations du client à enregistrer
+     * @return le DTO du client enregistré
+     * @throws AlreadyUsedEmailException           si l'adresse email est déjà utilisée
+     * @throws UnreachableExternalServiceException si le service externe est injoignable
+     */
     @Override
     @Transactional
     public CustomerDTO register(CustomerSubscribeDTO customerSubscribeDTO) throws AlreadyUsedEmailException, UnreachableExternalServiceException {
@@ -74,23 +87,44 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
 
     }
 
+    /**
+     * Enregistre le panier d'un client dans la base de données en remplaçant l'ancien panier s'il existe
+     * @param customerEmail l'adresse email du client
+     * @param cart le panier à enregistrer
+     * @return le client mis à jour
+     * @throws UnknownCustomerEmailException si l'adresse email n'est pas reconnue
+     */
     @Override
-    public void setCart(String customerEmail, CartDTO cartDto) throws UnknownCustomerEmailException {
+    public Customer setCart(String customerEmail, Cart cart) throws UnknownCustomerEmailException {
         Customer customer = customerRepository.findByEmail(customerEmail).orElse(null);
         if (customer == null) {
             throw new UnknownCustomerEmailException(customerEmail);
         }
-        customer.setCart(new Cart(cartDto));
-        customerRepository.save(customer);
+        customer.setCart(cart);
+        return customerRepository.save(customer);
     }
 
+    /**
+     * Vide le panier d'un client
+     * @param customerEmail l'adresse email du client
+     * @return le client mis à jour
+     * @throws UnknownCustomerEmailException si l'adresse email n'est pas reconnue
+     */
     @Override
-    public void emptyCart(String customerEmail) throws UnknownCustomerEmailException {
+    public Customer emptyCart(String customerEmail) throws UnknownCustomerEmailException {
         Customer customer = customerRepository.findByEmail(customerEmail).orElse(null);
         if (customer == null) {
             throw new UnknownCustomerEmailException(customerEmail);
         }
         customer.getCart().empty();
-        customerRepository.save(customer);
+        return customerRepository.save(customer);
+    }
+
+    /**
+     * Rafraîchit le statut VFP des clients en fonction du nombre d'achats requis
+     */
+    @Override
+    public void refreshVfpStatus() {
+        customerRepository.refreshVfpStatus(nbPurchaseRequired, LocalDateTime.now().minusDays(7), LocalDateTime.now());
     }
 }

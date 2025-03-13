@@ -3,7 +3,6 @@ package fr.univcotedazur.teamj.kiwicard.controllers;
 import fr.univcotedazur.teamj.kiwicard.dto.ErrorDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.*;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -11,7 +10,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice(assignableTypes = {CustomerController.class, CartController.class, PartnerController.class, PerksController.class})
 public class GlobalControllerAdvice {
 
-    @ExceptionHandler({NegativeQuantityException.class})
+    @ExceptionHandler({UnreachableExternalServiceException.class})
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public ErrorDTO handleExceptions(UnreachableExternalServiceException e) {
+        return new ErrorDTO("External service is unreachable");
+    }
+
+    @ExceptionHandler({NegativeQuantityException.class, EmptyCartException.class})
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorDTO handleExceptions(NegativeQuantityException e) {
         return new ErrorDTO(e.getMessage());
@@ -20,10 +25,10 @@ public class GlobalControllerAdvice {
     @ExceptionHandler({PaymentException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorDTO handleExceptions(PaymentException e) {
-        return new ErrorDTO("Payment was rejected from Customer " + e.getName() + " for amount " + e.getAmount());
+        return new ErrorDTO("Payment was rejected from Customer " + e.getName() + " for totalPrice " + e.getAmount());
     }
 
-    @ExceptionHandler({UnknownPartnerIdException.class, UnknownItemIdException.class, UnknownCustomerEmailException.class, UnknownCartIdException.class, UnknownPerkIdException.class})
+    @ExceptionHandler({UnknownPartnerIdException.class, UnknownItemIdException.class, UnknownCustomerEmailException.class, UnknownCartIdException.class, UnknownPerkIdException.class, NoCartException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorDTO handleExceptions(Exception e) {
         return new ErrorDTO(e.getMessage());
@@ -33,5 +38,11 @@ public class GlobalControllerAdvice {
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorDTO handleAlreadyUsedEmail(AlreadyUsedEmailException ex) {
         return new ErrorDTO("Email already used");
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorDTO handleIllegalArgumentException(IllegalArgumentException ex) {
+        return new ErrorDTO(ex.getMessage());
     }
 }

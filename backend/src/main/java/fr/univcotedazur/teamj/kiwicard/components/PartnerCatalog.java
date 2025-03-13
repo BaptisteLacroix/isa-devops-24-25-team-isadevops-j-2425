@@ -9,7 +9,7 @@ import fr.univcotedazur.teamj.kiwicard.entities.Partner;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPartnerManager;
-import fr.univcotedazur.teamj.kiwicard.mappers.PerkToDTOVisitor;
+import fr.univcotedazur.teamj.kiwicard.mappers.PerkMapper;
 import fr.univcotedazur.teamj.kiwicard.repositories.IItemRepository;
 import fr.univcotedazur.teamj.kiwicard.repositories.IPartnerRepository;
 import jakarta.validation.constraints.NotNull;
@@ -39,9 +39,8 @@ public class PartnerCatalog implements IPartnerManager {
     }
 
     @Override
-    public PartnerDTO findPartnerById(long partnerId) throws UnknownPartnerIdException {
+    public Partner findPartnerById(long partnerId) throws UnknownPartnerIdException {
         return partnerRepository.findById(partnerId)
-                .map(PartnerDTO::new)
                 .orElseThrow(() -> new UnknownPartnerIdException(partnerId));
     }
 
@@ -84,10 +83,9 @@ public class PartnerCatalog implements IPartnerManager {
     @Override
     @Transactional
     public List<IPerkDTO> findAllPartnerPerks(long partnerId) throws UnknownPartnerIdException {
-        PerkToDTOVisitor perkToDTOVisitor = new PerkToDTOVisitor();
         return partnerRepository.findById(partnerId)
                 .map(Partner::getPerkList)
-                .map(perks -> perks.stream().map(perk -> perk.accept(perkToDTOVisitor)).toList())
+                .map(perks -> perks.stream().map(PerkMapper::toDTO).toList())
                 .orElseThrow(() -> new UnknownPartnerIdException(partnerId));
     }
 

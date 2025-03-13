@@ -24,17 +24,14 @@ public class TimedDiscountInPercentPerk extends AbstractPerk{
     private double discountRate;
 
     public TimedDiscountInPercentPerk() {
-        super(PerkType.FINAL);
     }
 
     public TimedDiscountInPercentPerk(LocalTime time, double discountRate) {
-        this();
         this.time = time;
         this.discountRate = discountRate;
     }
 
     public TimedDiscountInPercentPerk(TimedDiscountInPercentPerkDTO dto) {
-        this();
         this.setPerkId(dto.perkId());
         this.time = dto.time();
         this.discountRate = dto.discountRate();
@@ -59,19 +56,12 @@ public class TimedDiscountInPercentPerk extends AbstractPerk{
 
     @Override
     public String toString() {
-        return "Discount of " + discountRate + "% after " + time + "on all items";
+        return "Discount of " + discountRate + "% after " + time + " on all items";
     }
 
     @Override
-    public boolean apply(Customer customer) {
-        if (!LocalTime.now().isAfter(time)) {
-            return false;
-        }
-        if (customer.getCart() == null) {
-            throw new IllegalStateException("Customer has no cart");
-        }
-        customer.getCart().addToTotalPercentageReduction(discountRate);
-        return true;
+    public boolean apply(PerkApplicationVisitor visitor) {
+        return visitor.visit(this);
     }
 
     @Override

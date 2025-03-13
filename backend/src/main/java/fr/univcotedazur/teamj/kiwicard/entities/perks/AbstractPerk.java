@@ -2,6 +2,8 @@ package fr.univcotedazur.teamj.kiwicard.entities.perks;
 
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.entities.Partner;
+import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import fr.univcotedazur.teamj.kiwicard.mappers.PerkVisitor;
 import jakarta.persistence.*;
 
@@ -17,13 +19,7 @@ public abstract class AbstractPerk {
     @JoinColumn(name = "partner_id")
     private Partner partner;
 
-    private PerkType perkType;
-
     protected AbstractPerk() {
-    }
-
-    protected AbstractPerk(PerkType perkType) {
-        this.perkType = perkType;
     }
 
     public Long getPerkId() {
@@ -34,10 +30,6 @@ public abstract class AbstractPerk {
         this.perkId = perkId;
     }
 
-    public PerkType getPerkType() {
-        return perkType;
-    }
-
     public void setPartner(Partner partner) {
         this.partner = partner;
     }
@@ -46,10 +38,10 @@ public abstract class AbstractPerk {
      * Tente d’appliquer le perk sur le panier du client.
      * La méthode vérifie si les conditions sont remplies puis modifie le panier en conséquence.
      *
-     * @param customer le client auquel le perk est destiné
+     * @param visitor le visiteur qui va appliquer le perk
      * @return true si le perk a été appliqué, false sinon.
      */
-    public abstract boolean apply(Customer customer);
+    public abstract boolean apply(PerkApplicationVisitor visitor) throws ClosedTimeException, UnreachableExternalServiceException;
 
     public abstract boolean isConsumableFor(Customer customer);
 

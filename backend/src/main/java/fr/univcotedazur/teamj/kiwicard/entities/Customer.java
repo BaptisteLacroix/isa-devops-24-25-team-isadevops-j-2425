@@ -2,7 +2,13 @@ package fr.univcotedazur.teamj.kiwicard.entities;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -64,7 +70,7 @@ public class Customer {
         this.vfp = customerDTO.vfp();
     }
 
-    // Fait pour faire passer les tests, à refaire !!
+    // FIXME: Fait pour faire passer les tests, à refaire !!
     public Customer(String firstName, String email) {
         this.firstName = firstName;
         this.email = email;
@@ -76,7 +82,6 @@ public class Customer {
         this.address = customerSubscribeDTO.address();
         this.email = customerSubscribeDTO.email();
         this.vfp = false;
-        // TODO : ajouter un numéro de carte via CardEditorProxy
         this.cardNumber = cardNumber;
     }
 
@@ -104,16 +109,8 @@ public class Customer {
         return firstName;
     }
 
-    public void setFirstName(@NotBlank String firstName) {
-        this.firstName = firstName;
-    }
-
     public @NotBlank String getSurname() {
         return surname;
-    }
-
-    public void setSurname(@NotBlank String surname) {
-        this.surname = surname;
     }
 
     public @NotBlank String getAddress() {
@@ -139,6 +136,10 @@ public class Customer {
 
     public void setVfp(@NotNull boolean vfp) {
         this.vfp = vfp;
+    }
+
+    public String getCardNumber() {
+        return cardNumber;
     }
 
     @Override

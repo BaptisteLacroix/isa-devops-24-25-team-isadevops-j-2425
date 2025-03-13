@@ -35,24 +35,6 @@ public class Purchase {
         this.alreadyConsumedInAPerk = false;
     }
 
-    public Long getPurchaseId() {
-        return purchaseId;
-    }
-
-    public void setPurchaseId(Long purchaseId) {
-        this.purchaseId = purchaseId;
-    }
-
-
-    @NotNull
-    public boolean isAlreadyConsumedInAPerk() {
-        return alreadyConsumedInAPerk;
-    }
-
-    public void setAlreadyConsumedInAPerk(@NotNull boolean alreadyConsumedInAPerk) {
-        this.alreadyConsumedInAPerk = alreadyConsumedInAPerk;
-    }
-
     public Cart getCart() {
         return cart;
     }
