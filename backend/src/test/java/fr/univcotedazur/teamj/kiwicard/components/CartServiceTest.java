@@ -14,6 +14,7 @@ import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import fr.univcotedazur.teamj.kiwicard.entities.Partner;
+import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyBookedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.EmptyCartException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.NoCartException;
@@ -87,8 +88,8 @@ class CartServiceTest extends BaseUnitTest {
         when(item.getLabel()).thenReturn("Item");
         when(item.getPrice()).thenReturn(10.0);
         when(item.getPartner()).thenReturn(partner);
-        cartItemDTO = new CartItemDTO(2, null, null, new ItemDTO(item));
-        cartItemAddItemToCartDTO = new CartItemAddItemToCartDTO(2, null, null, item.getItemId());
+        cartItemDTO = new CartItemDTO(2, null, new ItemDTO(item));
+        cartItemAddItemToCartDTO = new CartItemAddItemToCartDTO(2, null, item.getItemId());
 
         cartItem = mock(CartItem.class);
         when(cartItem.getCartItemId()).thenReturn(1L);
@@ -152,7 +153,7 @@ class CartServiceTest extends BaseUnitTest {
     }
 
     @Test
-    void createCart_shouldCreateCartSuccessfully() throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException, NoCartException {
+    void createCart_shouldCreateCartSuccessfully() throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException, NoCartException, AlreadyBookedTimeException {
         // Given
         when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
         when(partnerManager.findAllPartnerItems(anyLong())).thenReturn(List.of(item));
@@ -169,7 +170,7 @@ class CartServiceTest extends BaseUnitTest {
     }
 
     @Test
-    void addItemToCart_shouldAddItemSuccessfully() throws UnknownCustomerEmailException, UnknownItemIdException, UnknownPartnerIdException, NoCartException {
+    void addItemToCart_shouldAddItemSuccessfully() throws UnknownCustomerEmailException, UnknownItemIdException, UnknownPartnerIdException, NoCartException, AlreadyBookedTimeException {
         // Given
         when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
         when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));

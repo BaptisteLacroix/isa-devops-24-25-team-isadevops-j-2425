@@ -72,8 +72,8 @@ class CartControllerWebMvcTest extends BaseUnitTest {
         when(item.getLabel()).thenReturn("Item Label");
         when(item.getPrice()).thenReturn(10.0);
         // Updated CartItemDTO initialization
-        cartItemDTO = new CartItemDTO(2, null, null, new ItemDTO(item));
-        cartItemAddItemToCartDTO = new CartItemAddItemToCartDTO(2, null, null, item.getItemId());
+        cartItemDTO = new CartItemDTO(2, null, new ItemDTO(item));
+        cartItemAddItemToCartDTO = new CartItemAddItemToCartDTO(2, null, item.getItemId());
 
         // Updated CartDTO initialization with PartnerDTO and IPerkDTO List
         PartnerDTO partnerDTO = new PartnerDTO(partnerId, "Partner Name", "Partner Address");

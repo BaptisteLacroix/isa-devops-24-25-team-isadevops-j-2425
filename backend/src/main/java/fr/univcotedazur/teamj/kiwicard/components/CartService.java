@@ -16,8 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -54,7 +56,7 @@ public class CartService implements ICartModifier, ICartFinder {
      */
     @Override
     @Transactional
-    public CartDTO addItemToCart(String customerEmail, CartItemAddItemToCartDTO cartItemDTO, CartDTO cartDTO) throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException, NoCartException {
+    public CartDTO addItemToCart(String customerEmail, CartItemAddItemToCartDTO cartItemDTO, CartDTO cartDTO) throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException, NoCartException, AlreadyBookedTimeException {
         // Found the customer in the bdd
         Customer customer = customerCatalog.findCustomerByEmail(customerEmail);
         Item item = itemRepository.findById(cartItemDTO.itemId()).orElseThrow(() -> new UnknownItemIdException(cartItemDTO.itemId()));
@@ -69,52 +71,61 @@ public class CartService implements ICartModifier, ICartFinder {
      * Adds the item to the customer's existing cart. It checks if the item belongs to the partner's catalog
      * and adds the item to the cart if it is valid.
      *
-     * @param cartItemDTO A CartItemDTO containing the details of the item to be added.
+     * @param cartItemDTOToAdd A CartItemDTO containing the details of the item to be added.
      * @param customer    The customer whose cart the item will be added to.
-     * @param item        The item to be added to the cart.
+     * @param itemToAdd        The item to be added to the cart.
      * @return A CartDTO representing the updated shopping cart after the item has been added.
      * @throws UnknownPartnerIdException     If no partner is found for the item in the cart.
      * @throws UnknownItemIdException        If the item is not valid for the partner's catalog.
      * @throws UnknownCustomerEmailException If the customer does not exist in the database.
      * @throws NoCartException               If the customer does not have a cart.
      */
-    private CartDTO addItemToCart(CartItemAddItemToCartDTO cartItemDTO, Customer customer, Item item)
-            throws UnknownPartnerIdException, UnknownItemIdException, UnknownCustomerEmailException, NoCartException {
+    private CartDTO addItemToCart(CartItemAddItemToCartDTO cartItemDTOToAdd, Customer customer, Item itemToAdd)
+            throws UnknownPartnerIdException, UnknownItemIdException, UnknownCustomerEmailException, NoCartException, AlreadyBookedTimeException {
 
         Cart customerCart = customer.getCart();
         if (customerCart == null) {
             throw new NoCartException(customer.getEmail());
         }
 
-        // Check that the item belongs to the partner's catalog
-        Partner partner = customerCart.getPartner();
-        List<Item> partnerItems = partnerManager.findAllPartnerItems(partner.getPartnerId());
-        if (partnerItems.stream().noneMatch(partnerItem -> partnerItem.getItemId().equals(item.getItemId()))) {
-            throw new UnknownItemIdException(item.getItemId());
-        }
+        verifyItemExists(itemToAdd, customerCart);
 
         // Check if the item already exists in the cart
-        boolean itemExists = false;
+        boolean isItemAlreadyInCart = false;
         for (CartItem existingCartItem : customerCart.getItems()) {
-            if (existingCartItem.getItem().getItemId().equals(item.getItemId())) {
+            Long itemId = existingCartItem.getItem().getItemId();
+            LocalDateTime startTime = existingCartItem.getStartTime();
+            if (itemId.equals(itemToAdd.getItemId())
+                    && cartItemDTOToAdd.startTime() != null
+                    && Objects.equals(startTime,cartItemDTOToAdd.startTime()))  {
+                throw new AlreadyBookedTimeException(itemToAdd.getLabel(), startTime, existingCartItem.getQuantity());
+            }else if (itemId.equals(itemToAdd.getItemId())){
                 // If the item exists, update the quantity
-                existingCartItem.setQuantity(existingCartItem.getQuantity() + cartItemDTO.quantity());
-                existingCartItem.setStartTime(cartItemDTO.startTime());
-                existingCartItem.setEndTime(cartItemDTO.endTime());
-                itemExists = true;
+                existingCartItem.setQuantity(existingCartItem.getQuantity() + cartItemDTOToAdd.quantity());
+                existingCartItem.setStartTime(cartItemDTOToAdd.startTime());
+                isItemAlreadyInCart = true;
                 break;
             }
         }
 
         // If the item doesn't exist, add a new item to the cart
-        if (!itemExists) {
-            CartItem newCartItem = new CartItem(item, cartItemDTO.quantity(), cartItemDTO.startTime(), cartItemDTO.endTime());
+        if (!isItemAlreadyInCart) {
+            CartItem newCartItem = new CartItem(itemToAdd, cartItemDTOToAdd.quantity(), cartItemDTOToAdd.startTime());
             customerCart.getItems().add(newCartItem);
         }
 
         // Update the customer's cart
         Customer updatedCustomer = customerCatalog.setCart(customer.getEmail(), customerCart);
         return new CartDTO(updatedCustomer.getCart());
+    }
+
+    private void verifyItemExists(Item itemToAdd, Cart customerCart) throws UnknownPartnerIdException, UnknownItemIdException {
+        // Check that the item belongs to the partner's catalog
+        Partner partner = customerCart.getPartner();
+        List<Item> partnerItems = partnerManager.findAllPartnerItems(partner.getPartnerId());
+        if (partnerItems.stream().noneMatch(partnerItem -> partnerItem.getItemId().equals(itemToAdd.getItemId()))) {
+            throw new UnknownItemIdException(itemToAdd.getItemId());
+        }
     }
 
 
@@ -131,7 +142,7 @@ public class CartService implements ICartModifier, ICartFinder {
      */
     private CartDTO createCart(CartItemAddItemToCartDTO cartItemDTO, Customer customer, Item item) throws UnknownPartnerIdException, UnknownCustomerEmailException {
         // Create the list of CartItem
-        CartItem cartItem = new CartItem(item, cartItemDTO.quantity(), cartItemDTO.startTime(), cartItemDTO.endTime());
+        CartItem cartItem = new CartItem(item, cartItemDTO.quantity(), cartItemDTO.startTime());
         Partner partner = partnerManager.findPartnerById(item.getPartner().getPartnerId());
         // Create the cart
         Cart cart = new Cart(partner, Set.of(cartItem), new ArrayList<>());

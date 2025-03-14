@@ -54,7 +54,7 @@ public class CartController {
     public ResponseEntity<CartDTO> createOrAddItemToCart(
             @PathVariable String customerEmail,
             @RequestBody CartItemAddItemToCartDTO cartItemDTO
-    ) throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException, NoCartException {
+    ) throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException, NoCartException, AlreadyBookedTimeException {
         CartDTO existingCart = finder.findCustomerCart(customerEmail).orElse(null);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)

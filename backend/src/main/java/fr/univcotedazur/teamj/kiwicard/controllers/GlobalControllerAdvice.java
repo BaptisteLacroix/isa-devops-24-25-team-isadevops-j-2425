@@ -34,10 +34,10 @@ public class GlobalControllerAdvice {
         return new ErrorDTO(e.getMessage());
     }
 
-    @ExceptionHandler(AlreadyUsedEmailException.class)
+    @ExceptionHandler({AlreadyUsedEmailException.class,AlreadyBookedTimeException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorDTO handleAlreadyUsedEmail(AlreadyUsedEmailException ex) {
-        return new ErrorDTO("Email already used");
+        return new ErrorDTO(ex.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

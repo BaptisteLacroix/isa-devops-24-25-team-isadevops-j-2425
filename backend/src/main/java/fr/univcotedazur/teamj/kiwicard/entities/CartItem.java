@@ -31,9 +31,6 @@ public class CartItem {
 
     private double price;
 
-    @Column
-    private LocalDateTime endTime;
-
     @ManyToOne
     @JoinColumn(name = "cart_id", insertable = false, updatable = false)
     private Cart cart;
@@ -43,11 +40,10 @@ public class CartItem {
     public CartItem() {
     }
 
-    public CartItem(Item item, int quantity, LocalDateTime startTime, LocalDateTime endTime) {
+    public CartItem(Item item, int quantity, LocalDateTime startTime){
         this.item = item;
         this.quantity = quantity;
         this.startTime = startTime;
-        this.endTime = endTime;
     }
 
     public CartItem(Item item, int quantity){
@@ -85,14 +81,6 @@ public class CartItem {
         this.startTime = startTime;
     }
 
-    public LocalDateTime getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(LocalDateTime endTime) {
-        this.endTime = endTime;
-    }
-
     public Item getItem() {
         return item;
     }
@@ -109,7 +97,6 @@ public class CartItem {
                 "cartItemId=" + cartItemId +
                 ", quantity=" + quantity +
                 ", startTime=" + startTime +
-                ", endTime=" + endTime +
                 ", item=" + item +
                 '}';
     }
