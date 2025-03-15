@@ -4,7 +4,7 @@ pipeline {
         stage('[BE] Build') {
             steps {
                 dir('backend') {
-                     echo '🛠️ Pipeline is building the backend project !'
+                    echo '🛠️ Pipeline is building the backend project !'
                     sh 'mvn clean compile'
                 }
             }
@@ -19,7 +19,10 @@ pipeline {
                 }
         stage('[BE] Integration tests') {
             when{
-                branch 'dev'
+                anyOf {
+                     branch 'dev'
+                     environment name: 'CHANGE_TARGET', value: 'dev'
+                }
             }
             steps {
                 dir('backend') {
@@ -31,8 +34,21 @@ pipeline {
         stage('[CLI] Build') {
              steps {
                  dir('cli') {
-                      echo '🛠️ Pipeline is building cli the project !'
+                     echo '🛠️ Pipeline is building cli the project !'
                      sh 'mvn clean compile'
+                 }
+             }
+         }
+         stage('[Docker Backend] Build') {
+             when {
+                 anyOf {
+                     branch 'dev'
+                     environment name: 'CHANGE_TARGET', value: 'dev'
+                 }
+             }
+             steps {
+                 dir('backend') {
+                    sh './build.sh'
                  }
              }
          }
@@ -46,7 +62,10 @@ pipeline {
          }
          stage('[CLI] Integration tests') {
              when{
-                 branch 'dev'
+                 anyOf {
+                     branch 'dev'
+                     environment name: 'CHANGE_TARGET', value: 'dev'
+                 }
              }
              steps {
                  dir('cli') {

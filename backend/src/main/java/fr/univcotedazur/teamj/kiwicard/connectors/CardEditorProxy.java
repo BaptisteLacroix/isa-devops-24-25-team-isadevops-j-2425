@@ -56,7 +56,7 @@ public class CardEditorProxy implements ICardCreation {
                     .bodyToMono(CardDTO.class)
                     .block();
         } catch (Exception e) {
-            throw new UnreachableExternalServiceException();
+            throw new UnreachableExternalServiceException(cardEditorBaseUrl + "\n" + e.getMessage());
         }
     }
 
