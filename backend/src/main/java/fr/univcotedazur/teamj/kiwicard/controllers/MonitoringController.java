@@ -18,9 +18,8 @@ public class MonitoringController {
     private final IPurchaseFinder purchaseFinder;
     private final IPurchaseCreator purchaseCreator;
 
-    public MonitoringController(IPurchaseFinder purchaseCatalog, IPurchaseCreator purchaseCreator) {
-        this.purchaseFinder = purchaseCatalog;
-        this.purchaseCreator = purchaseCreator;
+    public MonitoringController(IPurchaseFinder purchaseFinder) {
+        this.purchaseFinder = purchaseFinder;
     }
 
     @GetMapping("/purchase/{purchaseId}")
@@ -43,10 +42,5 @@ public class MonitoringController {
     @GetMapping("/purchase")
     public List<Purchase> getByCustomerAndPartner(@RequestParam String customerEmail, @RequestParam long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException {
         return purchaseFinder.findPurchasesByCustomerAndPartner(customerEmail, partnerId);
-    }
-
-    @PostMapping("/purchase")
-    public Purchase createPurchase(@RequestParam String customerEmail, @RequestParam long amount) throws UnknownCustomerEmailException, UnknownPaymentIdException {
-        return this.purchaseCreator.createPurchase(customerEmail, amount);
     }
 }
