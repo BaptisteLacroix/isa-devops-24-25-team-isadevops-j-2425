@@ -3,6 +3,7 @@ package fr.univcotedazur.teamj.kiwicard.entities;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 public class CartItem {
@@ -101,5 +102,18 @@ public class CartItem {
                 '}';
     }
 
+    @Override
+    public final boolean equals(Object o) {
+        if (!(o instanceof CartItem cartItem)) return false;
+
+        return Objects.equals(getStartTime(), cartItem.getStartTime()) && Objects.equals(getItem(), cartItem.getItem());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hashCode(getStartTime());
+        result = 31 * result + Objects.hashCode(getItem());
+        return result;
+    }
 }
 

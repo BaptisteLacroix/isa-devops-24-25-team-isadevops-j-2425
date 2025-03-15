@@ -1,7 +1,7 @@
 package fr.univcotedazur.teamj.kiwicard.controllers;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.CartItemAddItemToCartDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.CartItemAddDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CartItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.*;
@@ -53,7 +53,7 @@ public class CartController {
     @PutMapping(path = "/{customerEmail}", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<CartDTO> createOrAddItemToCart(
             @PathVariable String customerEmail,
-            @RequestBody CartItemAddItemToCartDTO cartItemDTO
+            @RequestBody CartItemAddDTO cartItemDTO
     ) throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException, NoCartException, AlreadyBookedTimeException {
         CartDTO existingCart = finder.findCustomerCart(customerEmail).orElse(null);
         return ResponseEntity.ok()
