@@ -46,7 +46,7 @@ public class MonitoringControllerTest extends BaseUnitTest {
 
     @Test
     public void getPartnerHistoryIntegrationTest() throws Exception {
-        mockMvc.perform(get(BASE_URI + "/partnerHistory/" + 1L))
+        mockMvc.perform(get(BASE_URI + "/partner/" + 1L + "/history"))
                 .andExpect(status().isOk());
         verify(purchaseCatalog, times(1)).findPurchasesByPartnerId(1L);
     }
@@ -60,7 +60,7 @@ public class MonitoringControllerTest extends BaseUnitTest {
 
     @Test
     public void customerHistoryTest() throws Exception {
-        mockMvc.perform(get(BASE_URI + "/customerHistory/test@example.com"))
+        mockMvc.perform(get(BASE_URI + "/customer/test@example.com/history"))
                 .andExpect(status().isOk());
         verify(purchaseCatalog, times(1)).findPurchasesByCutomerEmail("test@example.com");
     }

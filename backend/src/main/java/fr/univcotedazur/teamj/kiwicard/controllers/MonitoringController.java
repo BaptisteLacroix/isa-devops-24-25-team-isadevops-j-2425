@@ -3,9 +3,7 @@ package fr.univcotedazur.teamj.kiwicard.controllers;
 import fr.univcotedazur.teamj.kiwicard.entities.Purchase;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPaymentIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPurchaseIdException;
-import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseCreator;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseFinder;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,13 +24,13 @@ public class MonitoringController {
         return purchaseFinder.findPurchaseById(purchaseId);
     }
 
-    @GetMapping("/customerHistory/{customerEmail}")
+    @GetMapping("/customer/{customerEmail}/history")
     public List<Purchase> customerHistory(@PathVariable String customerEmail, @RequestParam Optional<Integer> limit) throws UnknownPartnerIdException, UnknownCustomerEmailException {
         if (limit.isPresent()) return this.purchaseFinder.findPurchasesByCutomerEmail(customerEmail, limit.get());
         return this.purchaseFinder.findPurchasesByCutomerEmail(customerEmail);
     }
 
-    @GetMapping("/partnerHistory/{partnerId}")
+    @GetMapping("/partner/{partnerId}/history")
     public List<Purchase> partnerHistory(@PathVariable long partnerId, @RequestParam Optional<Integer> limit) throws UnknownPartnerIdException {
         if (limit.isPresent()) return this.purchaseFinder.findPurchasesByPartnerId(partnerId, limit.get());
         return purchaseFinder.findPurchasesByPartnerId(partnerId);
