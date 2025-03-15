@@ -52,12 +52,32 @@ public interface IPurchaseRepository extends JpaRepository<Purchase, Long> {
 
     @Query(
             """
+                SELECT p FROM Purchase p, Customer c
+                    where c.email = :customerEmail
+                    and p member of c.purchaseList
+                    ORDER BY p.payment.timestamp DESC
+            """
+    )
+    List<Purchase> findAllByCustomer(@Param("customerEmail") String customerEmail);
+
+    @Query(
+            """
                 SELECT p FROM Purchase p
                     where p.cart.partner.partnerId = :partnerId
                     ORDER BY p.payment.timestamp DESC
             """
     )
     List<Purchase> findAllByPartner(@Param("partnerId") long partnerId);
+
+    @Query(
+            """
+                SELECT p FROM Purchase p
+                    where p.cart.partner.partnerId = :partnerId
+                    ORDER BY p.payment.timestamp DESC
+                    LIMIT :limit
+            """
+    )
+    List<Purchase> findAllByPartner(long partnerId, int limit);
 
 //    @Query(
 //            """

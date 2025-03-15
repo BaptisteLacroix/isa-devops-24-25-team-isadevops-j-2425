@@ -82,9 +82,26 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
     }
 
     @Override
-    public List<Purchase> findPurchaseByPartnerId(long partnerId) throws UnknownPartnerIdException {
+    public List<Purchase> findPurchasesByPartnerId(long partnerId) throws UnknownPartnerIdException {
         this.partnerManager.findPartnerById(partnerId);
         return this.purchaseRepository.findAllByPartner(partnerId);
+    }
+
+    @Override
+    public List<Purchase> findPurchasesByCutomerEmail(String customerEmail) throws UnknownCustomerEmailException {
+        return this.purchaseRepository.findAllByCustomer(customerEmail);
+    }
+
+    @Override
+    public List<Purchase> findPurchasesByCutomerEmail(String customerEmail, int limit) throws UnknownCustomerEmailException {
+        this.customerCatalog.findCustomerByEmail(customerEmail);
+        return this.purchaseRepository.findAllByCustomer(customerEmail, limit);
+    }
+
+    @Override
+    public List<Purchase> findPurchasesByPartnerId(long partnerId, int limit) throws UnknownPartnerIdException {
+        this.partnerManager.findPartnerById(partnerId);
+        return this.purchaseRepository.findAllByPartner(partnerId, limit);
     }
 }
 

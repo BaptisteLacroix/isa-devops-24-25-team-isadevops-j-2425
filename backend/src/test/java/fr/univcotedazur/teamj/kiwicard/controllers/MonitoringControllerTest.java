@@ -1,10 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.univcotedazur.teamj.kiwicard.BaseUnitTest;
-import fr.univcotedazur.teamj.kiwicard.components.CustomerCatalog;
-import fr.univcotedazur.teamj.kiwicard.components.PurchaseCatalog;
-import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Cart;
 import fr.univcotedazur.teamj.kiwicard.entities.Payment;
 import fr.univcotedazur.teamj.kiwicard.entities.Purchase;
@@ -14,12 +10,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -43,7 +36,7 @@ public class MonitoringControllerTest extends BaseUnitTest {
     public void setup() {
         var mockPurchase = new Purchase(mock(Payment.class), mock(Cart.class));
         try {
-            when(purchaseCatalog.findPurchaseByPartnerId(1L)).thenReturn(List.of(mockPurchase));
+            when(purchaseCatalog.findPurchasesByPartnerId(1L)).thenReturn(List.of(mockPurchase));
         } catch (UnknownPartnerIdException e) {
             throw new RuntimeException(e);
         }
@@ -53,7 +46,7 @@ public class MonitoringControllerTest extends BaseUnitTest {
     public void getPartnerHistoryIntegrationTest() throws Exception {
         mockMvc.perform(get(BASE_URI + "/partnerHistory/" + 1L))
                 .andExpect(status().isOk());
-        verify(purchaseCatalog, times(1)).findPurchaseByPartnerId(1L);
+        verify(purchaseCatalog, times(1)).findPurchasesByPartnerId(1L);
     }
 
 

@@ -5,39 +5,44 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPaymentIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPurchaseIdException;
-import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseConsumer;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseCreator;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseFinder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/monitoring")
 public class MonitoringController {
-
-    private final IPurchaseFinder purchaseCatalog;
+    private final IPurchaseFinder purchaseFinder;
     private final IPurchaseCreator purchaseCreator;
 
     public MonitoringController(IPurchaseFinder purchaseCatalog, IPurchaseCreator purchaseCreator) {
-        this.purchaseCatalog = purchaseCatalog;
+        this.purchaseFinder = purchaseCatalog;
         this.purchaseCreator = purchaseCreator;
-    }
-
-    @GetMapping("/partnerHistory/{partnerId}")
-    public List<Purchase> partnerHistory(@PathVariable long partnerId) throws UnknownPartnerIdException {
-        return purchaseCatalog.findPurchaseByPartnerId(partnerId);
     }
 
     @GetMapping("/purchase/{purchaseId}")
     public Purchase getPurchase(@PathVariable long purchaseId) throws UnknownPartnerIdException, UnknownPurchaseIdException {
-        return purchaseCatalog.findPurchaseById(purchaseId);
+        return purchaseFinder.findPurchaseById(purchaseId);
+    }
+
+    @GetMapping("/customerHistory/{customerEmail}")
+    public List<Purchase> customerHistory(@PathVariable String customerEmail, @RequestParam Optional<Integer> limit) throws UnknownPartnerIdException, UnknownCustomerEmailException {
+        if (limit.isPresent()) return this.purchaseFinder.findPurchasesByCutomerEmail(customerEmail, limit.get());
+        return this.purchaseFinder.findPurchasesByCutomerEmail(customerEmail);
+    }
+
+    @GetMapping("/partnerHistory/{partnerId}")
+    public List<Purchase> partnerHistory(@PathVariable long partnerId, @RequestParam Optional<Integer> limit) throws UnknownPartnerIdException {
+        if (limit.isPresent()) return this.purchaseFinder.findPurchasesByPartnerId(partnerId, limit.get());
+        return purchaseFinder.findPurchasesByPartnerId(partnerId);
     }
 
     @GetMapping("/purchase")
     public List<Purchase> getByCustomerAndPartner(@RequestParam String customerEmail, @RequestParam long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException {
-        return purchaseCatalog.findPurchasesByCustomerAndPartner(customerEmail, partnerId);
+        return purchaseFinder.findPurchasesByCustomerAndPartner(customerEmail, partnerId);
     }
 
     @PostMapping("/purchase")
