@@ -16,7 +16,6 @@ import java.util.Optional;
 @RequestMapping("/monitoring")
 public class MonitoringController {
     private final IPurchaseFinder purchaseFinder;
-    private final IPurchaseCreator purchaseCreator;
 
     public MonitoringController(IPurchaseFinder purchaseFinder) {
         this.purchaseFinder = purchaseFinder;
