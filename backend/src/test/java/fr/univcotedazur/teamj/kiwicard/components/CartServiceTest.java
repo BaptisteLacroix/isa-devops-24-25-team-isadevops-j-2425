@@ -188,6 +188,130 @@ class CartServiceTest extends BaseUnitTest {
     }
 
     @Test
+    void addItemToCart_shouldAddHappyKidsItemSuccessfully() throws UnknownCustomerEmailException, UnknownPartnerIdException, NoCartException, AlreadyBookedTimeException, UnknownItemIdException {
+        // Given
+        Item happyKidsItem = mock(Item.class);
+        when(happyKidsItem.getItemId()).thenReturn(2L);
+        when(happyKidsItem.getLabel()).thenReturn(Constants.HAPPY_KIDS_ITEM_NAME);
+        when(happyKidsItem.getPrice()).thenReturn(10.0);
+        when(happyKidsItem.getPartner()).thenReturn(partner);
+        CartItemAddDTO cartItemHKDTO = new CartItemAddDTO(1, LocalDateTime.of(2025, 3, 15, 10, 0), happyKidsItem.getItemId());
+        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(happyKidsItem));
+        when(partnerManager.findAllPartnerItems(anyLong())).thenReturn(List.of(happyKidsItem));
+        when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
+
+        // When
+        CartDTO result = cartService.addItemToCart("customer@example.com", cartItemHKDTO, existingCartDTO);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(2, result.items().size());
+        assertTrue(result.items().contains(new CartItemDTO(1, LocalDateTime.of(2025, 3, 15, 10, 0), new ItemDTO(happyKidsItem))));
+    }
+
+    @Test
+    void addItemToCart_shouldThrowIfHappyKidsItemWithSameDateAlreadyIsInCart() throws UnknownCustomerEmailException, UnknownPartnerIdException, NoCartException, AlreadyBookedTimeException, UnknownItemIdException {
+        Item happyKidsItem = mock(Item.class);
+        when(happyKidsItem.getItemId()).thenReturn(2L);
+        when(happyKidsItem.getLabel()).thenReturn(Constants.HAPPY_KIDS_ITEM_NAME);
+        when(happyKidsItem.getPrice()).thenReturn(10.0);
+        when(happyKidsItem.getPartner()).thenReturn(partner);
+        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(happyKidsItem));
+        when(partnerManager.findAllPartnerItems(anyLong())).thenReturn(List.of(happyKidsItem));
+        when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
+        CartItem hkCartItem = mock(CartItem.class);
+        when(hkCartItem.getCartItemId()).thenReturn(2L);
+        when(hkCartItem.getQuantity()).thenReturn(1);
+        when(hkCartItem.getStartTime()).thenReturn(LocalDateTime.of(2025, 3, 15, 10, 0));
+        when(hkCartItem.getItem()).thenReturn(happyKidsItem);
+        when(hkCartItem.getPrice()).thenReturn(10.0);
+        when(customer.getCart().getItems()).thenReturn(new HashSet<>(List.of(hkCartItem)));
+
+        // When & Then
+        CartItemAddDTO cartItemHKDTO = new CartItemAddDTO(1, LocalDateTime.of(2025, 3, 15, 10, 0), happyKidsItem.getItemId());
+        assertThrows(AlreadyBookedTimeException.class, () -> cartService.addItemToCart("customer@example.com", cartItemHKDTO, existingCartDTO));
+    }
+
+    @Test
+    void addItemToCart_shouldThrowIfHappyKidsItemWithJustEarlierDateAlreadyIsInCart() throws UnknownCustomerEmailException, UnknownPartnerIdException, NoCartException, AlreadyBookedTimeException, UnknownItemIdException {
+        Item happyKidsItem = mock(Item.class);
+        when(happyKidsItem.getItemId()).thenReturn(2L);
+        when(happyKidsItem.getLabel()).thenReturn(Constants.HAPPY_KIDS_ITEM_NAME);
+        when(happyKidsItem.getPrice()).thenReturn(10.0);
+        when(happyKidsItem.getPartner()).thenReturn(partner);
+        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(happyKidsItem));
+        when(partnerManager.findAllPartnerItems(anyLong())).thenReturn(List.of(happyKidsItem));
+        when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
+        CartItem hkCartItem = mock(CartItem.class);
+        when(hkCartItem.getCartItemId()).thenReturn(2L);
+        when(hkCartItem.getQuantity()).thenReturn(2);
+        when(hkCartItem.getStartTime()).thenReturn(LocalDateTime.of(2025, 3, 15, 10, 0));
+        when(hkCartItem.getItem()).thenReturn(happyKidsItem);
+        when(hkCartItem.getPrice()).thenReturn(10.0);
+        when(customer.getCart().getItems()).thenReturn(new HashSet<>(List.of(hkCartItem)));
+
+        // When & Then
+        CartItemAddDTO cartItemHKDTO = new CartItemAddDTO(1, LocalDateTime.of(2025, 3, 15, 11, 0), happyKidsItem.getItemId());
+        assertThrows(AlreadyBookedTimeException.class, () -> cartService.addItemToCart("customer@example.com", cartItemHKDTO, existingCartDTO));
+    }
+
+    @Test
+    void addItemToCart_shouldThrowIfHappyKidsItemWithJustLaterDateAlreadyIsInCart() throws UnknownCustomerEmailException, UnknownPartnerIdException, NoCartException, AlreadyBookedTimeException, UnknownItemIdException {
+        Item happyKidsItem = mock(Item.class);
+        when(happyKidsItem.getItemId()).thenReturn(2L);
+        when(happyKidsItem.getLabel()).thenReturn(Constants.HAPPY_KIDS_ITEM_NAME);
+        when(happyKidsItem.getPrice()).thenReturn(10.0);
+        when(happyKidsItem.getPartner()).thenReturn(partner);
+        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(happyKidsItem));
+        when(partnerManager.findAllPartnerItems(anyLong())).thenReturn(List.of(happyKidsItem));
+        when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
+        CartItem hkCartItem = mock(CartItem.class);
+        when(hkCartItem.getCartItemId()).thenReturn(2L);
+        when(hkCartItem.getQuantity()).thenReturn(2);
+        when(hkCartItem.getStartTime()).thenReturn(LocalDateTime.of(2025, 3, 15, 10, 0));
+        when(hkCartItem.getItem()).thenReturn(happyKidsItem);
+        when(hkCartItem.getPrice()).thenReturn(10.0);
+        when(customer.getCart().getItems()).thenReturn(new HashSet<>(List.of(hkCartItem)));
+
+        // When & Then
+        CartItemAddDTO cartItemHKDTO = new CartItemAddDTO(2, LocalDateTime.of(2025, 3, 15, 9, 0), happyKidsItem.getItemId());
+        assertThrows(AlreadyBookedTimeException.class, () -> cartService.addItemToCart("customer@example.com", cartItemHKDTO, existingCartDTO));
+    }
+
+    @Test
+    void addItemToCart_shouldAddHappyKidsItemWithDifferentDateAlreadyIsInCart() throws UnknownCustomerEmailException, UnknownPartnerIdException, NoCartException, AlreadyBookedTimeException, UnknownItemIdException {
+        Item happyKidsItem = mock(Item.class);
+        when(happyKidsItem.getItemId()).thenReturn(2L);
+        when(happyKidsItem.getLabel()).thenReturn(Constants.HAPPY_KIDS_ITEM_NAME);
+        when(happyKidsItem.getPrice()).thenReturn(10.0);
+        when(happyKidsItem.getPartner()).thenReturn(partner);
+        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
+        when(itemRepository.findById(happyKidsItem.getItemId())).thenReturn(Optional.of(happyKidsItem));
+        when(partnerManager.findAllPartnerItems(anyLong())).thenReturn(List.of(happyKidsItem));
+        when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
+        CartItem hkCartItem = mock(CartItem.class);
+        when(hkCartItem.getCartItemId()).thenReturn(2L);
+        when(hkCartItem.getQuantity()).thenReturn(1);
+        when(hkCartItem.getStartTime()).thenReturn(LocalDateTime.of(2025, 3, 15, 10, 0));
+        when(hkCartItem.getItem()).thenReturn(happyKidsItem);
+        when(hkCartItem.getPrice()).thenReturn(10.0);
+        when(customer.getCart().getItems()).thenReturn(new HashSet<>(List.of(hkCartItem)));
+
+        // When
+        CartItemAddDTO cartItemHKDTO = new CartItemAddDTO(1, LocalDateTime.of(2025, 3, 15, 11, 0), happyKidsItem.getItemId());
+        CartDTO result = cartService.addItemToCart("customer@example.com", cartItemHKDTO, existingCartDTO);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(2, result.items().size());
+        assertTrue(result.items().contains(new CartItemDTO(1, LocalDateTime.of(2025, 3, 15, 10, 0), new ItemDTO(happyKidsItem))));
+    }
+
+    @Test
     void removeItemFromCart_shouldThrowUnknownCustomerEmailException_whenCustomerNotFound() throws UnknownCustomerEmailException {
         // Given
         when(customerCatalog.findCustomerByEmail(anyString())).thenThrow(UnknownCustomerEmailException.class);
