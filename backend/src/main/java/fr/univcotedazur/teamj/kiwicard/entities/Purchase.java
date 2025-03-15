@@ -66,8 +66,4 @@ public class Purchase {
     public Long getPurchaseId() {
         return purchaseId;
     }
-
-    public void setPurchaseId(Long purchaseId) {
-        this.purchaseId = purchaseId;
-    }
 }
