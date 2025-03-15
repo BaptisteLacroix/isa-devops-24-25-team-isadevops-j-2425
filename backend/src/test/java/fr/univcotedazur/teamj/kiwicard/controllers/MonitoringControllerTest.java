@@ -55,4 +55,6 @@ public class MonitoringControllerTest extends BaseUnitTest {
                 .andExpect(status().isOk());
         verify(purchaseCatalog, times(1)).findPurchaseByPartnerId(1L);
     }
+
+
 }
