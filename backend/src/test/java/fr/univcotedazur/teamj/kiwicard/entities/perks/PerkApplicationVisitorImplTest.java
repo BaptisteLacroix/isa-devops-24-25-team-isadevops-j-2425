@@ -49,7 +49,7 @@ class PerkApplicationVisitorImplTest {
         CartItem cartItem = mock(CartItem.class);
         LocalTime bookingTime = LocalTime.now();
         when(cartItem.getStartTime()).thenReturn(LocalDateTime.now());
-        when(cart.getHKItems(null)).thenReturn(List.of(cartItem));
+        when(cart.getHKItems()).thenReturn(List.of(cartItem));
 
         // Création d'un perk avec une plage horaire couvrant bookingTime
         LocalTime startHour = bookingTime.minusMinutes(10);
@@ -73,7 +73,7 @@ class PerkApplicationVisitorImplTest {
         CartItem cartItem = mock(CartItem.class);
         LocalTime bookingTime = LocalTime.now();
         when(cartItem.getStartTime()).thenReturn(LocalDateTime.now());
-        when(cart.getHKItems(null)).thenReturn(List.of(cartItem));
+        when(cart.getHKItems()).thenReturn(List.of(cartItem));
 
         // Plage horaire ne contenant pas bookingTime
         LocalTime startHour = bookingTime.plusHours(1);
@@ -92,7 +92,7 @@ class PerkApplicationVisitorImplTest {
     void testVisitVfpDiscountInPercentPerk_bookingTimeNotSet() {
         CartItem cartItem = mock(CartItem.class);
         when(cartItem.getStartTime()).thenReturn(null);
-        when(cart.getHKItems(null)).thenReturn(List.of(cartItem));
+        when(cart.getHKItems()).thenReturn(List.of(cartItem));
 
         LocalTime startHour = LocalTime.now().minusMinutes(10);
         LocalTime endHour = LocalTime.now().plusMinutes(10);

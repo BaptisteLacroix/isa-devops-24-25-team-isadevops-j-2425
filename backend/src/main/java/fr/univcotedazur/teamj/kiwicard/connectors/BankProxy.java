@@ -61,6 +61,7 @@ public class BankProxy implements IBank {
         } catch (WebClientResponseException ex) {
             // Logs error if there is an issue while contacting the bank service
             LOG.error("Error while contacting the bank service", ex);
+            LOG.error(ex.getResponseBodyAsString());
             throw new UnreachableExternalServiceException();
         }
     }
