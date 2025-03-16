@@ -11,14 +11,30 @@ pipeline {
                 }
             }
         }
+        stage('[CLI] Build') {
+             steps {
+                 dir('cli') {
+                     echo '🛠️ Pipeline is building the CLI project !'
+                     sh 'mvn clean compile'
+                 }
+             }
+        }
         stage('[BE] Unit tests') {
-                    steps {
-                        dir('backend') {
-                            echo '🧪 Pipeline is launching backend unit tests !'
-                            sh 'mvn test'
-                        }
-                    }
+            steps {
+                dir('backend') {
+                    echo '🧪 Pipeline is launching backend unit tests !'
+                    sh 'mvn test'
                 }
+            }
+        }
+        stage('[CLI] Unit tests') {
+            steps {
+                dir('cli') {
+                    echo '🧪 Pipeline is launching cli unit tests !'
+                    sh 'mvn test'
+                }
+            }
+        }
         stage('[BE] Integration tests') {
             when{
                 anyOf {
@@ -34,12 +50,40 @@ pipeline {
                 }
             }
         }
-        stage('[BE] Publish to jfrog') {
+        stage('[BE] Docker Build') {
+            when {
+                anyOf {
+                    branch 'dev'
+                    environment name: 'CHANGE_TARGET', value: 'dev'
+                }
+            }
+            steps {
+                dir('backend') {
+                    echo '🐋📷 Pipeline is building the docker image of the backend project!'
+                    sh './build.sh'
+                }
+            }
+        }
+        stage('[CLI] Integration tests') {
             when{
                 anyOf {
                     branch 'dev'
                     branch 'main'
-                    branch 'feat/56-jfrog-jenkins'
+                    environment name: 'CHANGE_TARGET', value: 'dev'
+                }
+            }
+            steps {
+                dir('cli') {
+                    echo '🧩 Pipeline is launching cli integration tests !'
+                    sh 'mvn verify'
+                }
+            }
+        }
+        stage('[BE] Jfrog push') {
+            when{
+                anyOf {
+                    branch 'dev'
+                    branch 'main'
                 }
             }
             steps {
@@ -64,57 +108,11 @@ pipeline {
                 }
             }
         }
-        stage('[CLI] Build') {
-             steps {
-                 dir('cli') {
-                     echo '🛠️ Pipeline is building the CLI project !'
-                     sh 'mvn clean compile'
-                 }
-             }
-         }
-         stage('[BE] Docker Build') {
-             when {
-                 anyOf {
-                     branch 'dev'
-                     environment name: 'CHANGE_TARGET', value: 'dev'
-                 }
-             }
-             steps {
-                 dir('backend') {
-                     echo '🐋📷 Pipeline is building the docker image of the backend project!'
-                    sh './build.sh'
-                 }
-             }
-         }
-         stage('[CLI] Unit tests') {
-             steps {
-                 dir('cli') {
-                     echo '🧪 Pipeline is launching cli unit tests !'
-                     sh 'mvn test'
-                 }
-             }
-         }
-         stage('[CLI] Integration tests') {
-             when{
-                 anyOf {
-                     branch 'dev'
-                     branch 'main'
-                     environment name: 'CHANGE_TARGET', value: 'dev'
-                 }
-             }
-             steps {
-                 dir('cli') {
-                     echo '🧩 Pipeline is launching cli integration tests !'
-                     sh 'mvn verify'
-                 }
-             }
-        }
-        stage('[CLI] Publish to jfrog') {
+        stage('[CLI] Jfrog push') {
             when{
                 anyOf {
                     branch 'dev'
                     branch 'main'
-                    branch 'feat/56-jfrog-jenkins'
                 }
             }
             steps {
