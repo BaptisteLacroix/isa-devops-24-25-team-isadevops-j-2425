@@ -23,6 +23,7 @@ pipeline {
             when{
                 anyOf {
                      branch 'dev'
+                     branch 'main'
                      environment name: 'CHANGE_TARGET', value: 'dev'
                 }
             }
@@ -36,9 +37,9 @@ pipeline {
         stage('[BE] Publish to jfrog') {
             when{
                 anyOf {
-                     branch 'dev'
-                     branch 'main'
-                     branch 'feat/56-jfrog-jenkins'
+                    branch 'dev'
+                    branch 'main'
+                    branch 'feat/56-jfrog-jenkins'
                 }
             }
             steps {
@@ -47,18 +48,18 @@ pipeline {
                         echo '📦 Building the backend project !'
                         sh 'mvn install -DskipTests'
                         def folderName
-                        def fileName
+                        def fileName = "kiwi-card-be"
                         if( env.GIT_BRANCH == "main" ){
                             def date = new Date().format('yyMMdd-HHmm')
-                            fileName = "kiwi-card-${date}.jar"
+                            fileName = fileName + "-${date}.jar"
                             folderName = "release/${date}"
                         }else{
                             def date = new Date().format('yyMMdd-HHmm')
-                            fileName = "kiwi-card-${date}-SNAPSHOT.jar"
+                            fileName = fileName + "-${date}-SNAPSHOT.jar"
                             folderName = "snapshot/${date}"
                         }
                         echo "📤 Publishing the backend project to jfrog folder ${folderName} as ${fileName}"
-                        jf "rt u *.jar kiwi-card-generic-local/${folderName}/${fileName}"
+                        jf "rt u *.jar kiwi-card-be-generic-local/${folderName}/${fileName}"
                     }
                 }
             }
@@ -97,6 +98,7 @@ pipeline {
              when{
                  anyOf {
                      branch 'dev'
+                     branch 'main'
                      environment name: 'CHANGE_TARGET', value: 'dev'
                  }
              }
@@ -106,6 +108,36 @@ pipeline {
                      sh 'mvn verify'
                  }
              }
+        }
+        stage('[CLI] Publish to jfrog') {
+            when{
+                anyOf {
+                    branch 'dev'
+                    branch 'main'
+                    branch 'feat/56-jfrog-jenkins'
+                }
+            }
+            steps {
+                dir('cli') {
+                    script {
+                        echo '📦 Building the cli project !'
+                        sh 'mvn install -DskipTests'
+                        def folderName
+                        def fileName = "kiwi-card-cli"
+                        if( env.GIT_BRANCH == "main" ){
+                            def date = new Date().format('yyMMdd-HHmm')
+                            fileName = fileName + "-${date}.jar"
+                            folderName = "release/${date}"
+                        }else{
+                            def date = new Date().format('yyMMdd-HHmm')
+                            fileName = fileName + "-${date}-SNAPSHOT.jar"
+                            folderName = "snapshot/${date}"
+                        }
+                        echo "📤 Publishing the cli project to jfrog folder ${folderName} as ${fileName}"
+                        jf "rt u *.jar kiwi-card-cli-generic-local/${folderName}/${fileName}"
+                    }
+                }
+            }
         }
     }
 }
