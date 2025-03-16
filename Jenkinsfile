@@ -1,11 +1,13 @@
 pipeline {
     agent { label 'agenthost' }
+    tools {
+        jfrog 'jfrog-cli'
+    }
     stages {
         stage('[BE] Build') {
             steps {
                 dir('backend') {
                     echo '🛠️ Pipeline is building the backend project !'
-                    sh 'mvn clean compile'
                 }
             }
         }
@@ -31,15 +33,45 @@ pipeline {
                 }
             }
         }
+        stage('[BE] Publish to jfrog') {
+            when{
+                anyOf {
+                     branch 'dev'
+                     branch 'main'
+                     branch 'feat/56-jfrog-jenkins'
+                }
+            }
+            steps {
+                dir('backend') {
+                    script {
+                        echo '📦 Building the backend project !'
+                        sh 'mvn install -DskipTests'
+                        def folderName
+                        def fileName
+                        if( env.GIT_BRANCH == "main" ){
+                            def date = new Date().format('yyMMdd-HHmm')
+                            fileName = "kiwi-card-${date}.jar"
+                            folderName = "release/${date}"
+                        }else{
+                            def date = new Date().format('yyMMdd-HHmm')
+                            fileName = "kiwi-card-${date}-SNAPSHOT.jar"
+                            folderName = "snapshot/${date}"
+                        }
+                        echo "📤 Publishing the backend project to jfrog folder ${folderName} as ${fileName}"
+                        jf "rt u *.jar kiwi-card-generic-local/${folderName}/${fileName}"
+                    }
+                }
+            }
+        }
         stage('[CLI] Build') {
              steps {
                  dir('cli') {
-                     echo '🛠️ Pipeline is building cli the project !'
+                     echo '🛠️ Pipeline is building the CLI project !'
                      sh 'mvn clean compile'
                  }
              }
          }
-         stage('[Docker Backend] Build') {
+         stage('[BE] Docker Build') {
              when {
                  anyOf {
                      branch 'dev'
@@ -48,6 +80,7 @@ pipeline {
              }
              steps {
                  dir('backend') {
+                     echo '🐋📷 Pipeline is building the docker image of the backend project!'
                     sh './build.sh'
                  }
              }
