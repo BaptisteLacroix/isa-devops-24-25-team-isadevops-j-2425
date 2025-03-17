@@ -8,6 +8,7 @@ pipeline {
             steps {
                 dir('backend') {
                     echo '🛠️ Pipeline is building the backend project !'
+                    sh 'mvn clean compile'
                 }
             }
         }
