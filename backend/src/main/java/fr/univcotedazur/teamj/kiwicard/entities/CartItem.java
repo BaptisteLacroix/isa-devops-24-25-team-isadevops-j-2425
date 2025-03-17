@@ -12,6 +12,14 @@ public class CartItem {
     private Long cartItemId;
 
     @Column
+    private boolean consumed = false;
+
+    public void setConsumed(boolean consumed) {
+        this.consumed = consumed;
+    }
+
+
+    @Column
     private int quantity;
 
     @Column
@@ -88,6 +96,8 @@ public class CartItem {
     public Item getItem() {
         return item;
     }
+
+    public boolean isConsumed() {return this.consumed;}
 
     public double getPrice() {
         return price;

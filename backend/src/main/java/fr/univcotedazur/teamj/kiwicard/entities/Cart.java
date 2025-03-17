@@ -106,7 +106,7 @@ public class Cart {
         return partner;
     }
 
-    public Set<CartItem> getItemList() {
+    public Set<CartItem> getItems() {
         return itemList;
     }
 
@@ -137,6 +137,6 @@ public class Cart {
     }
 
     public double getTotalPrice() {
-        return getItemList().stream().mapToDouble(CartItem::getPrice).sum();
+        return this.getItems().stream().mapToDouble(CartItem::getPrice).sum();
     }
 }

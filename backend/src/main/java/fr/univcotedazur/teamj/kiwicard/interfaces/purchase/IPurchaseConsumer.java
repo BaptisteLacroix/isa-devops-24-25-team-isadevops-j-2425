@@ -1,6 +1,9 @@
 package fr.univcotedazur.teamj.kiwicard.interfaces.purchase;
 
+import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 
 /**
  ** Modifie un achat ou un item acheté pour le tagger comme "consommé" dans
@@ -8,10 +11,9 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 */
 public interface IPurchaseConsumer {
 
-    void consumeNLastPurchaseoOfCustomer (int nbPurchasesToConsume, String customerEmail) throws UnknownCustomerEmailException;
+    void consumeNLastPurchaseOfCustomer(CustomerDTO customer, int nbPurchasesToConsume) throws UnknownCustomerEmailException;
 
-    void consumeNLastPurchaseOfCustomerInPartner (int nbPurchasesToConsume, String customerEmail,
-                                                  long partnerId);
+    void consumeNLastPurchaseOfCustomerInPartner (String customerEmail, Long partnerId, int nbPurchasesToConsume) throws UnknownCustomerEmailException, UnknownPartnerIdException;
 
-    void consumeNLastItemsOfCustomerInPartner(long itemId, int nbItemsConsumed, String customerEmail) throws UnknownCustomerEmailException;
+    void consumeNLastItemsOfCustomerInPartner(int nbItemsConsumed, String customerEmail, long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException;
 }
