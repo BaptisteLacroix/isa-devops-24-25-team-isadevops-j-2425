@@ -14,7 +14,7 @@ import java.util.List;
 public interface IPurchaseRepository extends JpaRepository<Purchase, Long> {
 
     @Query(
-    """
+            """
         SELECT p FROM Purchase p, Customer c
             where c.email = :customerEmail
             and p member of c.purchaseList
@@ -78,3 +78,4 @@ public interface IPurchaseRepository extends JpaRepository<Purchase, Long> {
             """
     )
     List<Purchase> findAllByPartner(long partnerId, int limit);
+}
