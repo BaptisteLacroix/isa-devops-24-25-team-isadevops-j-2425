@@ -46,6 +46,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 class CartServiceTest extends BaseUnitTest {
@@ -227,7 +228,9 @@ class CartServiceTest extends BaseUnitTest {
         when(hkCartItem.getStartTime()).thenReturn(LocalDateTime.of(2025, 3, 15, 10, 0));
         when(hkCartItem.getItem()).thenReturn(happyKidsItem);
         when(hkCartItem.getPrice()).thenReturn(10.0);
-        when(customer.getCart().getItems()).thenReturn(new HashSet<>(List.of(hkCartItem)));
+        Cart cartHKCartItem = spy(new Cart(partner, new HashSet<>(List.of(hkCartItem)), new ArrayList<>()));
+        when(cartHKCartItem.getCartId()).thenReturn(2L);
+        when(customer.getCart()).thenReturn(cartHKCartItem);
 
         // When & Then
         CartItemAddDTO cartItemHKDTO = new CartItemAddDTO(1, LocalDateTime.of(2025, 3, 15, 10, 0), happyKidsItem.getItemId());
@@ -251,7 +254,9 @@ class CartServiceTest extends BaseUnitTest {
         when(hkCartItem.getStartTime()).thenReturn(LocalDateTime.of(2025, 3, 15, 10, 0));
         when(hkCartItem.getItem()).thenReturn(happyKidsItem);
         when(hkCartItem.getPrice()).thenReturn(10.0);
-        when(customer.getCart().getItems()).thenReturn(new HashSet<>(List.of(hkCartItem)));
+        Cart cartHKCartItem = spy(new Cart(partner, new HashSet<>(List.of(hkCartItem)), new ArrayList<>()));
+        when(cartHKCartItem.getCartId()).thenReturn(2L);
+        when(customer.getCart()).thenReturn(cartHKCartItem);
 
         // When & Then
         CartItemAddDTO cartItemHKDTO = new CartItemAddDTO(1, LocalDateTime.of(2025, 3, 15, 11, 0), happyKidsItem.getItemId());
@@ -275,7 +280,9 @@ class CartServiceTest extends BaseUnitTest {
         when(hkCartItem.getStartTime()).thenReturn(LocalDateTime.of(2025, 3, 15, 10, 0));
         when(hkCartItem.getItem()).thenReturn(happyKidsItem);
         when(hkCartItem.getPrice()).thenReturn(10.0);
-        when(customer.getCart().getItems()).thenReturn(new HashSet<>(List.of(hkCartItem)));
+        Cart cartHKCartItem = spy(new Cart(partner, new HashSet<>(List.of(hkCartItem)), new ArrayList<>()));
+        when(cartHKCartItem.getCartId()).thenReturn(2L);
+        when(customer.getCart()).thenReturn(cartHKCartItem);
 
         // When & Then
         CartItemAddDTO cartItemHKDTO = new CartItemAddDTO(2, LocalDateTime.of(2025, 3, 15, 9, 0), happyKidsItem.getItemId());
@@ -299,7 +306,9 @@ class CartServiceTest extends BaseUnitTest {
         when(hkCartItem.getStartTime()).thenReturn(LocalDateTime.of(2025, 3, 15, 10, 0));
         when(hkCartItem.getItem()).thenReturn(happyKidsItem);
         when(hkCartItem.getPrice()).thenReturn(10.0);
-        when(customer.getCart().getItems()).thenReturn(new HashSet<>(List.of(hkCartItem)));
+        Cart cartHKCartItem = spy(new Cart(partner, new HashSet<>(List.of(hkCartItem)), new ArrayList<>()));
+        when(cartHKCartItem.getCartId()).thenReturn(2L);
+        when(customer.getCart()).thenReturn(cartHKCartItem);
 
         // When
         CartItemAddDTO cartItemHKDTO = new CartItemAddDTO(1, LocalDateTime.of(2025, 3, 15, 11, 0), happyKidsItem.getItemId());
