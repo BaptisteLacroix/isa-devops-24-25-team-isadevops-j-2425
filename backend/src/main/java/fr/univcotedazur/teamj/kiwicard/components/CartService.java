@@ -5,8 +5,19 @@ import fr.univcotedazur.teamj.kiwicard.dto.CartItemAddDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CartItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PaymentDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
-import fr.univcotedazur.teamj.kiwicard.entities.*;
-import fr.univcotedazur.teamj.kiwicard.exceptions.*;
+import fr.univcotedazur.teamj.kiwicard.entities.Cart;
+import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
+import fr.univcotedazur.teamj.kiwicard.entities.Customer;
+import fr.univcotedazur.teamj.kiwicard.entities.Item;
+import fr.univcotedazur.teamj.kiwicard.entities.Partner;
+import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyBookedTimeException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.EmptyCartException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.NoCartException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.IPayment;
 import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartModifier;
@@ -19,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -87,35 +97,49 @@ public class CartService implements ICartModifier, ICartFinder {
 
         verifyItemIsSoldBySamePartnerThanCart(itemToAdd, customerCart.getPartner());
 
-        // Check if the item already exists in the cart
-        boolean isItemAlreadyInCart = false;
-        for (CartItem existingCartItem : customerCart.getItems()) {
-            Long inCartItemId = existingCartItem.getItem().getItemId();
-            LocalDateTime alreadyBookedTime = existingCartItem.getStartTime();
-            LocalDateTime timeToBook = cartItemDTOToAdd.startTime();
-            if (Objects.equals(inCartItemId, itemToAdd.getItemId())
-                    && timeToBook != null && timeIsAlreadyBooked(cartItemDTOToAdd, existingCartItem)) {
-                throw new AlreadyBookedTimeException(itemToAdd.getLabel(), alreadyBookedTime, existingCartItem.getQuantity());
-            } else if (inCartItemId.equals(itemToAdd.getItemId()) && timeToBook == null) {
-                // If the item exists, update the quantity
-                existingCartItem.setQuantity(existingCartItem.getQuantity() + cartItemDTOToAdd.quantity());
-                existingCartItem.setStartTime(null);
-                isItemAlreadyInCart = true;
-                break;
-            }
-        }
-
-        // If the item is not in the cart, add a new CartItem containing the item
-        if (!isItemAlreadyInCart) {
-            CartItem newCartItem = new CartItem(itemToAdd, cartItemDTOToAdd.quantity(), cartItemDTOToAdd.startTime());
-            customerCart.getItems().add(newCartItem);
+        if (customerCart.alreadyContains(itemToAdd)) {
+            updateItemQuantity(cartItemDTOToAdd, itemToAdd, customerCart);
+        } else {
+            doAddItemToCart(cartItemDTOToAdd, itemToAdd, customerCart);
         }
 
         // Update the customer's cart
         Customer updatedCustomer = customerCatalog.setCart(customer.getEmail(), customerCart);
         return new CartDTO(updatedCustomer.getCart());
+
     }
 
+    /**
+     * Gestion de la mise à jour de la quantité d'un item dans le panier
+     * @param cartItemDTOToAdd le DTO de l'item à ajouter
+     * @param itemToAdd l'item à ajouter
+     * @param customerCart le panier du client
+     * @throws AlreadyBookedTimeException si le créneau est déjà réservé dans le cas d'une réservation
+     */
+    private static void updateItemQuantity(CartItemAddDTO cartItemDTOToAdd, Item itemToAdd, Cart customerCart) throws AlreadyBookedTimeException {
+        CartItem existingCartItem = customerCart.getItemById(itemToAdd.getItemId());
+        if (!cartItemDTOToAdd.isABooking()) {
+            existingCartItem.setQuantity(existingCartItem.getQuantity() + cartItemDTOToAdd.quantity());
+            existingCartItem.setStartTime(null);
+        }else if (timeIsAlreadyBooked(cartItemDTOToAdd, existingCartItem)) {
+            LocalDateTime alreadyBookedTime = existingCartItem.getStartTime();
+            throw new AlreadyBookedTimeException(itemToAdd.getLabel(), alreadyBookedTime, existingCartItem.getQuantity());
+        }else{
+            doAddItemToCart(cartItemDTOToAdd, itemToAdd, customerCart);
+        }
+    }
+
+    private static void doAddItemToCart(CartItemAddDTO cartItemDTOToAdd, Item itemToAdd, Cart customerCart) {
+        CartItem newCartItem = new CartItem(itemToAdd, cartItemDTOToAdd);
+        customerCart.getItems().add(newCartItem);
+    }
+
+    /**
+     * Vérifie si le panier du client existe
+     * @param customer le client
+     * @return le panier du client
+     * @throws NoCartException si le panier n'existe pas
+     */
     private static Cart verifyCartExists(Customer customer) throws NoCartException {
         Cart customerCart = customer.getCart();
         if (customerCart == null) {
@@ -126,7 +150,8 @@ public class CartService implements ICartModifier, ICartFinder {
 
     /**
      * Check if the time to book is already booked
-     * @param itemToBookDTO the item to book
+     *
+     * @param itemToBookDTO    the item to book
      * @param existingCartItem the existing item in the cart
      * @return true if the time is already booked, false otherwise
      */
@@ -142,8 +167,15 @@ public class CartService implements ICartModifier, ICartFinder {
 
     }
 
-    private void verifyItemIsSoldBySamePartnerThanCart(Item itemToAdd, Partner partner) throws UnknownPartnerIdException, UnknownItemIdException {
-        List<Item> partnerItems = partnerManager.findAllPartnerItems(partner.getPartnerId());
+    /**
+     * Vérifie si l'item à ajouter est vendu par le même partenaire que celui des items déjà dans le panier
+     * @param itemToAdd l'item à ajouter
+     * @param cartSeller le partenaire du panier
+     * @throws UnknownPartnerIdException si le partenaire n'existe pas
+     * @throws UnknownItemIdException si l'item n'existe pas
+     */
+    private void verifyItemIsSoldBySamePartnerThanCart(Item itemToAdd, Partner cartSeller) throws UnknownPartnerIdException, UnknownItemIdException {
+        List<Item> partnerItems = partnerManager.findAllPartnerItems(cartSeller.getPartnerId());
         if (partnerItems.stream().noneMatch(partnerItem -> partnerItem.getItemId().equals(itemToAdd.getItemId()))) {
             throw new UnknownItemIdException(itemToAdd.getItemId());
         }
@@ -163,7 +195,7 @@ public class CartService implements ICartModifier, ICartFinder {
      */
     private CartDTO createCart(CartItemAddDTO cartItemDTO, Customer customer, Item item) throws UnknownPartnerIdException, UnknownCustomerEmailException {
         // Create the list of CartItem
-        CartItem cartItem = new CartItem(item, cartItemDTO.quantity(), cartItemDTO.startTime());
+        CartItem cartItem = new CartItem(item, cartItemDTO);
         Partner partner = partnerManager.findPartnerById(item.getPartner().getPartnerId());
         // Create the cart
         Cart cart = new Cart(partner, Set.of(cartItem), new ArrayList<>());

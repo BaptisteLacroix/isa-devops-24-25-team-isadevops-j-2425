@@ -139,4 +139,15 @@ public class Cart {
     public double getTotalPrice() {
         return this.getItems().stream().mapToDouble(CartItem::getPrice).sum();
     }
+
+    public boolean alreadyContains(Item item) {
+        boolean contains = false;
+        for (CartItem cartItem : this.getItems()) {
+            if (cartItem.getItem().equals(item)) {
+                contains = true;
+                break;
+            }
+        }
+        return contains;
+    }
 }

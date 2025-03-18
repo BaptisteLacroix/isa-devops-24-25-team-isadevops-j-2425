@@ -16,4 +16,8 @@ public record CartItemAddDTO(
                 entity.getItem().getItemId()
         );
     }
+
+    public boolean isABooking(){
+        return this.startTime != null;
+    }
 }
