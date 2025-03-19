@@ -57,13 +57,13 @@ class CustomerControllerWebMvcTest extends BaseUnitTest {
         String json = mapper.writeValueAsString(dto);
 
         // Simule la levée de l'exception dans le service
-        doThrow(new AlreadyUsedEmailException()).when(customerCatalog).register(any(CustomerSubscribeDTO.class));
+        doThrow(new AlreadyUsedEmailException("test@example.com")).when(customerCatalog).register(any(CustomerSubscribeDTO.class));
 
         mockMvc.perform(post("/customers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isConflict())
-                .andExpect(content().json(mapper.writeValueAsString(new ErrorDTO("Email already used"))));
+                .andExpect(content().json(mapper.writeValueAsString(new ErrorDTO("L'email test@example.com est déjà utilisé"))));
 
         verify(customerCatalog, times(1)).register(any(CustomerSubscribeDTO.class));
     }

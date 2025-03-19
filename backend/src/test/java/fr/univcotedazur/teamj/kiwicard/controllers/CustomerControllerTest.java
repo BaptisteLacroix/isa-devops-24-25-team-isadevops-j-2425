@@ -45,7 +45,7 @@ class CustomerControllerTest {
         CustomerSubscribeDTO dto = new CustomerSubscribeDTO(
                 "test@example.com", "Roxane", "Roxx", "2 passage Marie Antoinette"
         );
-        doThrow(new AlreadyUsedEmailException()).when(customerCatalog).register(dto);
+        doThrow(new AlreadyUsedEmailException("test@example.com")).when(customerCatalog).register(dto);
 
         assertThrows(AlreadyUsedEmailException.class, () -> customerController.createCustomer(dto));
         verify(customerCatalog, times(1)).register(dto);

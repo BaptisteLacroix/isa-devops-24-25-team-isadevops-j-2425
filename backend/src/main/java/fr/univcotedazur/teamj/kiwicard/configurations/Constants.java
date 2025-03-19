@@ -4,17 +4,16 @@ import fr.univcotedazur.teamj.kiwicard.entities.Cart;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 
 @Configuration
-public class HappyKidsProperties {
+public class Constants {
 
     @Value("${happykids.item.name}")
-    private String itemName;
+    public static String HAPPY_KIDS_ITEM_NAME;
 
     @PostConstruct
     public void init() {
-        Cart.setHappyKidsItemName(itemName);
+        Cart.setHappyKidsItemName(HAPPY_KIDS_ITEM_NAME);
     }
 }
 

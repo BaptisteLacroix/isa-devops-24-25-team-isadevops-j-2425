@@ -52,7 +52,7 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
     @Transactional
     public CustomerDTO register(CustomerSubscribeDTO customerSubscribeDTO) throws AlreadyUsedEmailException, UnreachableExternalServiceException {
         if (customerRepository.findByEmail(customerSubscribeDTO.email()).isPresent()) {
-            throw new AlreadyUsedEmailException();
+            throw new AlreadyUsedEmailException(customerSubscribeDTO.email());
         }
         CardDTO cardDto = cardEditorProxy.orderACard(customerSubscribeDTO.email(), customerSubscribeDTO.address());
         Customer customer = new Customer(customerSubscribeDTO, cardDto.cardNumber());
