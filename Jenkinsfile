@@ -13,12 +13,12 @@ pipeline {
             }
         }
         stage('[CLI] Build') {
-             steps {
-                 dir('cli') {
-                     echo '🛠️ Pipeline is building the CLI project !'
-                     sh 'mvn clean compile'
-                 }
-             }
+            steps {
+                dir('cli') {
+                    echo '🛠️ Pipeline is building the CLI project !'
+                    sh 'mvn clean compile'
+                }
+            }
         }
         stage('[BE] Unit tests') {
             steps {
@@ -36,18 +36,25 @@ pipeline {
                 }
             }
         }
-        stage('[BE] Integration tests') {
-            when{
+        stage('SonarQube Analysis') {
+            when {
                 anyOf {
-                     branch 'dev'
-                     branch 'main'
-                     environment name: 'CHANGE_TARGET', value: 'dev'
+                    branch 'dev'
+                    branch 'feat/108-sonar' // CHANGEME: Remove this test branch
+                    branch 'main'
+                    environment name: 'CHANGE_TARGET', value: 'dev'
                 }
             }
             steps {
+                dir('cli') {
+                    withSonarQubeEnv("KiwiCardSonar") {
+                        sh "mvn verify sonar:sonar -Dsonar.projectKey=KiwiCardCLI -Dsonar.projectName='KiwiCardCLI' -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml"
+                    }
+                }
                 dir('backend') {
-                    echo '🧩 Pipeline is launching backend integration tests !'
-                    sh 'mvn verify'
+                    withSonarQubeEnv("KiwiCardSonar") {
+                        sh "mvn verify sonar:sonar -Dsonar.projectKey=KiwiCard -Dsonar.projectName='KiwiCard' -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml"
+                    }
                 }
             }
         }
@@ -65,23 +72,8 @@ pipeline {
                 }
             }
         }
-        stage('[CLI] Integration tests') {
-            when{
-                anyOf {
-                    branch 'dev'
-                    branch 'main'
-                    environment name: 'CHANGE_TARGET', value: 'dev'
-                }
-            }
-            steps {
-                dir('cli') {
-                    echo '🧩 Pipeline is launching cli integration tests !'
-                    sh 'mvn verify'
-                }
-            }
-        }
         stage('[BE] Jfrog push') {
-            when{
+            when {
                 anyOf {
                     branch 'dev'
                     branch 'main'
@@ -93,12 +85,12 @@ pipeline {
                         echo '📦 Building the backend project !'
                         sh 'mvn install -DskipTests'
                         def folderName
-                        def fileName = "kiwi-card-be"
-                        if( env.GIT_BRANCH == "main" ){
+                        def fileName = 'kiwi-card-be'
+                        if (env.GIT_BRANCH == 'main') {
                             def date = new Date().format('yyMMdd-HHmm')
                             fileName = fileName + "-${date}.jar"
                             folderName = "release/${date}"
-                        }else{
+                        }else {
                             def date = new Date().format('yyMMdd-HHmm')
                             fileName = fileName + "-${date}-SNAPSHOT.jar"
                             folderName = "snapshot/${date}"
@@ -110,7 +102,7 @@ pipeline {
             }
         }
         stage('[CLI] Jfrog push') {
-            when{
+            when {
                 anyOf {
                     branch 'dev'
                     branch 'main'
@@ -122,12 +114,12 @@ pipeline {
                         echo '📦 Building the cli project !'
                         sh 'mvn install -DskipTests'
                         def folderName
-                        def fileName = "kiwi-card-cli"
-                        if( env.GIT_BRANCH == "main" ){
+                        def fileName = 'kiwi-card-cli'
+                        if (env.GIT_BRANCH == 'main') {
                             def date = new Date().format('yyMMdd-HHmm')
                             fileName = fileName + "-${date}.jar"
                             folderName = "release/${date}"
-                        }else{
+                        }else {
                             def date = new Date().format('yyMMdd-HHmm')
                             fileName = fileName + "-${date}-SNAPSHOT.jar"
                             folderName = "snapshot/${date}"
