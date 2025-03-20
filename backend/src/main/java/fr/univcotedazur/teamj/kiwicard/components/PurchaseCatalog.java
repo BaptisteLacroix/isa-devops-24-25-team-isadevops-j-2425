@@ -45,8 +45,8 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
     }
 
 
-    @Transactional
     @Override
+    @Transactional
     public void consumeNLastItemsOfCustomerInPartner(int nbItemsConsumed, String customerEmail, long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException {
         this.purchaseRepository.findAllByCustomerAndPartner(customerEmail, partnerId).stream()
                 .map(p -> p.getCart().getItems())
@@ -55,8 +55,8 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
                 .forEach(i -> i.setConsumed(true));
     }
 
-    @Transactional
     @Override
+    @Transactional
     public Purchase createPurchase(String customerEmail, Long amount) throws UnknownCustomerEmailException {
         Customer customer = this.customerCatalog.findCustomerByEmail(customerEmail);
         Cart cart = customer.getCart();

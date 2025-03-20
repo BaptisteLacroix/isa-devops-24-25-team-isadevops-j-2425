@@ -398,6 +398,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         cartItemHappyKids.setItem(happyKids);
         cartItemHappyKids.setStartTime(LocalDateTime.of(2025, 6, 1, 10, 0, 0));
         cartItemHappyKids.setQuantity(1);
+        cartHappyKids.setPartner(partnerHappyKids);
         cartHappyKids.addItem(cartItemHappyKids);
 
         customerAlice.setCart(cartHappyKids);
