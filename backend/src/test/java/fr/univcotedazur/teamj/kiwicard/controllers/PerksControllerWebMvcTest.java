@@ -141,7 +141,7 @@ class PerksControllerWebMvcTest extends BaseUnitTest {
                 .andReturn();
         String jsonResult = result.getResponse().getContentAsString();
         ErrorDTO errorDTO = OBJECT_MAPPER.readValue(jsonResult, ErrorDTO.class);
-        assertEquals("Unknown customer email: unknown@example.com", errorDTO.errorMessage());
+        assertEquals("Adresse email inconnue: unknown@example.com", errorDTO.errorMessage());
     }
 
     @Test

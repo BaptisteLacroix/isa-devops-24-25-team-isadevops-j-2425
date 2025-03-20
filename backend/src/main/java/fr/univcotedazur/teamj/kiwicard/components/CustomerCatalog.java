@@ -61,6 +61,7 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
     }
 
     @Override
+    @Transactional
     public Customer findCustomerByEmail(String customerEmail) throws UnknownCustomerEmailException {
         Customer customer = customerRepository.findByEmail(customerEmail).orElse(null);
         if (customer == null) {
@@ -70,15 +71,17 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
     }
 
     @Override
+    @Transactional
     public CustomerDTO findCustomerByCardNum(String cardNumber) throws UnknownCardNumberException {
         Customer customer = customerRepository.findByCardNumber(cardNumber).orElse(null);
         if (customer == null) {
-            throw new UnknownCardNumberException();
+            throw new UnknownCardNumberException(cardNumber);
         }
         return new CustomerDTO(customer);
     }
 
     @Override
+    @Transactional
     public List<CustomerDTO> findAll() {
         return customerRepository.findAll()
                 .stream()
@@ -95,6 +98,7 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
      * @throws UnknownCustomerEmailException si l'adresse email n'est pas reconnue
      */
     @Override
+    @Transactional
     public Customer setCart(String customerEmail, Cart cart) throws UnknownCustomerEmailException {
         Customer customer = customerRepository.findByEmail(customerEmail).orElse(null);
         if (customer == null) {
@@ -111,6 +115,7 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
      * @throws UnknownCustomerEmailException si l'adresse email n'est pas reconnue
      */
     @Override
+    @Transactional
     public Customer emptyCart(String customerEmail) throws UnknownCustomerEmailException {
         Customer customer = customerRepository.findByEmail(customerEmail).orElse(null);
         if (customer == null) {
@@ -124,6 +129,7 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
      * Rafraîchit le statut VFP des clients en fonction du nombre d'achats requis
      */
     @Override
+    @Transactional
     public void refreshVfpStatus() {
         customerRepository.refreshVfpStatus(nbPurchaseRequired, LocalDateTime.now().minusDays(7), LocalDateTime.now());
     }

@@ -12,6 +12,8 @@ import fr.univcotedazur.teamj.kiwicard.interfaces.customer.IVfpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 @RequestMapping(path = "/customers")
@@ -35,8 +37,9 @@ public class CustomerController {
      * @throws AlreadyUsedEmailException           si l'adresse email est déjà utilisée
      */
     @PostMapping("")
-    public void createCustomer(@RequestBody CustomerSubscribeDTO customer) throws UnreachableExternalServiceException, AlreadyUsedEmailException {
+    public ResponseEntity<Void> createCustomer(@RequestBody CustomerSubscribeDTO customer) throws UnreachableExternalServiceException, AlreadyUsedEmailException {
         customerRegistration.register(customer);
+        return ResponseEntity.created(null).build();
     }
 
     /**
@@ -48,14 +51,14 @@ public class CustomerController {
      * @throws UnknownCardNumberException si le numéro de carte est inconnu
      */
     @GetMapping("")
-    public CustomerDTO findCustomerByEmailOrByCardNumber(@RequestParam(required = false) String email, @RequestParam(required = false) String cardNumber) throws UnknownCustomerEmailException, UnknownCardNumberException {
+    public ResponseEntity<CustomerDTO> findCustomerByEmailOrByCardNumber(@RequestParam(required = false) String email, @RequestParam(required = false) String cardNumber) throws UnknownCustomerEmailException, UnknownCardNumberException {
         if (email == null && cardNumber == null) {
             throw new IllegalArgumentException("Either email or cardNumber must be provided, but not both.");
         }
         if (email != null) {
-            return new CustomerDTO(customerFinder.findCustomerByEmail(email));
+            return ResponseEntity.ok().body(new CustomerDTO(customerFinder.findCustomerByEmail(email)));
         } else {
-            return customerFinder.findCustomerByCardNum(cardNumber);
+            return ResponseEntity.ok().body(customerFinder.findCustomerByCardNum(cardNumber));
         }
     }
 
@@ -63,8 +66,8 @@ public class CustomerController {
      * Récupère tous les clients
      */
     @GetMapping("/")
-    public void findAllCustomers() {
-        customerFinder.findAll();
+    public ResponseEntity<List<CustomerDTO>> findAllCustomers() {
+        return ResponseEntity.ok().body(customerFinder.findAll());
     }
 
     /**

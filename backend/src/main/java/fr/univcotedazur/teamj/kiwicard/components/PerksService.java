@@ -64,8 +64,8 @@ public class PerksService implements IPerksConsumer {
      * @throws UnknownCustomerEmailException si le client n'existe pas
      * @throws NoCartException               si le client n'a pas de panier
      */
-    @Transactional
     @Override
+    @Transactional
     public List<IPerkDTO> findConsumablePerksForConsumerAtPartner(String consumerEmail) throws UnknownCustomerEmailException, NoCartException {
         Customer customer = customerFinder.findCustomerByEmail(consumerEmail);
         Cart cart = customer.getCart();
