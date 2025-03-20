@@ -1,6 +1,8 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.PurchaseHistoryDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.*;
 import fr.univcotedazur.teamj.kiwicard.exceptions.*;
 import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPartnerManager;
@@ -77,38 +79,42 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
     }
 
     @Override
-    public Purchase findPurchaseById(long purchaseId) throws UnknownPurchaseIdException {
-        return this.purchaseRepository.findById(purchaseId).orElseThrow(() -> new UnknownPurchaseIdException(purchaseId));
+    public PurchaseHistoryDTO findPurchaseById(long purchaseId) throws UnknownPurchaseIdException {
+        return this.purchaseRepository.findById(purchaseId).map(PurchaseHistoryDTO::new).orElseThrow(()->new UnknownPurchaseIdException(purchaseId));
     }
 
     @Override
-    public List<Purchase> findPurchasesByCustomerAndPartner(String customerEmail, long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException {
+    public List<PurchaseHistoryDTO> findPurchasesByCustomerAndPartner(String customerEmail, long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException {
         this.customerCatalog.findCustomerByEmail(customerEmail);
         this.partnerManager.findPartnerById(partnerId);
-        return this.purchaseRepository.findAllByCustomerAndPartner(customerEmail, partnerId);
+        return this.purchaseRepository.findAllByCustomerAndPartner(customerEmail, partnerId).stream().map(PurchaseHistoryDTO::new).toList();
     }
 
     @Override
-    public List<Purchase> findPurchasesByPartnerId(long partnerId) throws UnknownPartnerIdException {
+    public List<PurchaseHistoryDTO> findPurchasesByPartnerId(long partnerId) throws UnknownPartnerIdException {
         this.partnerManager.findPartnerById(partnerId);
-        return this.purchaseRepository.findAllByPartner(partnerId);
+        return this.purchaseRepository.findAllByPartner(partnerId).stream().map(PurchaseHistoryDTO::new).toList();
     }
 
     @Override
-    public List<Purchase> findPurchasesByCutomerEmail(String customerEmail) throws UnknownCustomerEmailException {
-        return this.purchaseRepository.findAllByCustomer(customerEmail);
+    @Transactional
+    public List<PurchaseHistoryDTO> findPurchasesByCustomerEmail(String customerEmail) throws UnknownCustomerEmailException {
+        return this.purchaseRepository.findAllByCustomer(customerEmail).stream().map(PurchaseHistoryDTO::new).toList();
     }
 
     @Override
-    public List<Purchase> findPurchasesByCutomerEmail(String customerEmail, int limit) throws UnknownCustomerEmailException {
+    @Transactional
+    public List<PurchaseHistoryDTO> findPurchasesByCustomerEmail(String customerEmail, int limit) throws UnknownCustomerEmailException {
         this.customerCatalog.findCustomerByEmail(customerEmail);
-        return this.purchaseRepository.findAllByCustomer(customerEmail, limit);
+        return this.purchaseRepository.findAllByCustomer(customerEmail, limit).stream()
+                .map(PurchaseHistoryDTO::new)
+                .toList();
     }
 
     @Override
-    public List<Purchase> findPurchasesByPartnerId(long partnerId, int limit) throws UnknownPartnerIdException {
+    public List<PurchaseHistoryDTO> findPurchasesByPartnerId(long partnerId, int limit) throws UnknownPartnerIdException {
         this.partnerManager.findPartnerById(partnerId);
-        return this.purchaseRepository.findAllByPartner(partnerId, limit);
+        return this.purchaseRepository.findAllByPartner(partnerId, limit).stream().map(PurchaseHistoryDTO::new).toList();
     }
 
     /**

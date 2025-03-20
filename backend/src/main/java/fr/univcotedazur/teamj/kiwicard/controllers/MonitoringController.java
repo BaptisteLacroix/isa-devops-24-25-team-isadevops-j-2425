@@ -1,15 +1,18 @@
 package fr.univcotedazur.teamj.kiwicard.controllers;
 
+import fr.univcotedazur.teamj.kiwicard.dto.PurchaseHistoryDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Purchase;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPurchaseIdException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseStats;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -31,25 +34,35 @@ public class MonitoringController {
     }
 
     @GetMapping("/purchase/{purchaseId}")
-    public Purchase getPurchase(@PathVariable long purchaseId) throws UnknownPartnerIdException, UnknownPurchaseIdException {
-        return purchaseFinder.findPurchaseById(purchaseId);
+    public ResponseEntity<PurchaseHistoryDTO> getPurchase(@PathVariable long purchaseId) throws UnknownPartnerIdException, UnknownPurchaseIdException {
+        return ResponseEntity.ok().body(purchaseFinder.findPurchaseById(purchaseId));
     }
 
     @GetMapping("/customer/{customerEmail}/history")
-    public List<Purchase> customerHistory(@PathVariable String customerEmail, @RequestParam Optional<Integer> limit) throws UnknownPartnerIdException, UnknownCustomerEmailException {
-        if (limit.isPresent()) return this.purchaseFinder.findPurchasesByCutomerEmail(customerEmail, limit.get());
-        return this.purchaseFinder.findPurchasesByCutomerEmail(customerEmail);
+    public ResponseEntity<List<PurchaseHistoryDTO>> customerHistory(@PathVariable String customerEmail, @RequestParam Optional<Integer> limit) throws UnknownCustomerEmailException {
+        List<PurchaseHistoryDTO> purchases;
+        if (limit.isPresent()) {
+            purchases = this.purchaseFinder.findPurchasesByCustomerEmail(customerEmail, limit.get());
+        } else {
+            purchases = this.purchaseFinder.findPurchasesByCustomerEmail(customerEmail);
+        }
+        return ResponseEntity.ok().body(purchases);
     }
 
     @GetMapping("/partner/{partnerId}/history")
-    public List<Purchase> partnerHistory(@PathVariable long partnerId, @RequestParam Optional<Integer> limit) throws UnknownPartnerIdException {
-        if (limit.isPresent()) return this.purchaseFinder.findPurchasesByPartnerId(partnerId, limit.get());
-        return purchaseFinder.findPurchasesByPartnerId(partnerId);
+    public ResponseEntity<List<PurchaseHistoryDTO>> partnerHistory(@PathVariable long partnerId, @RequestParam Optional<Integer> limit) throws UnknownPartnerIdException {
+        List<PurchaseHistoryDTO> purchases;
+        if (limit.isPresent()) {
+            purchases = this.purchaseFinder.findPurchasesByPartnerId(partnerId, limit.get());
+        }else{
+            purchases = purchaseFinder.findPurchasesByPartnerId(partnerId);
+        }
+        return ResponseEntity.ok().body(purchases);
     }
 
     @GetMapping("/purchase")
-    public List<Purchase> getByCustomerAndPartner(@RequestParam String customerEmail, @RequestParam long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException {
-        return purchaseFinder.findPurchasesByCustomerAndPartner(customerEmail, partnerId);
+    public ResponseEntity<List<PurchaseHistoryDTO>> getByCustomerAndPartner(@RequestParam String customerEmail, @RequestParam long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException {
+        return ResponseEntity.ok().body(purchaseFinder.findPurchasesByCustomerAndPartner(customerEmail, partnerId));
     }
 
     public record TwoDaysAggregation(Map<LocalTime, Integer> day1Aggregation, Map<LocalTime, Integer> day2Aggregation){}
