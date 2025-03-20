@@ -182,7 +182,7 @@ class CartControllerWebMvcTest extends BaseUnitTest {
         String jsonResult = result.getResponse().getContentAsString();
         PurchaseDTO responsePurchase = OBJECT_MAPPER.readValue(jsonResult, PurchaseDTO.class);
         Assertions.assertNotNull(responsePurchase);
-        Assertions.assertEquals(purchaseDTO.cartOwnerEmail(), responsePurchase.cartOwnerEmail());
+        Assertions.assertEquals(purchaseDTO.email(), responsePurchase.email());
         Assertions.assertEquals(purchaseDTO.cartDTO(), responsePurchase.cartDTO());
         Assertions.assertEquals(purchaseDTO.paymentDTO(), responsePurchase.paymentDTO());
     }

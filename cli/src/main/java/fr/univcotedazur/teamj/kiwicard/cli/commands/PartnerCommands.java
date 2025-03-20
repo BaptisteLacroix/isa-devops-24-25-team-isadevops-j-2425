@@ -175,7 +175,7 @@ public class PartnerCommands {
             Integer quantity
     ) {
         checkQuantity(quantity);
-        CliCartItemToSent cartItemDTO = new CliCartItemToSent(quantity, null, null, itemId);
+        CliCartItemToSent cartItemDTO = new CliCartItemToSent(quantity, null, itemId);
         CliCart updatedCart = sendCartRequest(customerEmail, cartItemDTO);
 
         if (updatedCart != null) {
@@ -220,7 +220,7 @@ public class PartnerCommands {
             Integer quantity
     ) {
         checkQuantity(quantity);
-        CliCartItemToSent cartItemDTO = new CliCartItemToSent(quantity, startTime, endTime, itemId);
+        CliCartItemToSent cartItemDTO = new CliCartItemToSent(quantity, startTime, itemId);
         CliCart updatedCart = sendCartRequest(customerEmail, cartItemDTO);
 
         if (updatedCart != null) {
