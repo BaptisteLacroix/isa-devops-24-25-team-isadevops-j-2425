@@ -42,7 +42,7 @@ public class SessionService {
                 -c, --customer The email address of the customer.
                 -p, --partner  The ID of the partner.
             Example:
-                login -c""")
+                login -c clement@armeedeterre.fr""")
     public String login(@ShellOption(value = {"-c", "--customer"}, defaultValue = "") String customerEmail,
                         @ShellOption(value = {"-p", "--partner"}, defaultValue = "-1") Long partnerId) {
         if (!Objects.equals(customerEmail, "") && partnerId == -1) {

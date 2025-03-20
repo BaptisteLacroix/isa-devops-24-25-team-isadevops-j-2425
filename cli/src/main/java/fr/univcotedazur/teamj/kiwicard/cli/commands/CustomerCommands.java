@@ -80,11 +80,11 @@ public class CustomerCommands {
      */
     @ShellMethod(value = """
                     Pay a customer's cart:
-                    Usage: pay-cart --customer-email <customer-email>
+                    Usage: pay-cart --customerEmail <customer-email>
                     Parameters:
                         --customer-email The email of the customer whose cart should be paid.
                     Example:
-                        pay-cart --customer-email "
+                        pay-cart --customerEmail clement@armeedeterre.fr"
             """, key = "pay-cart")
     public String payCart(@ShellOption(defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail) {
         customerEmail = cliSession.tryInjectingCustomerEmail(customerEmail);
