@@ -127,7 +127,7 @@ class CartServiceTest extends BaseUnitTest {
         when(existingCartDTO.items()).thenReturn(new HashSet<>(List.of(cartItemDTO)));
         when(existingCartDTO.perksList()).thenReturn(new ArrayList<>());
 
-        when(customerDTO.cartDTO()).thenReturn(existingCartDTO);
+        when(customerDTO.cart()).thenReturn(existingCartDTO);
         when(customerDTO.vfp()).thenReturn(false);
         when(customerDTO.creditCard()).thenReturn("1234567890");
         when(customerDTO.email()).thenReturn("customer@email.com");
@@ -374,7 +374,7 @@ class CartServiceTest extends BaseUnitTest {
 
         // Then
         assertNotNull(result);
-        assertEquals("customer@email.com", result.cartOwnerEmail());
+        assertEquals("customer@email.com", result.email());
         assertNotNull(result.cartDTO());
         assertNotNull(result.paymentDTO());
     }
