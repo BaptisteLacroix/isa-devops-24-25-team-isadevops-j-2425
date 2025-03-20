@@ -13,7 +13,7 @@ public record CartDTO (long cartId, PartnerDTO partner, Set<CartItemDTO> items, 
         this(
                 entity.getCartId(),
                 new PartnerDTO(entity.getPartner()),
-                entity.getItemList().stream().map(CartItemDTO::new).collect(Collectors.toSet()),
+                entity.getItems().stream().map(CartItemDTO::new).collect(Collectors.toSet()),
                 entity.getPerksToUse().stream().map(PerkMapper::toDTO).toList()
         );
     }

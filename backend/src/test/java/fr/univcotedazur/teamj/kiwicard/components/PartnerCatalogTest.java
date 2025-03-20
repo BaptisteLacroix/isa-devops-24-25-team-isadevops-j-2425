@@ -48,7 +48,6 @@ class PartnerCatalogTest extends BaseUnitTest {
         when(mockPartner.getPartnerId()).thenReturn(2L);
         when(mockPartner.getName()).thenReturn("Boulange");
         when(mockPartner.getAddress()).thenReturn("2 avenue des mimosas");
-        
     }
 
     @Test

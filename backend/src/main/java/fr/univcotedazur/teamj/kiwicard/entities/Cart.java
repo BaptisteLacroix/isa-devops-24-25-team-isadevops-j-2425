@@ -13,7 +13,6 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -52,6 +51,11 @@ public class Cart {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "cart_id")
     private Set<CartItem> itemList = new HashSet<>();
+    private static String HAPPY_KIDS_ITEM_NAME;
+
+    public static void setHappyKidsItemName(String itemName) {
+        HAPPY_KIDS_ITEM_NAME = itemName;
+    }
 
     public Cart() {
     }
@@ -82,9 +86,9 @@ public class Cart {
         this.itemList.add(item);
     }
 
-    public List<CartItem> getHKItems(@Value("${happykids.item.name}") String itemName) {
+    public List<CartItem> getHKItems() {
         return this.itemList.stream()
-                .filter(item -> item.getItem().getLabel().contains(itemName))
+                .filter(item -> item.getItem().getLabel().contains(HAPPY_KIDS_ITEM_NAME))
                 .toList();
 
     }
@@ -102,7 +106,7 @@ public class Cart {
         return partner;
     }
 
-    public Set<CartItem> getItemList() {
+    public Set<CartItem> getItems() {
         return itemList;
     }
 
@@ -133,6 +137,6 @@ public class Cart {
     }
 
     public double getTotalPrice() {
-        return getItemList().stream().mapToDouble(CartItem::getPrice).sum();
+        return this.getItems().stream().mapToDouble(CartItem::getPrice).sum();
     }
 }

@@ -95,7 +95,7 @@ public class CartService implements ICartModifier, ICartFinder {
 
         // Check if the item already exists in the cart
         boolean itemExists = false;
-        for (CartItem existingCartItem : customerCart.getItemList()) {
+        for (CartItem existingCartItem : customerCart.getItems()) {
             if (existingCartItem.getItem().getItemId().equals(item.getItemId())) {
                 // If the item exists, update the quantity
                 existingCartItem.setQuantity(existingCartItem.getQuantity() + cartItemDTO.quantity());
@@ -109,7 +109,7 @@ public class CartService implements ICartModifier, ICartFinder {
         // If the item doesn't exist, add a new item to the cart
         if (!itemExists) {
             CartItem newCartItem = new CartItem(item, cartItemDTO.quantity(), cartItemDTO.startTime(), cartItemDTO.endTime());
-            customerCart.getItemList().add(newCartItem);
+            customerCart.getItems().add(newCartItem);
         }
 
         // Update the customer's cart
@@ -178,7 +178,7 @@ public class CartService implements ICartModifier, ICartFinder {
         Customer customer = customerCatalog.findCustomerByEmail(cartOwnerEmail);
         Cart cart = verifyCart(customer);
         // Remove the item from the cart
-        cart.getItemList().removeIf(cartItem -> cartItem.getItem().getItemId().equals(cartItemDTO.item().itemId()));
+        cart.getItems().removeIf(cartItem -> cartItem.getItem().getItemId().equals(cartItemDTO.item().itemId()));
         Customer updatedCustomer = customerCatalog.setCart(cartOwnerEmail, cart);
         return new CartDTO(updatedCustomer.getCart());
     }
@@ -225,7 +225,7 @@ public class CartService implements ICartModifier, ICartFinder {
         if (cart == null) {
             throw new NoCartException(customer.getEmail());
         }
-        if (cart.getItemList().isEmpty()) {
+        if (cart.getItems().isEmpty()) {
             throw new EmptyCartException(cart.getCartId());
         }
         return cart;

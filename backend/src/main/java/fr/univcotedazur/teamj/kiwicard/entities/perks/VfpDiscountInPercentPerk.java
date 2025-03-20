@@ -89,7 +89,7 @@ public class VfpDiscountInPercentPerk extends AbstractPerk {
         if (customer.getCart() == null) {
             return false;
         }
-        List<CartItem> hkItems = customer.getCart().getHKItems(null);
+        List<CartItem> hkItems = customer.getCart().getHKItems();
 
         for (CartItem item : hkItems) {
             if (item.getStartTime() == null) {

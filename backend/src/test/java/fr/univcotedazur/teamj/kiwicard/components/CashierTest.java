@@ -55,13 +55,13 @@ class CashierTest extends BaseUnitTest {
         perk = mock(AbstractPerk.class);
 
         cart = mock(Cart.class);
-        when(cart.getItemList()).thenReturn(Set.of(cartItem));
+        when(cart.getItems()).thenReturn(Set.of(cartItem));
         when(cart.getPerksToUse()).thenReturn(Collections.singletonList(perk));
 
         // Set up a mock customer
         customer = mock(Customer.class);
         when(customer.getCart()).thenReturn(cart);
-        when(customer.getCart().getItemList()).thenReturn(Set.of(cartItem));
+        when(customer.getCart().getItems()).thenReturn(Set.of(cartItem));
         when(customer.getCart().getPerksToUse()).thenReturn(Collections.singletonList(perk));
         when(customer.getCardNumber()).thenReturn("1234567890");
 

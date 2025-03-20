@@ -54,4 +54,16 @@ public class Purchase {
     public void setPartner(Partner partner) {
         this.partner = partner;
     }
+
+    public boolean isAlreadyConsumedInAPerk() {
+        return alreadyConsumedInAPerk;
+    }
+
+    public void setAlreadyConsumedInAPerk(boolean alreadyConsumedInAPerk) {
+        this.alreadyConsumedInAPerk = alreadyConsumedInAPerk;
+    }
+
+    public Long getPurchaseId() {
+        return purchaseId;
+    }
 }
