@@ -8,7 +8,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.containers.ComposeContainer;
 import org.testcontainers.containers.ContainerState;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
-import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.io.File;
 
@@ -17,17 +16,17 @@ import java.io.File;
 public abstract class EndToEndBaseTest {
     private static final Logger logger = LoggerFactory.getLogger(EndToEndBaseTest.class);
 
-private static final ComposeContainer environment = new ComposeContainer(new File("./src/test/resources/docker-compose.yml"))
-    .withExposedService("postgres", 5432)
-        .withExposedService("wiremock-bank", 8080)
-        .withExposedService("wiremock-card", 8080)
-        .withExposedService("wiremock-happykids", 8080)
-        .withExposedService("kiwicard-server", 8080, Wait.forHttp("/actuator/health").forStatusCode(200))
-    .withLogConsumer("postgres", new Slf4jLogConsumer(LoggerFactory.getLogger("postgres")))
-    .withLogConsumer("wiremock-bank", new Slf4jLogConsumer(LoggerFactory.getLogger("wiremock-bank")))
-    .withLogConsumer("wiremock-card", new Slf4jLogConsumer(LoggerFactory.getLogger("wiremock-card")))
-    .withLogConsumer("wiremock-happykids", new Slf4jLogConsumer(LoggerFactory.getLogger("wiremock-happykids")))
-    .withLogConsumer("kiwicard-server", new Slf4jLogConsumer(LoggerFactory.getLogger("kiwicard-server")));
+    private static final ComposeContainer environment = new ComposeContainer(new File("./src/test/resources/docker-compose.yml"))
+            .withExposedService("postgres", 5432)
+            .withExposedService("wiremock-bank", 8080)
+            .withExposedService("wiremock-card", 8080)
+            .withExposedService("wiremock-happykids", 8080)
+            .withExposedService("kiwicard-server", 8080)
+            .withLogConsumer("postgres", new Slf4jLogConsumer(LoggerFactory.getLogger("postgres")))
+            .withLogConsumer("wiremock-bank", new Slf4jLogConsumer(LoggerFactory.getLogger("wiremock-bank")))
+            .withLogConsumer("wiremock-card", new Slf4jLogConsumer(LoggerFactory.getLogger("wiremock-card")))
+            .withLogConsumer("wiremock-happykids", new Slf4jLogConsumer(LoggerFactory.getLogger("wiremock-happykids")))
+            .withLogConsumer("kiwicard-server", new Slf4jLogConsumer(LoggerFactory.getLogger("kiwicard-server")));
 
     static void startContainers() {
         logger.info("Starting containers");
@@ -35,7 +34,6 @@ private static final ComposeContainer environment = new ComposeContainer(new Fil
         System.setProperty("DATABASE_URL", getDatabaseUrl());
         System.setProperty("WIREMOCK_BANK_URL", getWiremockBankUrl());
         System.setProperty("CARD_WITH_PORT", getWiremockCardUrl());
-        logger.info("Card with port: " + getWiremockCardUrl());
         System.setProperty("cardeditor.host.baseurl", getWiremockCardUrl());
         System.setProperty("WIREMOCK_HAPPYKIDS_URL", getWiremockHappyKidsUrl());
         System.setProperty("BACKEND_URL", getBackendUrl());

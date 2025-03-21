@@ -12,6 +12,7 @@ import fr.univcotedazur.teamj.kiwicard.interfaces.customer.IVfpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 
@@ -38,8 +39,8 @@ public class CustomerController {
      */
     @PostMapping("")
     public ResponseEntity<Void> createCustomer(@RequestBody CustomerSubscribeDTO customer) throws UnreachableExternalServiceException, AlreadyUsedEmailException {
-        customerRegistration.register(customer);
-        return ResponseEntity.created(null).build();
+        CustomerDTO customerDTO = customerRegistration.register(customer);
+        return ResponseEntity.created(URI.create("/customers/" + customerDTO.email())).build();
     }
 
     /**

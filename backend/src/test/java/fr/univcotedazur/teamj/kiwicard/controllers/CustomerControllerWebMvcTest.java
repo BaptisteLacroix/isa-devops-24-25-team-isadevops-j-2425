@@ -10,7 +10,6 @@ import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyUsedEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCardNumberException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
-import fr.univcotedazur.teamj.kiwicard.interfaces.customer.ICustomerFinder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -46,7 +45,9 @@ class CustomerControllerWebMvcTest extends BaseUnitTest {
         CustomerSubscribeDTO dto = new CustomerSubscribeDTO(
                 "test@example.com", "Roxane", "Roxx", "2 passage Marie Antoinette"
         );
+        CustomerDTO customerDTO = new CustomerDTO(new Customer(dto, "dummyCard"));
         String json = mapper.writeValueAsString(dto);
+        when(customerCatalog.register(dto)).thenReturn(customerDTO);
 
         mockMvc.perform(post("/customers")
                         .contentType(MediaType.APPLICATION_JSON)
