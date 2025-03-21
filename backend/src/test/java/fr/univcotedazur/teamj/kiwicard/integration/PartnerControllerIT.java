@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -38,6 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class PartnerControllerIT extends BaseUnitTest {
 
     public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -62,7 +64,7 @@ class PartnerControllerIT extends BaseUnitTest {
         croissantDTO = new ItemDTO(1, "Croissant", 1.2);
         painAuChocolatDTO = new ItemDTO(2, "Pain au chocolat", 1.8);
 
-        partnerRepository.deleteAll();
+//        partnerRepository.deleteAll();
     }
 
     @Test
@@ -105,7 +107,6 @@ class PartnerControllerIT extends BaseUnitTest {
 
     @Test
     void getPartnerByIdNotFound() throws Exception {
-//        when(partnerManager.findPartnerById(2)).thenThrow(new UnknownPartnerIdException(2));
         mockMvc.perform(get(PartnerController.BASE_URI + "/2")
                         .contentType(APPLICATION_JSON))
                 .andDo(print())

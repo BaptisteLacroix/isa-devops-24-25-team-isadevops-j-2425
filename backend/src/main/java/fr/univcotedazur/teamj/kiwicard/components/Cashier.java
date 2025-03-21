@@ -15,6 +15,7 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.IHappyKids;
 import fr.univcotedazur.teamj.kiwicard.interfaces.IPayment;
+import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseCreator;
 import fr.univcotedazur.teamj.kiwicard.mappers.PerkMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -33,6 +34,7 @@ public class Cashier implements IPayment {
 
     private final BankProxy bankProxy;
     private final IHappyKids happyKidsProxy;
+    private final IPurchaseCreator purchaseCreator;
 
     /**
      * Constructs a {@code Cashier} instance with the specified {@link BankProxy} and {@link IHappyKids} dependencies.
@@ -41,9 +43,10 @@ public class Cashier implements IPayment {
      * @param happyKidsProxy The proxy that handles interactions with the HappyKids service.
      */
     @Autowired
-    public Cashier(BankProxy bankProxy, IHappyKids happyKidsProxy) {
+    public Cashier(BankProxy bankProxy, IHappyKids happyKidsProxy, IPurchaseCreator purchaseCreator) {
         this.bankProxy = bankProxy;
         this.happyKidsProxy = happyKidsProxy;
+        this.purchaseCreator = purchaseCreator;
     }
 
     /**
@@ -61,10 +64,12 @@ public class Cashier implements IPayment {
      */
     @Override
     public PaymentDTO makePay(Customer customer) throws UnreachableExternalServiceException, ClosedTimeException, BookingTimeNotSetException {
-        PaymentResponseDTO paymentResponseDTO = computePrice(customer);
+        PaymentResponseDTO paymentResponseDTO = computePurchaseTotalPrice(customer);
         // Prepare the payment request and process it via the bank proxy
         PaymentRequestDTO paymentRequestDTO = new PaymentRequestDTO(customer.getCardNumber(), paymentResponseDTO.totalPrice());
-        return bankProxy.askPayment(paymentRequestDTO);
+        PaymentDTO paymentDTO = bankProxy.askPayment(paymentRequestDTO);
+        purchaseCreator.createPurchase(customer, paymentResponseDTO.totalPrice());
+        return paymentDTO;
     }
 
     /**
@@ -76,7 +81,7 @@ public class Cashier implements IPayment {
      * @throws UnreachableExternalServiceException If an external service is unreachable during the computation.
      * @throws BookingTimeNotSetException If the booking time is not set for the customer.
      */
-    PaymentResponseDTO computePrice(Customer customer) throws ClosedTimeException, UnreachableExternalServiceException, BookingTimeNotSetException {
+    PaymentResponseDTO computePurchaseTotalPrice(Customer customer) throws ClosedTimeException, UnreachableExternalServiceException, BookingTimeNotSetException {
         Cart cart = customer.getCart();
         // Apply perks to the customer
         applyPerksToCart(cart, customer);

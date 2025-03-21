@@ -272,7 +272,7 @@ public class CartService implements ICartModifier, ICartFinder {
         // Create the purchase
         PaymentDTO paymentDTO = payment.makePay(customer);
         PurchaseDTO purchaseDTO = new PurchaseDTO(cartOwnerEmail, new CartDTO(cart), paymentDTO);
-        customerCatalog.emptyCart(cartOwnerEmail);
+        customerCatalog.resetCart(cartOwnerEmail);
         return purchaseDTO;
     }
 

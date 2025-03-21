@@ -115,7 +115,8 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
      * @throws UnknownCustomerEmailException si l'adresse email n'est pas reconnue
      */
     @Override
-    public Customer emptyCart(String customerEmail) throws UnknownCustomerEmailException {
+    @Transactional
+    public Customer resetCart(String customerEmail) throws UnknownCustomerEmailException {
         Customer customer = customerRepository.findByEmail(customerEmail).orElse(null);
         if (customer == null) {
             throw new UnknownCustomerEmailException(customerEmail);

@@ -1,7 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PurchaseHistoryDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.*;
 import fr.univcotedazur.teamj.kiwicard.exceptions.*;
@@ -10,6 +9,8 @@ import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseConsumer;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseCreator;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseFinder;
 import fr.univcotedazur.teamj.kiwicard.repositories.IPurchaseRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,12 +24,15 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
     private final IPurchaseRepository purchaseRepository;
     private final CustomerCatalog customerCatalog;
     private final IPartnerManager partnerManager;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Autowired
-    public PurchaseCatalog(IPurchaseRepository purchaseRepository, CustomerCatalog customerCatalog, IPartnerManager partnerManager) {
+    public PurchaseCatalog(IPurchaseRepository purchaseRepository, CustomerCatalog customerCatalog, IPartnerManager partnerManager, EntityManager entityManager) {
         this.purchaseRepository = purchaseRepository;
         this.customerCatalog = customerCatalog;
         this.partnerManager = partnerManager;
+        this.entityManager = entityManager;
     }
 
     @Override
@@ -60,9 +64,9 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
 
     @Override
     @Transactional
-    public Purchase createPurchase(String customerEmail, Long amount) throws UnknownCustomerEmailException {
-        Customer customer = this.customerCatalog.findCustomerByEmail(customerEmail);
+    public Purchase createPurchase(Customer customer, double amount) {
         Cart cart = customer.getCart();
+        cart = entityManager.merge(cart);
         Payment payment = new Payment(amount, LocalDateTime.now());
         var purchase = new Purchase(
                 payment,

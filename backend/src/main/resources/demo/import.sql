@@ -290,7 +290,6 @@ INSERT INTO public.payment (amount, payment_id, "timestamp") VALUES (3, 1, '2025
 INSERT INTO public.payment (amount, payment_id, "timestamp") VALUES (2.5, 2, '2025-03-18 10:00:00');
 INSERT INTO public.payment (amount, payment_id, "timestamp") VALUES (2, 3, '2025-03-18 10:00:00');
 
-
 --
 -- Data for Name: purchase; Type: TABLE DATA; Schema: public; Owner: postgresuser
 --
@@ -305,6 +304,14 @@ INSERT INTO public.customer_purchase_list (purchase_list_purchase_id, customer_e
 INSERT INTO public.customer_purchase_list (purchase_list_purchase_id, customer_email) VALUES (1, 'alice.bob@gmail.com');
 INSERT INTO public.customer_purchase_list (purchase_list_purchase_id, customer_email) VALUES (3, 'alice.bob@gmail.com');
 
+-- Update Sequences
+select setval('abstract_perk_seq', (select max(perk_id) from abstract_perk));
+select setval('cart_item_seq', (select max(cart_item_id) from cart_item));
+select setval('cart_seq', (select max(cart_id) from cart));
+select setval('item_seq', (select max(item_id) from item));
+select setval('partner_seq', (select max(partner_id) from partner));
+select setval('payment_seq', (select max(payment_id) from payment));
+select setval('purchase_seq', (select max(purchase_id) from purchase));
 
 --
 -- --
