@@ -91,7 +91,7 @@ public class MonitoringCommands {
                             payment.timestamp().format(DateTimeFormatter.ofPattern("dd/MM/yyyy à HH:mm")),
                             cart.partner().name(),
                             itemStr,
-                            payment.amount() + "€",
+                            String.format("%.2f€",payment.amount()),
                             perkStr));
                 } else {
                     sb.append(String.format(lineTemplate,
