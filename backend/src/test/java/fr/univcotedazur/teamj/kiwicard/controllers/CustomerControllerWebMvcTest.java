@@ -81,7 +81,7 @@ class CustomerControllerWebMvcTest extends BaseUnitTest {
         String email = "test@example.com";
         String dummyCard = "dummyCard";
         Customer customer = new Customer("test@example.com", "Roxane", "Roxx", "3 passage du test", false);
-        when(customerCatalog.findCustomerByEmail(email)).thenReturn(customer);
+        when(customerCatalog.findCustomerDTOByEmail(email)).thenReturn(new CustomerDTO(customer));
 
         mockMvc.perform(get("/customers")
                         .param("email", email)
@@ -89,14 +89,14 @@ class CustomerControllerWebMvcTest extends BaseUnitTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(new CustomerDTO(customer))));
 
-        verify(customerCatalog, times(1)).findCustomerByEmail(email);
+        verify(customerCatalog, times(1)).findCustomerDTOByEmail(email);
     }
 
     @Test
     void findCustomerByEmailThrowsUnknownCustomerEmailExceptionTest() throws Exception {
         String email = "inconnu@example.com";
         String dummyCard = "dummyCard";
-        doThrow(new UnknownCustomerEmailException(email)).when(customerCatalog).findCustomerByEmail(email);
+        doThrow(new UnknownCustomerEmailException(email)).when(customerCatalog).findCustomerDTOByEmail(email);
 
         mockMvc.perform(get("/customers")
                         .param("email", email)
@@ -104,7 +104,7 @@ class CustomerControllerWebMvcTest extends BaseUnitTest {
                 .andExpect(status().isNotFound())
                 .andExpect(content().json(mapper.writeValueAsString(new ErrorDTO("Adresse email inconnue: " + email))));
 
-        verify(customerCatalog, times(1)).findCustomerByEmail(email);
+        verify(customerCatalog, times(1)).findCustomerDTOByEmail(email);
     }
 
     @Test

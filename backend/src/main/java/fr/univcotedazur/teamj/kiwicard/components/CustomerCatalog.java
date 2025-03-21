@@ -72,8 +72,8 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
 
     @Override
     @Transactional
-    public CustomerDTO findCustomerDTOByEmail(String customerEMail) throws UnknownCustomerEmailException {
-        return new CustomerDTO(findCustomerByEmail(customerEMail));
+    public CustomerDTO findCustomerDTOByEmail(String customerEmail) throws UnknownCustomerEmailException {
+        return new CustomerDTO(findCustomerByEmail(customerEmail));
     }
 
     @Override
