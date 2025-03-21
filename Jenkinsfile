@@ -138,23 +138,25 @@ pipeline {
                 }
             }
            steps {
-               dir('backend') {
-                   sh './build.sh'
-                   echo '📦🐋 Push de l\'image backend sur DockerHub'
-                   sh '''
-                       docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
-                       docker tag teamj/kiwicard-spring-backend $DOCKERHUB_USERNAME/kiwicard-spring-backend:latest
-                       docker push $DOCKERHUB_USERNAME/kiwicard-spring-backend:latest
-                   '''
-               }
-               dir('cli') {
-                   sh './build.sh'
-                   echo '📦🐋 Push de l\'image CLI sur DockerHub'
-                   sh '''
-                       docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
-                       docker tag teamj/kiwicard-cli $DOCKERHUB_USERNAME/kiwicard-cli:latest
-                       docker push $DOCKERHUB_USERNAME/kiwicard-cli:latest
-                   '''
+               withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                   dir('backend') {
+                       sh './build.sh'
+                       echo '📦🐋 Push de l\'image backend sur DockerHub'
+                       sh '''
+                           docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
+                           docker tag teamj/kiwicard-spring-backend $DOCKERHUB_USERNAME/kiwicard-spring-backend:latest
+                           docker push $DOCKERHUB_USERNAME/kiwicard-spring-backend:latest
+                       '''
+                   }
+                   dir('cli') {
+                       sh './build.sh'
+                       echo '📦🐋 Push de l\'image CLI sur DockerHub'
+                       sh '''
+                           docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
+                           docker tag teamj/kiwicard-cli $DOCKERHUB_USERNAME/kiwicard-cli:latest
+                           docker push $DOCKERHUB_USERNAME/kiwicard-cli:latest
+                       '''
+                   }
                }
            }
 
