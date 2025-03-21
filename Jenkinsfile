@@ -76,12 +76,13 @@ pipeline {
                 anyOf {
                     branch 'dev'
                     branch 'main'
+                    environment name: 'CHANGE_TARGET', value: 'dev'
                 }
             }
             steps {
                 dir('backend') {
                     script {
-                        echo '📦 Building the backend project !'
+                        echo '📦 Building the backend project for Jfrog push!'
                         sh 'mvn install -DskipTests'
                         def folderName
                         def fileName = 'kiwi-card-be'
@@ -89,7 +90,7 @@ pipeline {
                             def date = new Date().format('yyMMdd-HHmm')
                             fileName = fileName + "-${date}.jar"
                             folderName = "release/${date}"
-                        }else {
+                        } else {
                             def date = new Date().format('yyMMdd-HHmm')
                             fileName = fileName + "-${date}-SNAPSHOT.jar"
                             folderName = "snapshot/${date}"
@@ -105,12 +106,13 @@ pipeline {
                 anyOf {
                     branch 'dev'
                     branch 'main'
+                    environment name: 'CHANGE_TARGET', value: 'dev'
                 }
             }
             steps {
                 dir('cli') {
                     script {
-                        echo '📦 Building the cli project !'
+                        echo '📦 Building the cli project for Jfrog push!'
                         sh 'mvn install -DskipTests'
                         def folderName
                         def fileName = 'kiwi-card-cli'
@@ -118,7 +120,7 @@ pipeline {
                             def date = new Date().format('yyMMdd-HHmm')
                             fileName = fileName + "-${date}.jar"
                             folderName = "release/${date}"
-                        }else {
+                        } else {
                             def date = new Date().format('yyMMdd-HHmm')
                             fileName = fileName + "-${date}-SNAPSHOT.jar"
                             folderName = "snapshot/${date}"
@@ -134,32 +136,53 @@ pipeline {
                 anyOf {
                     branch 'dev'
                     branch 'main'
-                    branch 'feat/102-push-docker-hub'
+                    environment name: 'CHANGE_TARGET', value: 'dev'
                 }
             }
-           steps {
-               withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                   dir('backend') {
-                       sh './build.sh'
-                       echo '📦🐋 Push de l\'image backend sur DockerHub'
-                       sh '''
-                           docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
-                           docker tag teamj/kiwicard-spring-backend $DOCKERHUB_USERNAME/kiwicard-spring-backend:latest
-                           docker push $DOCKERHUB_USERNAME/kiwicard-spring-backend:latest
-                       '''
-                   }
-                   dir('cli') {
-                       sh './build.sh'
-                       echo '📦🐋 Push de l\'image CLI sur DockerHub'
-                       sh '''
-                           docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
-                           docker tag teamj/kiwicard-cli $DOCKERHUB_USERNAME/kiwicard-cli:latest
-                           docker push $DOCKERHUB_USERNAME/kiwicard-cli:latest
-                       '''
-                   }
-               }
-           }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    script {
+                        // Connexion à Docker Hub (effectuée une seule fois)
+                        sh "docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD"
 
+                        // Définition des informations spécifiques à chaque projet
+                        def projects = [
+                            backend: [
+                                artifactoryUrl: 'http://vmpx10.polytech.unice.fr:8011/artifactory/kiwi-card-be-generic-local',
+                                artifactPrefix: 'kiwi-card-be',
+                                imageName: 'teamj/kiwicard-spring-backend',
+                                dockerHubRepo: 'kiwicard-spring-backend'
+                            ],
+                            cli: [
+                                artifactoryUrl: 'http://vmpx10.polytech.unice.fr:8011/artifactory/kiwi-card-cli-generic-local',
+                                artifactPrefix: 'kiwi-card-cli',
+                                imageName: 'teamj/kiwicard-cli',
+                                dockerHubRepo: 'kiwicard-cli'
+                            ]
+                        ]
+
+                        // Boucle sur chaque projet (backend et cli)
+                        projects.each { project, data ->
+                            dir(project) {
+                                echo "📥 Téléchargement du JAR depuis Artifactory pour ${project}..."
+                                def date = new Date().format('yyMMdd-HHmm')
+                                def artifactoryFolder = (env.GIT_BRANCH == 'main') ? "release/${date}" : "snapshot/${date}"
+                                def fileSuffix = (env.GIT_BRANCH == 'main') ? "${date}.jar" : "${date}-SNAPSHOT.jar"
+                                def downloadUrl = "${data.artifactoryUrl}/${artifactoryFolder}/${data.artifactPrefix}-${fileSuffix}"
+                                echo "Downloading ${project} JAR from ${downloadUrl}"
+                                sh "curl -uadmin:512Bank! -L -o app.jar '${downloadUrl}'"
+
+                                echo "🐳 Construction de l'image Docker pour ${project} avec le tag ${fileSuffix}"
+                                sh "docker build -t ${data.imageName}:${fileSuffix} -f Dockerfile ."
+
+                                echo "📤 Push de l'image Docker ${project} sur Docker Hub avec le tag ${fileSuffix}"
+                                sh "docker tag ${data.imageName}:${fileSuffix} \$DOCKERHUB_USERNAME/${data.dockerHubRepo}:${fileSuffix}"
+                                sh "docker push \$DOCKERHUB_USERNAME/${data.dockerHubRepo}:${fileSuffix}"
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
