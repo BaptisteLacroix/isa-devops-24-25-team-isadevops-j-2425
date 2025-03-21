@@ -86,7 +86,7 @@ public class CustomerCommands {
                     Example:
                         pay-cart --customerEmail clement@armeedeterre.fr"
             """, key = "pay-cart")
-    public String payCart(@ShellOption(defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail) {
+    public String payCart(@ShellOption(value = {"-e", "--customer-email"}, defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail) {
         customerEmail = cliSession.tryInjectingCustomerEmail(customerEmail);
         if (customerEmail == null) return "Erreur : Veuillez vous connecter ou spécifier un email de client valide.";
         System.out.println("Validation et paiement du panier du client " + customerEmail + " : ");

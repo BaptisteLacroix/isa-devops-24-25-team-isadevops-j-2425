@@ -90,7 +90,7 @@ public class PartnerCommands {
                 --partnerId  The ID of the partner whose items you want to display.
             Example: partner-items --partnerId 12345
             """, key = "partner-items")
-    public String partnerItems(@ShellOption(defaultValue = LOGGED_IN_ID_PLACEHOLDER) String partnerId) {
+    public String partnerItems(@ShellOption(value = {"-p", "--partner-id"}, defaultValue = LOGGED_IN_ID_PLACEHOLDER) String partnerId) {
         partnerId = cliSession.tryInjectingPartnerId(partnerId);
         if (partnerId == null) return "Erreur : ID de partenaire invalide.";
         System.out.println("Récupération des items du partenaire " + partnerId + " : ");
