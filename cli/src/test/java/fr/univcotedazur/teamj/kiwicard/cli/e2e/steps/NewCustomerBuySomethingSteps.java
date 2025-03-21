@@ -17,7 +17,7 @@ import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Sql("classpath:import.sql")
+@Sql("classpath:data/import.sql")
 public class NewCustomerBuySomethingSteps {
 
     @Autowired
@@ -39,7 +39,7 @@ public class NewCustomerBuySomethingSteps {
 
     @Given("a simple dataset")
     public void aSimpleDataset() throws SQLException {
-        ScriptUtils.executeSqlScript(dataSource.getConnection(), new ClassPathResource("import.sql"));
+        ScriptUtils.executeSqlScript(dataSource.getConnection(), new ClassPathResource("data/import.sql"));
     }
 
     @Given("the client {string} is registered with surname {string}, firstname {string} and address {string}")
