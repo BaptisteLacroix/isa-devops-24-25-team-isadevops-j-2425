@@ -8,10 +8,16 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
+import org.springframework.test.context.jdbc.Sql;
+
+import javax.sql.DataSource;
+import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
+@Sql("classpath:import.sql")
 public class NewCustomerBuySomethingSteps {
 
     @Autowired
@@ -26,7 +32,15 @@ public class NewCustomerBuySomethingSteps {
     @Autowired
     private CliSession cliSession;
 
+    @Autowired
+    private DataSource dataSource;
+
     private String response;
+
+    @Given("a simple dataset")
+    public void aSimpleDataset() throws SQLException {
+        ScriptUtils.executeSqlScript(dataSource.getConnection(), new ClassPathResource("import.sql"));
+    }
 
     @Given("the client {string} is registered with surname {string}, firstname {string} and address {string}")
     public void registerClient(String email, String surname, String firstname, String address) {
@@ -57,5 +71,7 @@ public class NewCustomerBuySomethingSteps {
     public void verifyPurchase() {
         assertTrue(response.contains("Le panier a été validé avec succès"), "L'achat n'a pas abouti");
     }
+
+
 }
 

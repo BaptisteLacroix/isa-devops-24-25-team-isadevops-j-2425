@@ -33,13 +33,13 @@
     </appender>
 
     <!-- LOG everything at INFO level -->
-    <root level="WARN">
+    <root level="INFO">
         <appender-ref ref="RollingFile"/>
         <appender-ref ref="Console"/>
     </root>
 
     <!-- LOG KiwiCard elements at TRACE level -->
-    <logger name="fr.univcotedazur.teamj.kiwicard" level="WARN" additivity="false">
+    <logger name="fr.univcotedazur.teamj.kiwicard" level="INFO" additivity="false">
         <appender-ref ref="RollingFile"/>
         <appender-ref ref="Console"/>
     </logger>

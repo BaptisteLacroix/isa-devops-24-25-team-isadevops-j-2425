@@ -54,7 +54,6 @@ pipeline {
             when {
                 anyOf {
                     branch 'dev'
-                    branch 'feat/108-sonar' // CHANGEME: Remove this test branch
                     branch 'main'
                     environment name: 'CHANGE_TARGET', value: 'dev'
                 }
