@@ -17,7 +17,7 @@
       "Content-Type": "application/json"
     },
     "jsonBody": {
-      "price": "{{math (jsonPath request.body '$.price') '*' (jsonPath request.body '$.discountRate')}}"
+      "price": "{{math (jsonPath request.body '$.price') '*' ( math 1 '-' (jsonPath request.body '$.discountRate'))}}"
     }
   }
 }

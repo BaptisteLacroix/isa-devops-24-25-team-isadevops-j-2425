@@ -58,13 +58,12 @@ public class Cashier implements IPayment {
     @Override
     public PaymentDTO makePay(Customer customer) throws UnreachableExternalServiceException, ClosedTimeException {
         PaymentResponseDTO paymentResponseDTO = computePrice(customer);
-
         // Prepare the payment request and process it via the bank proxy
         PaymentRequestDTO paymentRequestDTO = new PaymentRequestDTO(customer.getCardNumber(), paymentResponseDTO.totalPrice());
         return bankProxy.askPayment(paymentRequestDTO);
     }
 
-    private PaymentResponseDTO computePrice(Customer customer) throws ClosedTimeException, UnreachableExternalServiceException {
+    PaymentResponseDTO computePrice(Customer customer) throws ClosedTimeException, UnreachableExternalServiceException {
         Cart cart = customer.getCart();
         // Calculate the total price before applying discounts
         double percentage = cart.getTotalPercentageReduction();
@@ -75,11 +74,19 @@ public class Cashier implements IPayment {
         List<IPerkDTO> successfulPerks = new ArrayList<>();
         // Apply perks to the customer
         PerkApplicationVisitor visitor = new PerkApplicationVisitorImpl(customer, happyKidsProxy);
+        List<AbstractPerk> perksToRemove = new ArrayList<>();
         for (AbstractPerk perk : cart.getPerksToUse()) {
             if (perk.apply(visitor)) {
                 successfulPerks.add(PerkMapper.toDTO(perk));
+                perksToRemove.add(perk);  // Collect perks to be removed
             }
         }
+
+        // After the loop, update the cart with all modifications at once
+        for (AbstractPerk perk : perksToRemove) {
+            cart.updatePerksUsed(perk);
+        }
+
         // Calculate the total price after applying discounts
         percentage = cart.getTotalPercentageReduction();
         // Recalculate the total price after applying discounts

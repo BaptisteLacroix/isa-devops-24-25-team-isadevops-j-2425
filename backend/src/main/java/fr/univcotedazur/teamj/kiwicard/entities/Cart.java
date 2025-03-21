@@ -19,6 +19,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static fr.univcotedazur.teamj.kiwicard.configurations.Constants.HAPPY_KIDS_ITEM_NAME;
+
 
 @Entity
 public class Cart {
@@ -51,11 +53,6 @@ public class Cart {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "cart_id")
     private Set<CartItem> itemList = new HashSet<>();
-    private static String HAPPY_KIDS_ITEM_NAME;
-
-    public static void setHappyKidsItemName(String itemName) {
-        HAPPY_KIDS_ITEM_NAME = itemName;
-    }
 
     public Cart() {
     }
@@ -142,5 +139,12 @@ public class Cart {
 
     public boolean alreadyContains(Item item) {
        return this.getItems().stream().map(CartItem::getItem).anyMatch(itm -> itm.equals(item));
+    }
+
+    public void updatePerksUsed(AbstractPerk perk) {
+        // Remove the perk from the perks to use
+        this.perksToUse.remove(perk);
+        // and add it to the perks used
+        this.perksUsed.add(perk);
     }
 }

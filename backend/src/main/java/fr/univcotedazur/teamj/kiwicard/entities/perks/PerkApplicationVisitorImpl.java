@@ -33,6 +33,9 @@ public class PerkApplicationVisitorImpl implements PerkApplicationVisitor {
     @Override
     public boolean visit(VfpDiscountInPercentPerk perk) throws ClosedTimeException, UnreachableExternalServiceException {
         List<CartItem> hkItems = customer.getCart().getHKItems();
+        if (hkItems.isEmpty()) {
+            return false;
+        }
         for (CartItem item : hkItems) {
             LocalDateTime startTime = item.getStartTime();
             if (startTime == null) {

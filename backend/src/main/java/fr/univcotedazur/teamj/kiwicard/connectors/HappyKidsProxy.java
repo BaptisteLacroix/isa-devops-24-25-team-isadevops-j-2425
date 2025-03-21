@@ -1,6 +1,7 @@
 package fr.univcotedazur.teamj.kiwicard.connectors;
 
 import fr.univcotedazur.teamj.kiwicard.dto.HappyKidsDiscountDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.HappyKidsRequestDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
@@ -16,7 +17,6 @@ import reactor.core.publisher.Mono;
 public class HappyKidsProxy implements IHappyKids {
 
     private final WebClient webClient;
-    private final String happyKidsBaseUrl;
 
     /**
      * Contruit un proxy pour l'API HappyKids avec l'URL de base spécifiée.
@@ -25,7 +25,6 @@ public class HappyKidsProxy implements IHappyKids {
      */
     @Autowired
     public HappyKidsProxy(@Value("${happykids.host.baseurl}") String happyKidsBaseUrl) {
-        this.happyKidsBaseUrl = happyKidsBaseUrl;
         this.webClient = WebClient.builder()
                 .baseUrl(happyKidsBaseUrl)
                 .build();
@@ -37,17 +36,16 @@ public class HappyKidsProxy implements IHappyKids {
      * @param item         L'article du panier pour lequel calculer la réduction.
      * @param discountRate Le taux de réduction à appliquer.
      * @return Le DTO contenant le montant de la réduction.
-     * @throws ClosedTimeException                 Si le service externe est fermé.
      * @throws UnreachableExternalServiceException Si le service externe est injoignable.
      */
     @Override
-    public HappyKidsDiscountDTO computeDiscount(CartItem item, double discountRate) throws ClosedTimeException, UnreachableExternalServiceException {
-        HappyKidsDiscountDTO happyKidsDiscountDto = new HappyKidsDiscountDTO(item.getPrice());
+    public HappyKidsDiscountDTO computeDiscount(CartItem item, double discountRate) throws UnreachableExternalServiceException {
         try {
+            HappyKidsRequestDTO happyKidsRequestDTO = new HappyKidsRequestDTO(item.getPrice(), discountRate);
             // Call the external service
             return webClient.post()
                     .uri("/perks")
-                    .bodyValue(happyKidsDiscountDto)
+                    .bodyValue(happyKidsRequestDTO)
                     .retrieve()
                     .onStatus(HttpStatusCode::isError, clientResponse ->
                             clientResponse.createException().flatMap(Mono::error))

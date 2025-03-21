@@ -1,5 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
+import fr.univcotedazur.teamj.kiwicard.dto.CartItemAddDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.NPurchasedMGiftedPerkDTO;
@@ -64,7 +65,8 @@ class PerksServiceTest {
         String email = "client@example.com";
         Item item = spy(new Item("Chocolatine", 1.5));
         when(item.getItemId()).thenReturn(1L);
-        CartItem cartItem = spy(new CartItem(item, 3));
+        CartItemAddDTO cartItemAddDTO = new CartItemAddDTO(3, null, 3);
+        CartItem cartItem = spy(new CartItem(item, cartItemAddDTO));
 
         ItemDTO itemDTO= mock(ItemDTO.class);
         when(itemDTO.itemId()).thenReturn(1L);
