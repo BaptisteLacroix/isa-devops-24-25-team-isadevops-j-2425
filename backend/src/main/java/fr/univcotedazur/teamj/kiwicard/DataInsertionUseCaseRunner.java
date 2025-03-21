@@ -59,7 +59,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         Cart cart = customer.getCart();
         System.out.println("Cart partner: " + cart.getPartner().getName());
         System.out.println("Cart items: ");
-        for (CartItem item : cart.getItemList()) {
+        for (CartItem item : cart.getItems()) {
             System.out.println("Item: " + item.getItem().getLabel() + " - Quantity: " + item.getQuantity());
         }
     }
@@ -398,6 +398,7 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         cartItemHappyKids.setItem(happyKids);
         cartItemHappyKids.setStartTime(LocalDateTime.of(2025, 6, 1, 10, 0, 0));
         cartItemHappyKids.setQuantity(1);
+        cartHappyKids.setPartner(partnerHappyKids);
         cartHappyKids.addItem(cartItemHappyKids);
 
         customerAlice.setCart(cartHappyKids);

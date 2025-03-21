@@ -1,7 +1,7 @@
 package fr.univcotedazur.teamj.kiwicard.controllers;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.CartItemAddItemToCartDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.CartItemAddDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CartItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.*;
@@ -53,8 +53,8 @@ public class CartController {
     @PutMapping(path = "/{customerEmail}", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<CartDTO> createOrAddItemToCart(
             @PathVariable String customerEmail,
-            @RequestBody CartItemAddItemToCartDTO cartItemDTO
-    ) throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException, NoCartException {
+            @RequestBody CartItemAddDTO cartItemDTO
+    ) throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException, NoCartException, AlreadyBookedTimeException {
         CartDTO existingCart = finder.findCustomerCart(customerEmail).orElse(null);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -95,10 +95,10 @@ public class CartController {
      * @return A ResponseEntity containing the CartDTO representing the customer's cart, with HTTP status 200 (OK).
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
      */
-    @GetMapping(path = "/{customerEmail}", consumes = APPLICATION_JSON_VALUE)
-    public ResponseEntity<CartDTO> getCart(@PathVariable String customerEmail) throws UnknownCustomerEmailException {
+    @GetMapping(path = "/{customerEmail}")
+    public ResponseEntity<CartDTO> getCart(@PathVariable String customerEmail) throws UnknownCustomerEmailException, NoCartException {
         return ResponseEntity.ok()
-                .body(finder.findCustomerCart(customerEmail).orElseThrow());
+                .body(finder.findCustomerCart(customerEmail).orElseThrow(() -> new NoCartException(customerEmail)));
     }
 }
 

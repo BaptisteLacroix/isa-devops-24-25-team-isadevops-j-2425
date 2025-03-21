@@ -93,6 +93,18 @@ public class Customer {
         return cart;
     }
 
+    public void removeCart() {
+        this.cart = null;
+    }
+
+    public void addPurchase(Purchase purchase) {
+        this.purchaseList.add(purchase);
+    }
+
+    public List<Purchase> getPurchases() {
+        return this.purchaseList;
+    }
+
     public @NotBlank String getFirstName() {
         return firstName;
     }

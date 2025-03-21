@@ -9,7 +9,7 @@ public record CustomerDTO(
         @NotBlank String firstName,
         @NotBlank String surname,
         boolean vfp,
-        CartDTO cartDTO,
+        CartDTO cart,
         String creditCard) {
     public CustomerDTO(Customer customer) {
         this(
@@ -17,7 +17,7 @@ public record CustomerDTO(
                 customer.getFirstName(),
                 customer.getSurname(),
                 customer.isVfp(),
-                // If the customer has no cart, the cartDTO is null
+                // If the customer has no cart, the cart is null
                 customer.getCart() == null ? null : new CartDTO(customer.getCart()),
                 customer.getCardNumber()
         );

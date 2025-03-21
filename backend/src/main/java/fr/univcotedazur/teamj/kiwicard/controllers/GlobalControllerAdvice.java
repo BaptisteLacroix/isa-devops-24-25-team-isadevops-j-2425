@@ -28,16 +28,16 @@ public class GlobalControllerAdvice {
         return new ErrorDTO("Payment was rejected from Customer " + e.getName() + " for totalPrice " + e.getAmount());
     }
 
-    @ExceptionHandler({UnknownPartnerIdException.class, UnknownItemIdException.class, UnknownCustomerEmailException.class, UnknownCartIdException.class, UnknownPerkIdException.class, NoCartException.class})
+    @ExceptionHandler({UnknownPartnerIdException.class, UnknownItemIdException.class, UnknownCustomerEmailException.class, UnknownCartIdException.class, UnknownPerkIdException.class, NoCartException.class, UnknownCardNumberException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorDTO handleExceptions(Exception e) {
         return new ErrorDTO(e.getMessage());
     }
 
-    @ExceptionHandler(AlreadyUsedEmailException.class)
+    @ExceptionHandler({AlreadyUsedEmailException.class,AlreadyBookedTimeException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorDTO handleAlreadyUsedEmail(AlreadyUsedEmailException ex) {
-        return new ErrorDTO("Email already used");
+        return new ErrorDTO(ex.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

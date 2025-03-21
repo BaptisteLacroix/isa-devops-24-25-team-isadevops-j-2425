@@ -1,11 +1,13 @@
 package fr.univcotedazur.teamj.kiwicard.cli.commands;
 
+import fr.univcotedazur.teamj.kiwicard.cli.model.CliCart;
+import fr.univcotedazur.teamj.kiwicard.cli.CliSession;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliCustomerSubscribe;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliPurchase;
 import fr.univcotedazur.teamj.kiwicard.cli.model.error.CliError;
-import fr.univcotedazur.teamj.kiwicard.cli.CliSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -42,7 +44,7 @@ public class CustomerCommands {
      * @return Message de confirmation ou message d'erreur
      */
     @ShellMethod("""
-
+            
                 Register a new client:
                 Usage: register-client --surname <surname> --firstname <firstname> --email <email> --address <address>
                 Parameters:
@@ -92,12 +94,39 @@ public class CustomerCommands {
         System.out.println("Validation et paiement du panier du client " + customerEmail + " : ");
 
         return webClient.post()
-                .uri(BASE_CART_URI + "/" + customerEmail + "/validate")
+                .uri( BASE_CART_URI + "/" + customerEmail + "/validate")
+                .contentType(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(CliError.class)
                         .flatMap(error -> Mono.error(new RuntimeException(error.errorMessage()))))
                 .bodyToMono(CliPurchase.class)
                 .map(res -> "Le panier a été validé avec succès ! Plus de détails : " + res.toString().replaceAll("(?m)^", "\t"))
+                .block();
+    }
+
+    /**
+     * CLI command to retrieve a customer's cart.
+     * Example usage:
+     * get-cart --customer-email "john.doe@example.com"
+     *
+     * @param customerEmail The email of the customer whose cart should be retrieved. If unspecified, uses the logged-in customer.
+     * @return The cart details of the customer or an error message
+     */
+    @ShellMethod(value="Get cart details", key="get-cart")
+    public String getCart(@ShellOption(defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail) {
+        customerEmail = cliSession.tryInjectingCustomerEmail(customerEmail);
+        if (customerEmail == null) {
+            return "Erreur : Veuillez vous connecter ou spécifier un email de client valide.";
+        }
+        System.out.println("Récupération du panier pour le client " + customerEmail + " : ");
+
+        return webClient.get()
+                .uri(BASE_CART_URI + "/" + customerEmail)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(CliError.class)
+                        .flatMap(error -> Mono.error(new RuntimeException(error.errorMessage()))))
+                .bodyToMono(CliCart.class)
+                .map(cart -> "Détails du panier : " + cart.toString().replaceAll("(?m)^", "\t"))
                 .block();
     }
 }
