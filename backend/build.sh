@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
-echo "Compiling the Kiwi Card Spring BACKEND within a multi-stage docker build"
+echo "📥 Téléchargement du JAR depuis Artifactory..."
 
-docker build --build-arg JAR_FILE=kiwicard-0.0.1-SNAPSHOT.jar -t teamj/kiwicard-spring-backend .
+# Récupération du dernier fichier jar publié (adapter le chemin Artifactory)
+# Ex: snapshot ou release selon ta logique
+DATE=$(date +'%y%m%d')
+ARTIFACTORY_PATH="kiwi-card-be-generic-local/snapshot/${DATE}"  # ou release/${DATE}
+FILENAME="kiwi-card-be-${DATE}-SNAPSHOT.jar" # ou -RELEASE.jar
+
+jfrog rt dl "$ARTIFACTORY_PATH/$FILENAME" app.jar
+
+echo "🐳 Construction de l'image Docker avec le jar récupéré"
+docker build -t teamj/kiwicard-spring-backend -f Dockerfile .

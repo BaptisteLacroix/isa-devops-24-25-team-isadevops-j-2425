@@ -46,7 +46,7 @@ pipeline {
             steps {
                 dir('backend') {
                     echo '🐋📷 Pipeline is building the docker image of the backend project!'
-                    sh './build.sh'
+                    sh './build-local.sh'
                 }
             }
         }
@@ -128,6 +128,36 @@ pipeline {
                     }
                 }
             }
+        }
+        stage('[BE][CLI] Docker Push') {
+            when {
+                anyOf {
+                    branch 'dev'
+                    branch 'main'
+                    branch 'feat/102-push-docker-hub'
+                }
+            }
+           steps {
+               dir('backend') {
+                   sh './build.sh'
+                   echo '📦🐋 Push de l\'image backend sur DockerHub'
+                   sh '''
+                       docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
+                       docker tag teamj/kiwicard-spring-backend $DOCKERHUB_USERNAME/kiwicard-spring-backend:latest
+                       docker push $DOCKERHUB_USERNAME/kiwicard-spring-backend:latest
+                   '''
+               }
+               dir('cli') {
+                   sh './build.sh'
+                   echo '📦🐋 Push de l\'image CLI sur DockerHub'
+                   sh '''
+                       docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
+                       docker tag teamj/kiwicard-cli $DOCKERHUB_USERNAME/kiwicard-cli:latest
+                       docker push $DOCKERHUB_USERNAME/kiwicard-cli:latest
+                   '''
+               }
+           }
+
         }
     }
 }
