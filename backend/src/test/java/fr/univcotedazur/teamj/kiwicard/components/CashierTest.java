@@ -18,6 +18,7 @@ import fr.univcotedazur.teamj.kiwicard.entities.perks.VfpDiscountInPercentPerk;
 import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
+import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseCreator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -35,6 +36,13 @@ import static fr.univcotedazur.teamj.kiwicard.entities.Item.createTestItem;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -42,6 +50,9 @@ class CashierTest extends BaseUnitTest {
 
     @MockitoBean
     private HappyKidsProxy happyKidsProxy;
+
+    @Mock
+    private IPurchaseCreator purchaseCreator;
 
     @InjectMocks
     private Cashier cashier;
@@ -116,7 +127,7 @@ class CashierTest extends BaseUnitTest {
         when(customer.getCart()).thenReturn(cart);
 
         // Act
-        PaymentResponseDTO response = cashier.computePrice(customer);
+        PaymentResponseDTO response = cashier.computeTotalPurchasePrice(customer);
 
         // Assert
         assertNotNull(response);
@@ -138,7 +149,7 @@ class CashierTest extends BaseUnitTest {
         when(customer.getCart()).thenReturn(cart);
 
         // Act
-        PaymentResponseDTO response = cashier.computePrice(customer);
+        PaymentResponseDTO response = cashier.computeTotalPurchasePrice(customer);
 
         // Assert
         assertNotNull(response);
@@ -154,7 +165,7 @@ class CashierTest extends BaseUnitTest {
         when(customer.getCart()).thenReturn(cart);
 
         // Act
-        PaymentResponseDTO response = cashier.computePrice(customer);
+        PaymentResponseDTO response = cashier.computeTotalPurchasePrice(customer);
 
         // Assert
         assertNotNull(response);
@@ -175,7 +186,7 @@ class CashierTest extends BaseUnitTest {
         when(customer.getCart()).thenReturn(cart);
 
         // Act
-        PaymentResponseDTO response = cashier.computePrice(customer);
+        PaymentResponseDTO response = cashier.computeTotalPurchasePrice(customer);
 
         // Assert
         assertNotNull(response);
@@ -197,7 +208,7 @@ class CashierTest extends BaseUnitTest {
         when(customer.getCart()).thenReturn(cart);
 
         // Act
-        PaymentResponseDTO response = cashier.computePrice(customer);
+        PaymentResponseDTO response = cashier.computeTotalPurchasePrice(customer);
 
         // Assert
         assertNotNull(response);
@@ -226,7 +237,7 @@ class CashierTest extends BaseUnitTest {
         when(customer.isVfp()).thenReturn(true);
 
         // Act
-        PaymentResponseDTO response = cashier.computePrice(customer);
+        PaymentResponseDTO response = cashier.computeTotalPurchasePrice(customer);
 
         // Assert
         assertNotNull(response);
@@ -252,7 +263,7 @@ class CashierTest extends BaseUnitTest {
         when(happyKidsProxy.computeDiscount(anyDouble(), anyDouble())).thenReturn(new HappyKidsDiscountDTO(270.0));
 
         // Act
-        PaymentResponseDTO response = cashier.computePrice(customer);
+        PaymentResponseDTO response = cashier.computeTotalPurchasePrice(customer);
 
         // Assert
         assertNotNull(response);
@@ -277,7 +288,7 @@ class CashierTest extends BaseUnitTest {
         when(happyKidsProxy.computeDiscount(anyDouble(), anyDouble())).thenReturn(new HappyKidsDiscountDTO(270.0));
 
         // Act
-        PaymentResponseDTO response = cashier.computePrice(customer);
+        PaymentResponseDTO response = cashier.computeTotalPurchasePrice(customer);
 
         // Assert
         assertNotNull(response);
@@ -305,7 +316,7 @@ class CashierTest extends BaseUnitTest {
         when(happyKidsProxy.computeDiscount(anyDouble(), anyDouble())).thenReturn(new HappyKidsDiscountDTO(270.0));
 
         // Act
-        PaymentResponseDTO response = cashier.computePrice(customer);
+        PaymentResponseDTO response = cashier.computeTotalPurchasePrice(customer);
 
         // Assert
         assertNotNull(response);
@@ -330,7 +341,7 @@ class CashierTest extends BaseUnitTest {
         when(happyKidsProxy.computeDiscount(anyDouble(), anyDouble())).thenReturn(new HappyKidsDiscountDTO(290.0));
 
         // Act
-        PaymentResponseDTO response = cashier.computePrice(customer);
+        PaymentResponseDTO response = cashier.computeTotalPurchasePrice(customer);
 
         // Assert
         assertNotNull(response);
@@ -358,7 +369,7 @@ class CashierTest extends BaseUnitTest {
         when(customer.isVfp()).thenReturn(true);
 
         // Act
-        PaymentResponseDTO response = cashier.computePrice(customer);
+        PaymentResponseDTO response = cashier.computeTotalPurchasePrice(customer);
 
         // Assert
         assertNotNull(response);
@@ -389,6 +400,7 @@ class CashierTest extends BaseUnitTest {
         PaymentResponseDTO response = cashier.computePrice(customer);
 
         // Assert
+        verify(purchaseCreator).createPurchase(any(), anyDouble());
         assertNotNull(response);
         assertEquals(216.0, response.totalPrice());  // (300) - 10% = 270 - 20% = 216
         assertEquals(4, cartItem1.getQuantity()); // 3 purchased + 1 gifted
