@@ -62,9 +62,11 @@ public class PartnerCommands {
      *
      * @return A string representing all partners, each displayed on a new line.
      */
-    @ShellMethod("""
-            Show all partners (partners)
-            """)
+    @ShellMethod(value = """
+            Show all partners
+            Usage: partners
+            Example: partners
+            """, key = "partners")
     public String partners() {
         return webClient.get()
                 .uri(BASE_URI)
@@ -82,9 +84,13 @@ public class PartnerCommands {
      * @return A string containing all items associated with the partner, each displayed on a new line.
      */
     @ShellMethod(value = """
-            Show items of a partner
+            Show items for a partner
+            Usage: partner-items --partnerId <partnerId>
+            Parameters:
+                --partnerId  The ID of the partner whose items you want to display.
+            Example: partner-items --partnerId 12345
             """, key = "partner-items")
-    public String partnerItems(@ShellOption(defaultValue = LOGGED_IN_ID_PLACEHOLDER) String partnerId) {
+    public String partnerItems(@ShellOption(value = {"-p", "--partner-id"}, defaultValue = LOGGED_IN_ID_PLACEHOLDER) String partnerId) {
         partnerId = cliSession.tryInjectingPartnerId(partnerId);
         if (partnerId == null) return "Erreur : ID de partenaire invalide.";
         System.out.println("Récupération des items du partenaire " + partnerId + " : ");
