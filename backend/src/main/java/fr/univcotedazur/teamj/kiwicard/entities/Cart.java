@@ -1,5 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.entities;
 
+import fr.univcotedazur.teamj.kiwicard.configurations.Constants;
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import jakarta.persistence.CascadeType;
@@ -85,7 +86,8 @@ public class Cart {
 
     public List<CartItem> getHKItems() {
         return this.itemList.stream()
-                .filter(item -> item.getItem().getLabel().contains(HAPPY_KIDS_ITEM_NAME))
+                .peek(ci-> System.out.println(ci.getItem().getLabel()))
+                .filter(item -> item.getItem().getLabel().contains(Constants.HAPPY_KIDS_ITEM_NAME))
                 .toList();
 
     }
