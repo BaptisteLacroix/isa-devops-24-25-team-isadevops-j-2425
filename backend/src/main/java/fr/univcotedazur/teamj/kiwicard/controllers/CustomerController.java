@@ -57,7 +57,7 @@ public class CustomerController {
             throw new IllegalArgumentException("Either email or cardNumber must be provided, but not both.");
         }
         if (email != null) {
-            return ResponseEntity.ok().body(new CustomerDTO(customerFinder.findCustomerByEmail(email)));
+            return ResponseEntity.ok().body(customerFinder.findCustomerDTOByEmail(email));
         } else {
             return ResponseEntity.ok().body(customerFinder.findCustomerByCardNum(cardNumber));
         }
