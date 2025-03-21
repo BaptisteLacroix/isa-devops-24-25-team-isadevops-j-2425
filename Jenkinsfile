@@ -61,12 +61,12 @@ pipeline {
             steps {
                 dir('cli') {
                     withSonarQubeEnv("KiwiCardSonar") {
-                        sh "mvn verify sonar:sonar -Dsonar.projectKey=KiwiCardCLI -Dsonar.projectName='KiwiCardCLI' -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml,target/site/jacoco-it/jacoco.xml -Dsonar.junit.reportsPaths=target/surefire-reports,target/failsafe-reports"
+                        sh "mvn verify sonar:sonar -Dsonar.projectKey=KiwiCardCLI -Dsonar.projectName='KiwiCardCLI' -Dsonar.branch.name=${env.GIT_BRANCH} -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml,target/site/jacoco-it/jacoco.xml -Dsonar.junit.reportsPaths=target/surefire-reports,target/failsafe-reports"
                     }
                 }
                 dir('backend') {
                     withSonarQubeEnv("KiwiCardSonar") {
-                        sh "mvn verify sonar:sonar -Dsonar.projectKey=KiwiCard -Dsonar.projectName='KiwiCard' -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml,target/site/jacoco-it/jacoco.xml -Dsonar.junit.reportsPaths=target/surefire-reports,target/failsafe-reports"
+                        sh "mvn verify sonar:sonar -Dsonar.projectKey=KiwiCard -Dsonar.projectName='KiwiCard' -Dsonar.branch.name=${env.GIT_BRANCH} -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml,target/site/jacoco-it/jacoco.xml -Dsonar.junit.reportsPaths=target/surefire-reports,target/failsafe-reports"
                     }
                 }
             }
@@ -86,7 +86,7 @@ pipeline {
                         def folderName
                         def fileName = 'kiwi-card-be'
                         if (env.GIT_BRANCH == 'main') {
-                            def date = new Date().format('yyMMdd-HHmm')
+                            def date = new Date().format('yyMMdd-HHmm ')
                             fileName = fileName + "-${date}.jar"
                             folderName = "release/${date}"
                         }else {
