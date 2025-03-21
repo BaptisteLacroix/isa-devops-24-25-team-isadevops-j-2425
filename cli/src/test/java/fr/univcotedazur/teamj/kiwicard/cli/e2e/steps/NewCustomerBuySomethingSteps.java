@@ -10,14 +10,12 @@ import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
-import org.springframework.test.context.jdbc.Sql;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Sql("classpath:data/import.sql")
 public class NewCustomerBuySomethingSteps {
 
     @Autowired
@@ -71,7 +69,5 @@ public class NewCustomerBuySomethingSteps {
     public void verifyPurchase() {
         assertTrue(response.contains("Le panier a été validé avec succès"), "L'achat n'a pas abouti");
     }
-
-
 }
 
