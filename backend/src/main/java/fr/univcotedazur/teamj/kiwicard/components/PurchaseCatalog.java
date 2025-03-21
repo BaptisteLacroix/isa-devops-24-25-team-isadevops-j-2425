@@ -54,7 +54,7 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
 
     @Override
     @Transactional
-    public void consumeNLastItemsOfCustomerInPartner(int nbItemsConsumed, String customerEmail, long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException {
+    public void consumeNLastItemsOfCustomerInPartner(int nbItemsConsumed, String customerEmail, long partnerId) {
         this.purchaseRepository.findAllByCustomerAndPartner(customerEmail, partnerId).stream()
                 .map(p -> p.getCart().getItems())
                 .flatMap(Collection::stream)
@@ -73,6 +73,7 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
                 cart
         );
         this.purchaseRepository.save(purchase);
+        customer.addPurchase(purchase);
         return purchase;
     }
 
@@ -96,7 +97,7 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
 
     @Override
     @Transactional
-    public List<PurchaseHistoryDTO> findPurchasesByCustomerEmail(String customerEmail) throws UnknownCustomerEmailException {
+    public List<PurchaseHistoryDTO> findPurchasesByCustomerEmail(String customerEmail) {
         return this.purchaseRepository.findAllByCustomer(customerEmail).stream().map(PurchaseHistoryDTO::new).toList();
     }
 
