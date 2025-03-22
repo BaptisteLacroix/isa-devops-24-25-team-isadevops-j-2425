@@ -1,14 +1,19 @@
 package fr.univcotedazur.teamj.kiwicard.repositories;
 
 
-import fr.univcotedazur.teamj.kiwicard.entities.Partner;
 import fr.univcotedazur.teamj.kiwicard.entities.Purchase;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public interface IPurchaseRepository extends JpaRepository<Purchase, Long> {
@@ -78,4 +83,19 @@ public interface IPurchaseRepository extends JpaRepository<Purchase, Long> {
             """
     )
     List<Purchase> findAllByPartner(long partnerId, int limit);
+
+    @Query(
+            value = """
+            select * from Purchase as p
+            inner join Payment pay on pay.payment_id = p.payment_payment_id
+            and pay.timestamp >= :startOfDay
+            and pay.timestamp < :endOfDay
+            """
+    ,nativeQuery = true)
+    List<Purchase> findAllByPartnerAndDay(
+            @Param("partnerId") long partnerId,
+            @Param("startOfDay") String startOfDay,
+            @Param("endOfDay") String endOfDay
+    );
 }
+
