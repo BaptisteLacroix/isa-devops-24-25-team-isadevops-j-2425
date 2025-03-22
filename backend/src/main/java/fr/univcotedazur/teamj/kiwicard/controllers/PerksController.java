@@ -1,7 +1,9 @@
 package fr.univcotedazur.teamj.kiwicard.controllers;
 
 import fr.univcotedazur.teamj.kiwicard.components.PerksService;
+import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
+import fr.univcotedazur.teamj.kiwicard.exceptions.InapplicablePerkException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.NoCartException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPerkIdException;
@@ -62,9 +64,9 @@ public class PerksController {
      * @throws UnknownCustomerEmailException si le client n'existe pas
      */
     @PostMapping("/{perkId}/apply")
-    public ResponseEntity<String> applyPerk(@PathVariable long perkId, @RequestBody ApplyPerkRequest payload)
-            throws UnknownPerkIdException, UnknownCustomerEmailException, NoCartException {
-        return ResponseEntity.ok(String.valueOf(perksService.addPerkToApply(perkId, payload.emailCustomer())));
+    public ResponseEntity<CartDTO> applyPerk(@PathVariable long perkId, @RequestBody ApplyPerkRequest payload)
+            throws UnknownPerkIdException, UnknownCustomerEmailException, NoCartException, InapplicablePerkException {
+        return ResponseEntity.ok(perksService.addPerkToApply(perkId, payload.emailCustomer()));
     }
 
     /**

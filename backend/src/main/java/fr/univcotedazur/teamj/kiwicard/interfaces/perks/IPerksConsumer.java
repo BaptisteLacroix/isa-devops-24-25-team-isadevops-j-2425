@@ -1,6 +1,8 @@
 package fr.univcotedazur.teamj.kiwicard.interfaces.perks;
 
+import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
+import fr.univcotedazur.teamj.kiwicard.exceptions.InapplicablePerkException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.NoCartException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPerkIdException;
