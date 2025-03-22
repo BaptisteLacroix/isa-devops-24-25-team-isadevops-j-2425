@@ -1,11 +1,11 @@
 package fr.univcotedazur.teamj.kiwicard.entities.perks;
 
-import fr.univcotedazur.teamj.kiwicard.connectors.HappyKidsProxy;
 import fr.univcotedazur.teamj.kiwicard.dto.HappyKidsDiscountDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Cart;
 import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
+import fr.univcotedazur.teamj.kiwicard.interfaces.IHappyKids;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 class PerkApplicationVisitorImplTest {
 
     @Mock
-    private HappyKidsProxy happyKidsProxy;
+    private IHappyKids happyKidsProxy;
     private Customer customer;
     private Cart cart;
     private PerkApplicationVisitorImpl visitor;
@@ -40,7 +40,7 @@ class PerkApplicationVisitorImplTest {
         cart = mock(Cart.class);
         customer = mock(Customer.class);
         when(customer.getCart()).thenReturn(cart);
-        visitor = new PerkApplicationVisitorImpl(customer, happyKidsProxy);
+        visitor = new PerkApplicationVisitorImpl(happyKidsProxy);
     }
 
     @Test
@@ -62,7 +62,7 @@ class PerkApplicationVisitorImplTest {
         when(discountDTO.price()).thenReturn(8.0);
         when(happyKidsProxy.computeDiscount(cartItem, discountRate)).thenReturn(discountDTO);
 
-        boolean result = visitor.visit(perk);
+        boolean result = visitor.visit(perk, customer);
 
         verify(cartItem).setPrice(8.0);
         assertTrue(result);
@@ -81,7 +81,7 @@ class PerkApplicationVisitorImplTest {
         double discountRate = 0.2;
         VfpDiscountInPercentPerk perk = new VfpDiscountInPercentPerk(discountRate, startHour, endHour);
 
-        boolean result = visitor.visit(perk);
+        boolean result = visitor.visit(perk, customer);
 
         verify(happyKidsProxy, never()).computeDiscount(any(), anyDouble());
         verify(cartItem, never()).setPrice(anyDouble());
@@ -99,7 +99,7 @@ class PerkApplicationVisitorImplTest {
         double discountRate = 0.2;
         VfpDiscountInPercentPerk perk = new VfpDiscountInPercentPerk(discountRate, startHour, endHour);
 
-        assertThrows(IllegalStateException.class, () -> visitor.visit(perk));
+        assertThrows(IllegalStateException.class, () -> visitor.visit(perk, customer));
     }
 
     @Test
@@ -111,7 +111,7 @@ class PerkApplicationVisitorImplTest {
 
         when(cart.addToTotalPercentageReduction(discountRate)).thenReturn(0.15);
 
-        boolean result = visitor.visit(perk);
+        boolean result = visitor.visit(perk, customer);
 
         verify(cart).addToTotalPercentageReduction(discountRate);
         assertTrue(result);
@@ -124,7 +124,7 @@ class PerkApplicationVisitorImplTest {
         double discountRate = 15.0;
         TimedDiscountInPercentPerk perk = new TimedDiscountInPercentPerk(discountTime, discountRate);
 
-        boolean result = visitor.visit(perk);
+        boolean result = visitor.visit(perk, customer);
 
         verify(cart, never()).addToTotalPercentageReduction(anyDouble());
         assertFalse(result);
@@ -141,7 +141,7 @@ class PerkApplicationVisitorImplTest {
         // Créer un perk pour "Achetez 3, recevez 1 gratuit"
         NPurchasedMGiftedPerk perk = new NPurchasedMGiftedPerk(3, 1, item);
 
-        boolean result = visitor.visit(perk);
+        boolean result = visitor.visit(perk, customer);
 
         verify(cartItem).increaseQuantity(1);
         assertTrue(result);
@@ -156,7 +156,7 @@ class PerkApplicationVisitorImplTest {
 
         NPurchasedMGiftedPerk perk = new NPurchasedMGiftedPerk(3, 1, item);
 
-        boolean result = visitor.visit(perk);
+        boolean result = visitor.visit(perk, customer);
 
         verify(cartItem, never()).increaseQuantity(anyInt());
         assertFalse(result);

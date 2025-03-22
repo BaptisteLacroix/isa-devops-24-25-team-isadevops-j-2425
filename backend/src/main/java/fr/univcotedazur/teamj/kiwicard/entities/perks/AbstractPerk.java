@@ -41,7 +41,7 @@ public abstract class AbstractPerk {
      * @param visitor le visiteur qui va appliquer le perk
      * @return true si le perk a été appliqué, false sinon.
      */
-    public abstract boolean apply(PerkApplicationVisitor visitor) throws ClosedTimeException, UnreachableExternalServiceException;
+    public abstract boolean apply(PerkApplicationVisitor visitor, Customer customer) throws ClosedTimeException, UnreachableExternalServiceException;
 
     public abstract boolean isConsumableFor(Customer customer);
 

@@ -3,6 +3,7 @@ package fr.univcotedazur.teamj.kiwicard.components;
 import fr.univcotedazur.teamj.kiwicard.BaseUnitTest;
 import fr.univcotedazur.teamj.kiwicard.connectors.BankProxy;
 import fr.univcotedazur.teamj.kiwicard.connectors.HappyKidsProxy;
+import fr.univcotedazur.teamj.kiwicard.connectors.externaldto.PaymentRequestDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CartItemAddDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.HappyKidsDiscountDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PaymentDTO;
@@ -20,9 +21,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -34,11 +41,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyDouble;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
 class CashierTest extends BaseUnitTest {
 
     @MockitoBean
@@ -51,11 +57,12 @@ class CashierTest extends BaseUnitTest {
     private BankProxy bankProxy;
 
     @Mock
-    private Customer customer;
+    private Customer customer = mock(Customer.class);
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);  // Initialize mocks
+        MockitoAnnotations.openMocks(this);
+        cashier = new Cashier(bankProxy, happyKidsProxy);
     }
 
     @Test
@@ -71,16 +78,16 @@ class CashierTest extends BaseUnitTest {
         cart.addToTotalPercentageReduction(0.1); // 10% discount
 
         when(customer.getCart()).thenReturn(cart);
-        when(bankProxy.askPayment(any())).thenReturn(new PaymentDTO("1234567890123456", 117.0, true)); // After discount, payment authorized
+        when(bankProxy.askPayment(Mockito.any(PaymentRequestDTO.class))).thenReturn(new PaymentDTO("1234567890123456", 117.0, true));
 
         // Act
         PaymentDTO paymentDTO = cashier.makePay(customer);
 
         // Assert
+        verify(bankProxy, times(1)).askPayment(any());
         assertNotNull(paymentDTO);
         assertEquals(117.0, paymentDTO.amount()); // (100 + 30) - 10% = 117
         assertTrue(paymentDTO.authorized());
-        verify(bankProxy, times(1)).askPayment(any());
     }
 
     @Test
@@ -259,7 +266,7 @@ class CashierTest extends BaseUnitTest {
 
         // Assert
         assertNotNull(response);
-        assertEquals(270.0, response.totalPrice());  // (300 + 100) - 10% = 360.0 after VFP discount
+        assertEquals(270.0, response.totalPrice());  // (300) - 10% = 270.0 after VFP discount
     }
 
 

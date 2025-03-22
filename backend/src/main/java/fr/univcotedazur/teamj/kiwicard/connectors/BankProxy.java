@@ -23,19 +23,17 @@ public class BankProxy implements IBank {
 
     private static final Logger LOG = LoggerFactory.getLogger(BankProxy.class);
 
-    private final String bankHostandPort;
     private final WebClient webClient;
 
     /**
      * Constructs a BankProxy instance with the base URL of the bank service and a WebClient builder.
      *
-     * @param bankHostandPort The base URL of the bank's service (e.g., "http://localhost:8080").
+     * @param bankHostandPort The base URL of the bank's service (e.g., "http://localhost:9090").
      * @param webClientBuilder A WebClient.Builder instance used to build the WebClient with the base URL.
      */
     @Autowired
     public BankProxy(@Value("${bank.host.baseurl}") String bankHostandPort, WebClient.Builder webClientBuilder) {
-        this.bankHostandPort = bankHostandPort;
-        this.webClient = webClientBuilder.baseUrl(this.bankHostandPort).build();
+        this.webClient = webClientBuilder.baseUrl(bankHostandPort).build();
     }
 
     /**

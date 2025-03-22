@@ -1,7 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
 import fr.univcotedazur.teamj.kiwicard.connectors.BankProxy;
-import fr.univcotedazur.teamj.kiwicard.connectors.HappyKidsProxy;
 import fr.univcotedazur.teamj.kiwicard.connectors.externaldto.PaymentRequestDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PaymentDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PaymentResponseDTO;
@@ -13,6 +12,7 @@ import fr.univcotedazur.teamj.kiwicard.entities.perks.PerkApplicationVisitor;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.PerkApplicationVisitorImpl;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
+import fr.univcotedazur.teamj.kiwicard.interfaces.IHappyKids;
 import fr.univcotedazur.teamj.kiwicard.interfaces.IPayment;
 import fr.univcotedazur.teamj.kiwicard.mappers.PerkMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ import java.util.List;
 public class Cashier implements IPayment {
 
     private final BankProxy bankProxy;
-    private final HappyKidsProxy happyKidsProxy;
+    private final IHappyKids happyKidsProxy;
 
     /**
      * Constructs a {@code Cashier} instance with the specified {@link BankProxy} dependency.
@@ -38,7 +38,7 @@ public class Cashier implements IPayment {
      * @param bankProxy The proxy that handles interactions with the external banking system.
      */
     @Autowired
-    public Cashier(BankProxy bankProxy, HappyKidsProxy happyKidsProxy) {
+    public Cashier(BankProxy bankProxy, IHappyKids happyKidsProxy) {
         this.bankProxy = bankProxy;
         this.happyKidsProxy = happyKidsProxy;
     }
@@ -73,10 +73,10 @@ public class Cashier implements IPayment {
         cart.resetTotalPercentageReduction();
         List<IPerkDTO> successfulPerks = new ArrayList<>();
         // Apply perks to the customer
-        PerkApplicationVisitor visitor = new PerkApplicationVisitorImpl(customer, happyKidsProxy);
+        PerkApplicationVisitor visitor = new PerkApplicationVisitorImpl(happyKidsProxy);
         List<AbstractPerk> perksToRemove = new ArrayList<>();
         for (AbstractPerk perk : cart.getPerksToUse()) {
-            if (perk.apply(visitor)) {
+            if (perk.apply(visitor, customer)) {
                 successfulPerks.add(PerkMapper.toDTO(perk));
                 perksToRemove.add(perk);  // Collect perks to be removed
             }

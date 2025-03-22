@@ -80,8 +80,8 @@ public class VfpDiscountInPercentPerk extends AbstractPerk {
     }
 
     @Override
-    public boolean apply(PerkApplicationVisitor visitor) throws ClosedTimeException, UnreachableExternalServiceException {
-        return visitor.visit(this);
+    public boolean apply(PerkApplicationVisitor visitor, Customer customer) throws ClosedTimeException, UnreachableExternalServiceException {
+        return visitor.visit(this, customer);
     }
 
     @Override
