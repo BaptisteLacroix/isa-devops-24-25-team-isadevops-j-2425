@@ -10,6 +10,7 @@ import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.PerkApplicationVisitor;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.PerkApplicationVisitorImpl;
+import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.IHappyKids;
@@ -56,14 +57,14 @@ public class Cashier implements IPayment {
      * @throws UnreachableExternalServiceException If the external bank service is unreachable or fails during the payment request.
      */
     @Override
-    public PaymentDTO makePay(Customer customer) throws UnreachableExternalServiceException, ClosedTimeException {
+    public PaymentDTO makePay(Customer customer) throws UnreachableExternalServiceException, ClosedTimeException, BookingTimeNotSetException {
         PaymentResponseDTO paymentResponseDTO = computePrice(customer);
         // Prepare the payment request and process it via the bank proxy
         PaymentRequestDTO paymentRequestDTO = new PaymentRequestDTO(customer.getCardNumber(), paymentResponseDTO.totalPrice());
         return bankProxy.askPayment(paymentRequestDTO);
     }
 
-    PaymentResponseDTO computePrice(Customer customer) throws ClosedTimeException, UnreachableExternalServiceException {
+    PaymentResponseDTO computePrice(Customer customer) throws ClosedTimeException, UnreachableExternalServiceException, BookingTimeNotSetException {
         Cart cart = customer.getCart();
         List<IPerkDTO> successfulPerks = new ArrayList<>();
         // Apply perks to the customer

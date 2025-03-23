@@ -83,7 +83,7 @@ public class CartController {
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
      */
     @PostMapping(path = "/{customerEmail}/validate", consumes = APPLICATION_JSON_VALUE)
-    public ResponseEntity<PurchaseDTO> validateCart(@PathVariable String customerEmail) throws UnknownCustomerEmailException, UnreachableExternalServiceException, EmptyCartException, NoCartException, ClosedTimeException {
+    public ResponseEntity<PurchaseDTO> validateCart(@PathVariable String customerEmail) throws UnknownCustomerEmailException, UnreachableExternalServiceException, EmptyCartException, NoCartException, ClosedTimeException, BookingTimeNotSetException {
         return ResponseEntity.created(null)
                 .body(modifier.validateCart(customerEmail));
     }

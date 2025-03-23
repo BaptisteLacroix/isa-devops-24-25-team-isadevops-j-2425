@@ -4,6 +4,7 @@ import fr.univcotedazur.teamj.kiwicard.dto.HappyKidsDiscountDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Cart;
 import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
+import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.IHappyKids;
@@ -34,7 +35,7 @@ public class PerkApplicationVisitorImpl implements PerkApplicationVisitor {
      */
     @Override
     public boolean visit(VfpDiscountInPercentPerk perk, Customer customer)
-            throws ClosedTimeException, UnreachableExternalServiceException {
+            throws ClosedTimeException, UnreachableExternalServiceException, BookingTimeNotSetException {
         List<CartItem> hkItems = customer.getCart().getHKItems();
         if (hkItems.isEmpty()) {
             return false;
@@ -42,8 +43,7 @@ public class PerkApplicationVisitorImpl implements PerkApplicationVisitor {
         for (CartItem item : hkItems) {
             LocalDateTime startTime = item.getStartTime();
             if (startTime == null) {
-                // TODO : Custom exception
-                throw new IllegalStateException("Booking time is not set");
+                throw new BookingTimeNotSetException();
             }
             LocalTime bookingTime = startTime.toLocalTime();
             boolean isWithinPerkInterval = isWithinPerkInterval(bookingTime, perk.getStartHour(), perk.getEndHour());
@@ -75,7 +75,7 @@ public class PerkApplicationVisitorImpl implements PerkApplicationVisitor {
             return !bookingTime.isBefore(perkStart) && bookingTime.isBefore(perkEnd);
         }
         // interval crosses midnight (e.g. 21:00 to 02:00)
-        return !bookingTime.isBefore(perkStart) && bookingTime.isAfter(perkEnd);
+        return !bookingTime.isBefore(perkStart) || bookingTime.isBefore(perkEnd);
     }
 
 

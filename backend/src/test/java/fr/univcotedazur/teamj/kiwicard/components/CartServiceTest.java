@@ -16,6 +16,7 @@ import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import fr.univcotedazur.teamj.kiwicard.entities.Partner;
 import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyBookedTimeException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.EmptyCartException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.NoCartException;
@@ -353,7 +354,7 @@ class CartServiceTest extends BaseUnitTest {
     }
 
     @Test
-    void validateCart_shouldThrowUnreachableExternalServiceException_whenPaymentServiceFails() throws UnknownCustomerEmailException, UnreachableExternalServiceException, ClosedTimeException {
+    void validateCart_shouldThrowUnreachableExternalServiceException_whenPaymentServiceFails() throws UnknownCustomerEmailException, UnreachableExternalServiceException, ClosedTimeException, BookingTimeNotSetException {
         // Given
         when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
         when(payment.makePay(any(Customer.class))).thenThrow(UnreachableExternalServiceException.class);
@@ -363,7 +364,7 @@ class CartServiceTest extends BaseUnitTest {
     }
 
     @Test
-    void validateCart_shouldReturnPurchaseDTO_whenCartIsValid() throws UnknownCustomerEmailException, UnreachableExternalServiceException, EmptyCartException, NoCartException, ClosedTimeException {
+    void validateCart_shouldReturnPurchaseDTO_whenCartIsValid() throws UnknownCustomerEmailException, UnreachableExternalServiceException, EmptyCartException, NoCartException, ClosedTimeException, BookingTimeNotSetException {
         // Given
         PaymentDTO paymentDTO = mock(PaymentDTO.class);
         when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);

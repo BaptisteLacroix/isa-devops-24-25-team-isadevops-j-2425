@@ -5,6 +5,7 @@ import fr.univcotedazur.teamj.kiwicard.entities.Cart;
 import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
+import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.IHappyKids;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -99,7 +100,7 @@ class PerkApplicationVisitorImplTest {
         double discountRate = 0.2;
         VfpDiscountInPercentPerk perk = new VfpDiscountInPercentPerk(discountRate, startHour, endHour);
 
-        assertThrows(IllegalStateException.class, () -> visitor.visit(perk, customer));
+        assertThrows(BookingTimeNotSetException.class, () -> visitor.visit(perk, customer));
     }
 
     @Test

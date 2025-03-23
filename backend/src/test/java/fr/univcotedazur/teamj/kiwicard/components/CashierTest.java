@@ -15,6 +15,7 @@ import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.NPurchasedMGiftedPerk;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.TimedDiscountInPercentPerk;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.VfpDiscountInPercentPerk;
+import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,7 +66,7 @@ class CashierTest extends BaseUnitTest {
     }
 
     @Test
-    void testMakePay_Success() throws UnreachableExternalServiceException, ClosedTimeException {
+    void testMakePay_WhenPaymentIsSuccessful_ShouldReturnAuthorizedPayment() throws UnreachableExternalServiceException, ClosedTimeException, BookingTimeNotSetException {
         // Arrange
         Item item1 = new Item("Item 1", 50.0);
         Item item2 = new Item("Item 2", 30.0);
@@ -90,7 +91,7 @@ class CashierTest extends BaseUnitTest {
     }
 
     @Test
-    void testMakePay_UnreachableExternalServiceException() throws UnreachableExternalServiceException {
+    void testMakePay_WhenExternalServiceIsUnreachable_ShouldThrowException() throws UnreachableExternalServiceException {
         // Arrange
         Item item1 = new Item("Item 1", 50.0);
         Item item2 = new Item("Item 2", 30.0);
@@ -111,7 +112,7 @@ class CashierTest extends BaseUnitTest {
     }
 
     @Test
-    void testComputePrice_WithReductionSuccess() throws ClosedTimeException, UnreachableExternalServiceException {
+    void testComputePrice_WhenCartHasReduction_ShouldReturnReducedPrice() throws ClosedTimeException, UnreachableExternalServiceException, BookingTimeNotSetException {
         // Arrange
         Item item1 = new Item("Item 1", 200.0);
         Item item2 = new Item("Item 2", 150.0);
@@ -133,7 +134,7 @@ class CashierTest extends BaseUnitTest {
     }
 
     @Test
-    void testComputePrice_NoReduction() throws ClosedTimeException, UnreachableExternalServiceException {
+    void testComputePrice_WhenCartHasNoReduction_ShouldReturnFullPrice() throws ClosedTimeException, UnreachableExternalServiceException, BookingTimeNotSetException {
         // Arrange
         Item item1 = new Item("Item 1", 100.0);
         Item item2 = new Item("Item 2", 50.0);
@@ -155,7 +156,7 @@ class CashierTest extends BaseUnitTest {
     }
 
     @Test
-    void testComputePrice_EmptyCart() throws ClosedTimeException, UnreachableExternalServiceException {
+    void testComputePrice_WhenCartIsEmpty_ShouldReturnZeroPrice() throws ClosedTimeException, UnreachableExternalServiceException, BookingTimeNotSetException {
         // Arrange
         Cart cart = new Cart();
         cart.addToTotalPercentageReduction(0.0); // No discount
@@ -171,7 +172,7 @@ class CashierTest extends BaseUnitTest {
     }
 
     @Test
-    void testComputePrice_WithNPurchasedMGiftedPerk() throws ClosedTimeException, UnreachableExternalServiceException {
+    void testComputePrice_WhenNPurchasedMGiftedPerkIsApplied_ShouldReturnCorrectPriceAndQuantity() throws ClosedTimeException, UnreachableExternalServiceException, BookingTimeNotSetException {
         // Arrange
         Item item = createTestItem(1, "Item 1", 100.0);
         CartItem cartItem = new CartItem(item, new CartItemAddDTO(3, null, item.getItemId())); // 3 x Item 1 = 300.0
@@ -193,7 +194,7 @@ class CashierTest extends BaseUnitTest {
     }
 
     @Test
-    void testComputePrice_WithNPurchasedMGiftedPerk_NotEligible() throws ClosedTimeException, UnreachableExternalServiceException {
+    void testComputePrice_WhenNPurchasedMGiftedPerkIsNotEligible_ShouldReturnCorrectPriceAndQuantity() throws ClosedTimeException, UnreachableExternalServiceException, BookingTimeNotSetException {
         // Arrange
         Item item = createTestItem(1, "Item 1", 100.0);
         CartItem cartItem = new CartItem(item, new CartItemAddDTO(2, null, item.getItemId())); // 2 x Item 1 = 200.0
@@ -215,7 +216,7 @@ class CashierTest extends BaseUnitTest {
     }
 
     @Test
-    void testComputePrice_WithMultiplePerks() throws ClosedTimeException, UnreachableExternalServiceException {
+    void testComputePrice_WhenMultiplePerksAreApplied_ShouldReturnCorrectPriceAndQuantity() throws ClosedTimeException, UnreachableExternalServiceException, BookingTimeNotSetException {
         // Arrange
         Item item1 = createTestItem(1, "Item 1", 100.0);
         Item item2 = createTestItem(2, "Item 2", 50.0);
@@ -244,7 +245,7 @@ class CashierTest extends BaseUnitTest {
     }
 
     @Test
-    void testComputePrice_WithVFPDiscountInPercentPerk_Success() throws ClosedTimeException, UnreachableExternalServiceException {
+    void testComputePrice_WhenVFPDiscountInPercentPerkIsApplied_ShouldReturnDiscountedPrice() throws ClosedTimeException, UnreachableExternalServiceException, BookingTimeNotSetException {
         // Arrange
         Item item1 = createTestItem(1, HAPPY_KIDS_ITEM_NAME, 100.0);
         CartItem cartItem1 = new CartItem(item1, new CartItemAddDTO(3, LocalDateTime.now().plusHours(1), item1.getItemId())); // 3 x Item 1 = 300.0
@@ -269,7 +270,7 @@ class CashierTest extends BaseUnitTest {
     }
 
     @Test
-    void testComputePriceNotInHours_WithVFPDiscountInPercentPerk_NotEligible() throws ClosedTimeException, UnreachableExternalServiceException {
+    void testComputePrice_WhenVFPDiscountPerkNotEligibleDueToTime_ShouldReturnFullPrice() throws ClosedTimeException, UnreachableExternalServiceException, BookingTimeNotSetException {
         // Arrange
         Item item1 = createTestItem(1, HAPPY_KIDS_ITEM_NAME, 100.0);
         CartItem cartItem1 = new CartItem(item1, new CartItemAddDTO(3, LocalDateTime.now().minusHours(1), item1.getItemId())); // 3 x Item 1 = 300.0
@@ -294,7 +295,7 @@ class CashierTest extends BaseUnitTest {
     }
 
     @Test
-    void testComputePriceWith2DifferentsItemsHours_WithVFPDiscountInPercentPerk_Success() throws ClosedTimeException, UnreachableExternalServiceException {
+    void testComputePrice_WhenDifferentItemsHaveDifferentHours_ShouldReturnCorrectPrice() throws ClosedTimeException, UnreachableExternalServiceException, BookingTimeNotSetException {
         // Arrange
         Item item1 = createTestItem(1, HAPPY_KIDS_ITEM_NAME, 100.0);
         Item item2 = createTestItem(2, HAPPY_KIDS_ITEM_NAME, 100.0);
@@ -322,7 +323,32 @@ class CashierTest extends BaseUnitTest {
     }
 
     @Test
-    void testComputePrice_WithVFPDiscountInPercentPerk_NotEligible() throws ClosedTimeException, UnreachableExternalServiceException {
+    void testComputePrice_WhenHappyKidsItemWithVFPDiscountInPercentPerk_ShouldReturnDiscountedPrice() throws ClosedTimeException, UnreachableExternalServiceException, BookingTimeNotSetException {
+        // Arrange
+        Item item1 = createTestItem(1, HAPPY_KIDS_ITEM_NAME, 100.0);
+        CartItem cartItem1 = new CartItem(item1, new CartItemAddDTO(3, LocalDateTime.of(2023, 10, 10, 1, 0), item1.getItemId())); // 3 x Item 1 = 300.0
+        Cart cart = new Cart();
+        cart.addItem(cartItem1);
+
+        // Simulating a VFP discount (10% discount for VFP members) between 21:00 and 02:00
+        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(0.1, LocalTime.of(21, 0), LocalTime.of(2, 0));
+        cart.addPerkToUse(vfpDiscountInPercentPerk);
+
+        // Set up customer and HappyKidsProxy mock behavior
+        when(customer.getCart()).thenReturn(cart);
+        when(customer.isVfp()).thenReturn(true);
+        when(happyKidsProxy.computeDiscount(any(CartItem.class), anyDouble())).thenReturn(new HappyKidsDiscountDTO(270.0));
+
+        // Act
+        PaymentResponseDTO response = cashier.computePrice(customer);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(270.0, response.totalPrice());  // (300) - 10% = 270.0 after VFP discount
+    }
+
+    @Test
+    void testComputePrice_WhenVFPDiscountPerkNotEligibleDueToItem_ShouldReturnFullPrice() throws ClosedTimeException, UnreachableExternalServiceException, BookingTimeNotSetException {
         // Arrange
         Item item1 = createTestItem(1, "Item 1", 100.0);
         Item item2 = createTestItem(2, "Item 2", 50.0);
@@ -347,5 +373,4 @@ class CashierTest extends BaseUnitTest {
         assertNotNull(response);
         assertEquals(400.0, response.totalPrice());  // No discount applied because HappyKids eligibility fails
     }
-
 }

@@ -2,6 +2,7 @@ package fr.univcotedazur.teamj.kiwicard.entities.perks;
 
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.entities.Partner;
+import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import fr.univcotedazur.teamj.kiwicard.mappers.PerkVisitor;
@@ -41,7 +42,7 @@ public abstract class AbstractPerk {
      * @param visitor le visiteur qui va appliquer le perk
      * @return true si le perk a été appliqué, false sinon.
      */
-    public abstract boolean apply(PerkApplicationVisitor visitor, Customer customer) throws ClosedTimeException, UnreachableExternalServiceException;
+    public abstract boolean apply(PerkApplicationVisitor visitor, Customer customer) throws ClosedTimeException, UnreachableExternalServiceException, BookingTimeNotSetException;
 
     public abstract boolean isConsumableFor(Customer customer);
 
