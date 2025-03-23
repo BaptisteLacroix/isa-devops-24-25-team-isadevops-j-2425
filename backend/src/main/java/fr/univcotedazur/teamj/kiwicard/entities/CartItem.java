@@ -60,9 +60,8 @@ public class CartItem {
         return quantity;
     }
 
-    public void increaseQuantity(int quantity) {
+    public void addFreeItem(int quantity) {
         this.quantity += quantity;
-        this.price = item.getPrice() * this.quantity;
     }
 
     public void setQuantity(int quantity) {

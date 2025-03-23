@@ -54,14 +54,13 @@ class CashierTest extends BaseUnitTest {
     private Cashier cashier;
 
     @Mock
-    private BankProxy bankProxy;
+    private BankProxy bankProxy = mock(BankProxy.class);
 
     @Mock
     private Customer customer = mock(Customer.class);
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
         cashier = new Cashier(bankProxy, happyKidsProxy);
     }
 
@@ -269,6 +268,58 @@ class CashierTest extends BaseUnitTest {
         assertEquals(270.0, response.totalPrice());  // (300) - 10% = 270.0 after VFP discount
     }
 
+    @Test
+    void testComputePriceNotInHours_WithVFPDiscountInPercentPerk_NotEligible() throws ClosedTimeException, UnreachableExternalServiceException {
+        // Arrange
+        Item item1 = createTestItem(1, HAPPY_KIDS_ITEM_NAME, 100.0);
+        CartItem cartItem1 = new CartItem(item1, new CartItemAddDTO(3, LocalDateTime.now().minusHours(1), item1.getItemId())); // 3 x Item 1 = 300.0
+        Cart cart = new Cart();
+        cart.addItem(cartItem1);
+
+        // Simulating a VFP discount (10% discount for VFP members)
+        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(0.1, LocalTime.now().plusHours(1), LocalTime.now().plusHours(10));
+        cart.addPerkToUse(vfpDiscountInPercentPerk);
+
+        // Set up customer and HappyKidsProxy mock behavior
+        when(customer.getCart()).thenReturn(cart);
+        when(customer.isVfp()).thenReturn(true);
+        when(happyKidsProxy.computeDiscount(any(CartItem.class), anyDouble())).thenReturn(new HappyKidsDiscountDTO(270.0));
+
+        // Act
+        PaymentResponseDTO response = cashier.computePrice(customer);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(300.0, response.totalPrice());
+    }
+
+    @Test
+    void testComputePriceWith2DifferentsItemsHours_WithVFPDiscountInPercentPerk_Success() throws ClosedTimeException, UnreachableExternalServiceException {
+        // Arrange
+        Item item1 = createTestItem(1, HAPPY_KIDS_ITEM_NAME, 100.0);
+        Item item2 = createTestItem(2, HAPPY_KIDS_ITEM_NAME, 100.0);
+        CartItem cartItem1 = new CartItem(item1, new CartItemAddDTO(3, LocalDateTime.now().plusHours(1), item1.getItemId())); // 3 x Item 1 = 300.0
+        CartItem cartItem2 = new CartItem(item2, new CartItemAddDTO(3, LocalDateTime.now().minusHours(2), item2.getItemId())); // 3 x Item 2 = 300.0
+        Cart cart = new Cart();
+        cart.addItem(cartItem1);
+        cart.addItem(cartItem2);
+
+        // Simulating a VFP discount (10% discount for VFP members)
+        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(0.1, LocalTime.now().minusHours(1), LocalTime.now().plusHours(10));
+        cart.addPerkToUse(vfpDiscountInPercentPerk);
+
+        // Set up customer and HappyKidsProxy mock behavior
+        when(customer.getCart()).thenReturn(cart);
+        when(customer.isVfp()).thenReturn(true);
+        when(happyKidsProxy.computeDiscount(any(CartItem.class), anyDouble())).thenReturn(new HappyKidsDiscountDTO(270.0));
+
+        // Act
+        PaymentResponseDTO response = cashier.computePrice(customer);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(570.0, response.totalPrice());  // ((300 - 10%) + 300) = 270 + 300 = 570.0 after VFP discount
+    }
 
     @Test
     void testComputePrice_WithVFPDiscountInPercentPerk_NotEligible() throws ClosedTimeException, UnreachableExternalServiceException {

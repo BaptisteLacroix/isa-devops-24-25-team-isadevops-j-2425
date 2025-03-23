@@ -143,7 +143,7 @@ class PerkApplicationVisitorImplTest {
 
         boolean result = visitor.visit(perk, customer);
 
-        verify(cartItem).increaseQuantity(1);
+        verify(cartItem).addFreeItem(1);
         assertTrue(result);
     }
 
@@ -158,7 +158,7 @@ class PerkApplicationVisitorImplTest {
 
         boolean result = visitor.visit(perk, customer);
 
-        verify(cartItem, never()).increaseQuantity(anyInt());
+        verify(cartItem, never()).addFreeItem(anyInt());
         assertFalse(result);
     }
 }

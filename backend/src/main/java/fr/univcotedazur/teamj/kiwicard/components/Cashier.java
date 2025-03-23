@@ -65,12 +65,6 @@ public class Cashier implements IPayment {
 
     PaymentResponseDTO computePrice(Customer customer) throws ClosedTimeException, UnreachableExternalServiceException {
         Cart cart = customer.getCart();
-        // Calculate the total price before applying discounts
-        double percentage = cart.getTotalPercentageReduction();
-        double totalPriceWithoutReduction = cart.getTotalPrice();
-        double totalPrice = totalPriceWithoutReduction - (totalPriceWithoutReduction * percentage);
-        // Reset the total percentage reduction
-        cart.resetTotalPercentageReduction();
         List<IPerkDTO> successfulPerks = new ArrayList<>();
         // Apply perks to the customer
         PerkApplicationVisitor visitor = new PerkApplicationVisitorImpl(happyKidsProxy);
@@ -88,9 +82,10 @@ public class Cashier implements IPayment {
         }
 
         // Calculate the total price after applying discounts
-        percentage = cart.getTotalPercentageReduction();
+        double percentage = cart.getTotalPercentageReduction();
+        double totalPriceWithoutReduction = cart.getTotalPrice();
         // Recalculate the total price after applying discounts
-        if (percentage != 0) totalPrice = totalPriceWithoutReduction - (totalPriceWithoutReduction * percentage);
+        double totalPrice = totalPriceWithoutReduction - (totalPriceWithoutReduction * percentage);
         return new PaymentResponseDTO(totalPrice, successfulPerks);
     }
 

@@ -106,7 +106,7 @@ public class PerkApplicationVisitorImpl implements PerkApplicationVisitor {
         Cart cart = customer.getCart();
         CartItem cartItem = cart.getItemById(perk.getItem().getItemId());
         if (cartItem != null && cartItem.getQuantity() >= perk.getNbPurchased()) {
-            cartItem.increaseQuantity(perk.getNbGifted());
+            cartItem.addFreeItem(perk.getNbGifted());
             return true;
         }
         return false;
