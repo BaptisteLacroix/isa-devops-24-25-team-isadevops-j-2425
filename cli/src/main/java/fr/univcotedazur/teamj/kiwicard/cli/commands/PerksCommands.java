@@ -62,7 +62,7 @@ public class PerksCommands {
                 .bodyToFlux(CliPerk.class)
                 .map(CliPerk::toString)
                 .collect(Collectors.joining("\n"))
-                .map(s->s.isEmpty() ? "Aucun avantage applicable pour votre panier actuel, concsuler" : s)
+                .map(s->s.isEmpty() ? "Aucun avantage applicable pour votre panier actuel, consulter les avantages proposer par le commernçant avec `consult-partner-perks --partnerId <id>`" : s)
                 .block();
     }
 

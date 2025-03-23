@@ -109,13 +109,13 @@ public class PartnerCommands {
      * Consults the perks of a partner based on the partner's ID.
      * <p>
      * Example usage:
-     * consult-partner-perks --partnerId <partnerId>
+     * consult-partner-perks --partner-id <partnerId>
      *
      * @param partnerId The ID of the partner whose perks are to be consulted.
      */
     @ShellMethod("""
                 Consult the perks of a partner:
-                Usage: consult-partner-perks --partnerId <partnerId>
+                Usage: consult-partner-perks --partner-id <partner-id>
             
                 Parameters:
                     --partner-id/-p  The ID of the partner whose perks you want to consult.
