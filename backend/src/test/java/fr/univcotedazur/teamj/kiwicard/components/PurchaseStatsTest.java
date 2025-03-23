@@ -3,15 +3,12 @@ package fr.univcotedazur.teamj.kiwicard.components;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.*;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseStats;
-import fr.univcotedazur.teamj.kiwicard.repositories.IPurchaseRepository;
 import jakarta.persistence.EntityManager;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.repository.core.support.RepositoryMethodInvocationListener;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import static fr.univcotedazur.teamj.kiwicard.DateUtils.getLocalDateTimes;
 
@@ -23,69 +20,63 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
-@ActiveProfiles("testdb")
 public class PurchaseStatsTest {
     @Autowired
     EntityManager entityManager;
 
     @Autowired
-    IPurchaseRepository purchaseRepository;
-
-    @Autowired
     IPurchaseStats purchaseStats;
+
     private Customer customer;
     private Partner partner;
-    @Autowired
-    private RepositoryMethodInvocationListener repositoryMethodInvocationListener;
+
     private int nbPurchases = 0;
-    private Map<LocalTime, Integer> expectedAggregation = new HashMap<>();
+    private Map<LocalTime, Integer> expectedDay1Aggregation = new HashMap<>();
 
 
     @Transactional
     @BeforeEach
     void setUp() {
         entityManager.clear();
-        assertNotNull(purchaseRepository);
 
         customer = new Customer(new CustomerSubscribeDTO("test@example.com", "Alice", "Bob", "14 rue du trottoir, Draguignan"), "51");
-
         entityManager.persist(customer);
 
         partner = new Partner("Boulange", "14 rue du trottoir, Draguignan");
         entityManager.persist(partner);
 
         var baseDate = LocalDate.of(2025, 3, 16);
-        var sep = Duration.ofHours(1);
-        var day2 = baseDate.plusDays(1).atStartOfDay();
 
-        // setup expected aggregation
-        List<LocalDateTime> timestamps = getLocalDateTimes(baseDate, Duration.ofHours(1));
-
-        // create a list of not equal intervals to enforce non-linear results
-        Map<AbstractMap.SimpleEntry<LocalTime, LocalTime>, Integer> intervalToNb = getIntervalToNb();
-        timestamps.forEach(t-> this.expectedAggregation.put(t.toLocalTime(), 0));
-        for (var entry : intervalToNb.entrySet()) {
-            var interval = entry.getKey();
-            int nb = entry.getValue();
-            Duration intervalDuration = Duration.between(interval.getKey(), interval.getValue());
-            Duration purchaseStep = intervalDuration.dividedBy(nb);
-
-            this.nbPurchases += createPurchases(nb, LocalDateTime.of(baseDate, interval.getKey()), purchaseStep);
-        }
+        this.expectedDay1Aggregation = createPurchasesForDate(baseDate, getLocalDateTimes(baseDate, Duration.ofHours(1)));
         entityManager.flush();
         entityManager.clear();
     }
 
     @Transactional
-    public int createPurchases(int nb, LocalDateTime baseDateTime, Duration purchaseStep) {
+    public Map<LocalTime, Integer> createPurchasesForDate(LocalDate baseDate, List<LocalDateTime> timestamps) {
+        // create a list of not equal intervals to enforce non-linear results
+        Map<AbstractMap.SimpleEntry<LocalTime, LocalTime>, Integer> intervalToNb = getIntervalToNb();
+        Map<LocalTime, Integer> aggregMap = new HashMap<>();
+        timestamps.forEach(t-> aggregMap.put(t.toLocalTime(), 0));
+        for (var entry : intervalToNb.entrySet()) {
+            var interval = entry.getKey();
+            int nb = entry.getValue();
+            Duration intervalDuration = Duration.between(interval.getKey(), interval.getValue());
+            Duration purchaseStep = intervalDuration.dividedBy(nb);
+            this.nbPurchases += createPurchases(nb, LocalDateTime.of(baseDate, interval.getKey()), purchaseStep, aggregMap);
+        }
+        return aggregMap;
+    }
+
+    @Transactional
+    public int createPurchases(int nb, LocalDateTime baseDateTime, Duration purchaseStep, Map<LocalTime, Integer> aggregMap) {
         int count = 0;
         for (int i = 0; i < nb; i++) {
             LocalTime purchaseRelativeTime = LocalTime.ofSecondOfDay(purchaseStep.multipliedBy(i).getSeconds());
             LocalTime nextHour = baseDateTime.plusSeconds(purchaseRelativeTime.toSecondOfDay()).plusHours(1).truncatedTo(ChronoUnit.HOURS).toLocalTime();
-            this.expectedAggregation.put(nextHour, this.expectedAggregation.get(nextHour) + 1);
+            aggregMap.put(nextHour, aggregMap.get(nextHour) + 1);
             Payment payment = new Payment(40, baseDateTime.plusSeconds(purchaseRelativeTime.toSecondOfDay()));
             entityManager.persist(payment);
 
@@ -113,9 +104,7 @@ public class PurchaseStatsTest {
 
     @Transactional
     @Test
-    void temp() {
-        var res = purchaseRepository.findAllByPartner(partner.getPartnerId());
-        System.out.println(res.getFirst().getPayment().getTimestamp());
+    void testAggregateOneDay() {
         Cart cart3 = new Cart();
         cart3.setPartner(partner);
         customer.setCart(cart3);
@@ -127,7 +116,15 @@ public class PurchaseStatsTest {
         customer.addPurchase(purchase3);
         Map<LocalTime, Integer> aggregation = purchaseStats.aggregateByDayAndDuration(partner.getPartnerId(), LocalDate.of(2025, 3, 16), Duration.ofHours(1));
         assertEquals(aggregation.values().stream().reduce(Integer::sum).orElseThrow(), this.nbPurchases);
-        assertEquals(aggregation, this.expectedAggregation);
+        assertEquals(aggregation, this.expectedDay1Aggregation);
+    }
+
+    @Transactional
+    @Test
+    void testAggregateTwoDays() {
+        Map<LocalTime, Integer> aggregationDay1 = purchaseStats.aggregateByDayAndDuration(partner.getPartnerId(), LocalDate.of(2025, 3, 16), Duration.ofHours(1));
+        assertEquals(aggregationDay1.values().stream().reduce(Integer::sum).orElseThrow(), this.nbPurchases);
+        assertEquals(aggregationDay1, this.expectedDay1Aggregation);
     }
 
 
@@ -194,5 +191,4 @@ public class PurchaseStatsTest {
         }
         return intervalToNb;
     }
-
 }
