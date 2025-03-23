@@ -111,10 +111,6 @@ public class Cart {
         return this.itemList.isEmpty();
     }
 
-    public void empty() {
-        this.itemList.clear();
-    }
-
     public List<AbstractPerk> getPerksToUse() {
         return perksToUse;
     }
@@ -128,11 +124,6 @@ public class Cart {
         return this.totalPercentageReduction;
     }
 
-    public double resetTotalPercentageReduction() {
-        this.totalPercentageReduction = 0;
-        return this.totalPercentageReduction;
-    }
-
     public double getTotalPrice() {
         return this.getItems().stream().mapToDouble(CartItem::getPrice).sum();
     }
@@ -141,10 +132,7 @@ public class Cart {
        return this.getItems().stream().map(CartItem::getItem).anyMatch(itm -> itm.equals(item));
     }
 
-    public void updatePerksUsed(AbstractPerk perk) {
-        // Remove the perk from the perks to use
-        this.perksToUse.remove(perk);
-        // and add it to the perks used
+    public void addPerkUsed(AbstractPerk perk) {
         this.perksUsed.add(perk);
     }
 }
