@@ -195,21 +195,4 @@ public class PurchaseStatsTest {
         return intervalToNb;
     }
 
-//    public String nativeRequest() {
-//        String sql = "SELECT * FROM Payment";
-//        Query query = entityManager.createNativeQuery(sql);
-//        List<Object[]> resultats = query.getResultList();
-//        return formaterResultatsEnChaine(resultats);
-//    }
-    private String formaterResultatsEnChaine(List<Object[]> resultats) {
-        StringBuilder sb = new StringBuilder();
-        for (Object[] ligne : resultats) {
-            for (Object champ : ligne) {
-                sb.append(champ != null ? champ.toString() : "NULL").append("\t");
-            }
-            sb.append("\n");
-        }
-        return sb.toString();
-    }
-
 }
