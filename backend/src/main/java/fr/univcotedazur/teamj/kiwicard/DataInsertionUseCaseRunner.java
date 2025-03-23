@@ -11,17 +11,26 @@ import fr.univcotedazur.teamj.kiwicard.repositories.ICustomerRepository;
 import fr.univcotedazur.teamj.kiwicard.repositories.IPartnerRepository;
 import fr.univcotedazur.teamj.kiwicard.repositories.IPerkRepository;
 import fr.univcotedazur.teamj.kiwicard.repositories.IPurchaseRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+
+import static fr.univcotedazur.teamj.kiwicard.DateUtils.getLocalDateTimes;
 
 @Profile("!test")
 @Component
 public class DataInsertionUseCaseRunner implements CommandLineRunner {
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private final ICustomerRepository customerRepository;
     private final IPartnerRepository partnerRepository;
@@ -416,11 +425,10 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         // Payment
         Payment payment = new Payment(40, LocalDateTime.now());
 
-//        // Purchase
-//        Purchase purchase = new Purchase(payment, cart);
-//        purchaseRepository.save(purchase);
-//        customer.addPurchase(purchase);
-//        customer.removeCart();
-//        customerRepository.save(customer);
+        LocalDate day1 = LocalDate.of(2025, 3, 16);
+        LocalDate day2 = LocalDate.of(2025, 4, 16);
+        // Purchases
+        new DataUtils(entityManager).createDummyPurchasesForDate(day1, getLocalDateTimes(day1, Duration.ofHours(1)), partnerPoissonnerie);
+        new DataUtils(entityManager).createDummyPurchasesForDate(day2, getLocalDateTimes(day2, Duration.ofHours(1)), partnerPoissonnerie);
     }
 }

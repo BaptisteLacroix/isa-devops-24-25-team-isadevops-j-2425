@@ -121,7 +121,7 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
                 formatter.format(day1.plusDays(1))
         );
         List<LocalDateTime> timestamps = getLocalDateTimes(day, separation);
-        Map<LocalTime, Integer> result = new HashMap<>();
+        Map<LocalTime, Integer> result = new LinkedHashMap<>();
         timestamps.forEach(t-> result.put(t.toLocalTime(), 0));
         for (Purchase purchase : purchasesOfTheDay) {
             var purchaseTime = purchase.getPayment().getTimestamp().toLocalTime();
