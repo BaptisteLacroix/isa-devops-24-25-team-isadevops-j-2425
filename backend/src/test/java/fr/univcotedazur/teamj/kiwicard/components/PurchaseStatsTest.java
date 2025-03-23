@@ -65,7 +65,7 @@ public class PurchaseStatsTest {
         List<LocalDateTime> timestamps = getLocalDateTimes(baseDate, Duration.ofHours(1));
 
         // create a list of not equal intervals to enforce non-linear results
-        Map<AbstractMap.SimpleEntry<LocalTime, LocalTime>, Integer> intervalToNb = getSimpleEntryIntegerMap();
+        Map<AbstractMap.SimpleEntry<LocalTime, LocalTime>, Integer> intervalToNb = getIntervalToNb();
         timestamps.forEach(t-> this.expectedAggregation.put(t.toLocalTime(), 0));
         for (var entry : intervalToNb.entrySet()) {
             var interval = entry.getKey();
@@ -132,7 +132,7 @@ public class PurchaseStatsTest {
 
 
     @NotNull
-    private static Map<AbstractMap.SimpleEntry<LocalTime, LocalTime>, Integer> getSimpleEntryIntegerMap() {
+    private static Map<AbstractMap.SimpleEntry<LocalTime, LocalTime>, Integer> getIntervalToNb() {
         List<AbstractMap.SimpleEntry<LocalTime, LocalTime>> intervals = new ArrayList<>(){{
             add(new AbstractMap.SimpleEntry<>(
                         LocalTime.of(0, 0),
