@@ -54,15 +54,12 @@ public class PerkApplicationVisitorImpl implements PerkApplicationVisitor {
             if (startTime == null) {
                 throw new BookingTimeNotSetException();
             }
-            LocalTime bookingTime = startTime.toLocalTime();
-            int quantity = item.getQuantity(); // Number of hours until the end time
-
             // Get the number of hours that fall within the perk interval
-            int hoursInPerkInterval = getHoursInPerkInterval(bookingTime, quantity, perk.getStartHour(), perk.getEndHour());
+            int hoursInPerkInterval = getHoursInPerkInterval(item, perk.getStartHour(), perk.getEndHour());
 
             // If any hours fall within the perk interval, apply the discount
             if (hoursInPerkInterval > 0) {
-                HappyKidsDiscountDTO discountDTO = happyKidsProxy.computeDiscount(item.getPrice() * hoursInPerkInterval, perk.getDiscountRate());
+                HappyKidsDiscountDTO discountDTO = happyKidsProxy.computeDiscount(item.getItemPrice() * hoursInPerkInterval, perk.getDiscountRate());
                 if (discountDTO != null) {
                     item.setPrice(discountDTO.price());
                 }
@@ -79,18 +76,17 @@ public class PerkApplicationVisitorImpl implements PerkApplicationVisitor {
      * If the interval crosses midnight, the bookingTime is valid if it is on or after the start
      * or before the end.
      *
-     * @param startTime the start time of the booking
-     * @param quantity  the number of hours in the booking period
+     * @param cartItem  the item to check
      * @param perkStart the start time of the perk interval
      * @param perkEnd   the end time of the perk interval
      * @return the number of hours within the perk interval
      */
-    private int getHoursInPerkInterval(LocalTime startTime, int quantity, LocalTime perkStart, LocalTime perkEnd) {
+    int getHoursInPerkInterval(CartItem cartItem, LocalTime perkStart, LocalTime perkEnd) {
         int hoursInPerkInterval = 0;
-
+        LocalTime bookingTime = cartItem.getStartTime().toLocalTime();
         // Iterate through all hours from the start time and check if they fall within the perk interval
-        for (int i = 0; i < quantity; i++) {
-            LocalTime currentTime = startTime.plusHours(i);
+        for (int i = 0; i < cartItem.getQuantity(); i++) {
+            LocalTime currentTime = bookingTime.plusHours(i);
             if (isWithinPerkInterval(currentTime, perkStart, perkEnd)) {
                 hoursInPerkInterval++;
             }

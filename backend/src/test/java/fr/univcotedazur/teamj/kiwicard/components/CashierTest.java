@@ -98,9 +98,7 @@ class CashierTest extends BaseUnitTest {
         when(bankProxy.askPayment(any())).thenThrow(UnreachableExternalServiceException.class);
 
         // Act & Assert
-        assertThrows(UnreachableExternalServiceException.class, () -> {
-            cashier.makePay(customer);
-        });
+        assertThrows(UnreachableExternalServiceException.class, () -> cashier.makePay(customer));
     }
 
     @Test
@@ -329,14 +327,15 @@ class CashierTest extends BaseUnitTest {
         // Set up customer and HappyKidsProxy mock behavior
         when(customer.getCart()).thenReturn(cart);
         when(customer.isVfp()).thenReturn(true);
-        when(happyKidsProxy.computeDiscount(anyDouble(), anyDouble())).thenReturn(new HappyKidsDiscountDTO(280.0));
+        when(happyKidsProxy.computeDiscount(anyDouble(), anyDouble())).thenReturn(new HappyKidsDiscountDTO(290.0));
 
         // Act
         PaymentResponseDTO response = cashier.computePrice(customer);
 
         // Assert
         assertNotNull(response);
-        assertEquals(280.0, response.totalPrice());  // (300) - (100 * 2 * 0.1) = 280.0 after VFP discount
+        assertEquals(290.0, response.totalPrice());  // (300) - (100 * 2 * 0.1) = 280.0 after VFP discount
+        verify(happyKidsProxy).computeDiscount(100.0, 0.1);
     }
 
     @Test
@@ -375,7 +374,7 @@ class CashierTest extends BaseUnitTest {
         cart.addItem(cartItem1);
 
         NPurchasedMGiftedPerk nPurchasedMGiftedPerk = new NPurchasedMGiftedPerk(3, 1, item1); // Buy 3, get 1 free
-        TimedDiscountInPercentPerk timedDiscountInPercentPerk = new TimedDiscountInPercentPerk(LocalTime.now().minusMinutes(15), 0.2); // 20% discount after 12:00
+        TimedDiscountInPercentPerk timedDiscountInPercentPerk = new TimedDiscountInPercentPerk(LocalTime.now().minusMinutes(15), 0.2); // 20% discount activated just before the purchase
         VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(0.1, LocalTime.now().minusHours(1), LocalTime.now().plusHours(10));
 
         cart.addPerkToUse(vfpDiscountInPercentPerk);

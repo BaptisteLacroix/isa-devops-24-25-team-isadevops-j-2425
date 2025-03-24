@@ -16,10 +16,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.mock;
@@ -163,6 +163,42 @@ class PerkApplicationVisitorImplTest {
 
         verify(cartItem, never()).addFreeItem(anyInt());
         assertFalse(result);
+    }
+
+    @Test
+    void testGetHoursInPerkInterval_withinPerkInterval() {
+        CartItem cartItem = mock(CartItem.class);
+        when(cartItem.getStartTime()).thenReturn(LocalDateTime.of(2023, 10, 10, 10, 0));
+        when(cartItem.getQuantity()).thenReturn(3);
+        LocalTime perkStart = LocalTime.of(9, 0);
+        LocalTime perkEnd = LocalTime.of(12, 0);
+
+        int result = visitor.getHoursInPerkInterval(cartItem, perkStart, perkEnd);
+        assertEquals(2, result);
+    }
+
+    @Test
+    void testGetHoursInPerkInterval_outsidePerkInterval() {
+        CartItem cartItem = mock(CartItem.class);
+        when(cartItem.getStartTime()).thenReturn(LocalDateTime.of(2023, 10, 10, 8, 0));
+        when(cartItem.getQuantity()).thenReturn(2);
+        LocalTime perkStart = LocalTime.of(10, 0);
+        LocalTime perkEnd = LocalTime.of(12, 0);
+
+        int result = visitor.getHoursInPerkInterval(cartItem, perkStart, perkEnd);
+        assertEquals(0, result);
+    }
+
+    @Test
+    void testGetHoursInPerkInterval_crossesMidnight() {
+        CartItem cartItem = mock(CartItem.class);
+        when(cartItem.getStartTime()).thenReturn(LocalDateTime.of(2023, 10, 10, 23, 0));
+        when(cartItem.getQuantity()).thenReturn(3);
+        LocalTime perkStart = LocalTime.of(21, 0);
+        LocalTime perkEnd = LocalTime.of(1, 0);
+
+        int result = visitor.getHoursInPerkInterval(cartItem, perkStart, perkEnd);
+        assertEquals(2, result);
     }
 }
 

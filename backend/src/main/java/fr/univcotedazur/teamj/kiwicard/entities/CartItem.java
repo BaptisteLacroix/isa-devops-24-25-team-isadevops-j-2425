@@ -87,6 +87,10 @@ public class CartItem {
         return price;
     }
 
+    public double getItemPrice() {
+        return item.getPrice();
+    }
+
     @Override
     public String toString() {
         return "CartItem{" +
