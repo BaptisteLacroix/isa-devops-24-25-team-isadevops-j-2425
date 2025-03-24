@@ -46,7 +46,7 @@ pipeline {
             steps {
                 dir('backend') {
                     echo '🐋📷 Pipeline is building the docker image of the backend project!'
-                    sh './build-local.sh'
+                    sh './build.sh'
                 }
             }
         }
