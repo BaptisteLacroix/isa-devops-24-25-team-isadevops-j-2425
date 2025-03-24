@@ -33,15 +33,15 @@ public class HappyKidsProxy implements IHappyKids {
     /**
      * Calcule le montant de la réduction à appliquer à un article du panier.
      *
-     * @param item         L'article du panier pour lequel calculer la réduction.
+     * @param itemPrice         L'article du panier pour lequel calculer la réduction.
      * @param discountRate Le taux de réduction à appliquer.
      * @return Le DTO contenant le montant de la réduction.
      * @throws UnreachableExternalServiceException Si le service externe est injoignable.
      */
     @Override
-    public HappyKidsDiscountDTO computeDiscount(CartItem item, double discountRate) throws UnreachableExternalServiceException {
+    public HappyKidsDiscountDTO computeDiscount(double itemPrice, double discountRate) throws UnreachableExternalServiceException {
         try {
-            HappyKidsRequestDTO happyKidsRequestDTO = new HappyKidsRequestDTO(item.getPrice(), discountRate);
+            HappyKidsRequestDTO happyKidsRequestDTO = new HappyKidsRequestDTO(itemPrice, discountRate);
             // Call the external service
             return webClient.post()
                     .uri("/perks")

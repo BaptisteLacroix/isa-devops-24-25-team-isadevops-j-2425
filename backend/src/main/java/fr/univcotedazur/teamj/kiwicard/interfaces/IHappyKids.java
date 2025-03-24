@@ -9,5 +9,5 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceExce
  * Vérification de la disponibilité d'une réduction chez HappyKids
  */
 public interface IHappyKids {
-    HappyKidsDiscountDTO computeDiscount(CartItem item, double discountRate) throws ClosedTimeException, UnreachableExternalServiceException;
+    HappyKidsDiscountDTO computeDiscount(double itemPrice, double discountRate) throws ClosedTimeException, UnreachableExternalServiceException;
 }

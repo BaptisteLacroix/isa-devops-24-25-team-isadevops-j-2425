@@ -79,37 +79,32 @@ public class Cashier implements IPayment {
     PaymentResponseDTO computePrice(Customer customer) throws ClosedTimeException, UnreachableExternalServiceException, BookingTimeNotSetException {
         Cart cart = customer.getCart();
         // Apply perks to the customer
-        PerkApplicationVisitor visitor = new PerkApplicationVisitorImpl(happyKidsProxy);
-        List<IPerkDTO> successfulPerks = applyPerksToCart(cart, visitor, customer);
-
+        applyPerksToCart(cart, customer);
         // Calculate the total price after applying discounts
         double percentage = cart.getTotalPercentageReduction();
         double totalPriceWithoutReduction = cart.getTotalPrice();
         // Recalculate the total price after applying discounts
         double totalPrice = totalPriceWithoutReduction - (totalPriceWithoutReduction * percentage);
-        return new PaymentResponseDTO(totalPrice, successfulPerks);
+        return new PaymentResponseDTO(totalPrice);
     }
 
     /**
      * Applies the perks to the given {@link Cart} and returns the list of successfully applied perks.
      *
      * @param cart The cart to which the perks are applied.
-     * @param visitor The visitor used to apply the perks.
      * @param customer The customer whose cart is being processed.
      * @return A list of successfully applied perks as {@link IPerkDTO}.
      */
-    private List<IPerkDTO> applyPerksToCart(Cart cart, PerkApplicationVisitor visitor, Customer customer) throws BookingTimeNotSetException, ClosedTimeException, UnreachableExternalServiceException {
-        List<IPerkDTO> successfulPerks = new ArrayList<>();
+    private void applyPerksToCart(Cart cart, Customer customer) throws BookingTimeNotSetException, ClosedTimeException, UnreachableExternalServiceException {
+        PerkApplicationVisitor visitor = new PerkApplicationVisitorImpl(happyKidsProxy);
         Iterator<AbstractPerk> iterator = cart.getPerksToUse().iterator();
 
         while (iterator.hasNext()) {
             AbstractPerk perk = iterator.next();
             if (perk.apply(visitor, customer)) {
-                successfulPerks.add(PerkMapper.toDTO(perk));
                 iterator.remove();  // Safely remove the perk from the list
                 cart.addPerkUsed(perk);
             }
         }
-        return successfulPerks;
     }
 }

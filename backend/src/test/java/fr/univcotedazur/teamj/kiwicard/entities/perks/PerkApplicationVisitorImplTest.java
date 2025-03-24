@@ -53,15 +53,17 @@ class PerkApplicationVisitorImplTest {
         when(cart.getHKItems()).thenReturn(List.of(cartItem));
 
         // Création d'un perk avec une plage horaire couvrant bookingTime
-        LocalTime startHour = bookingTime.minusMinutes(10);
-        LocalTime endHour = bookingTime.plusMinutes(10);
+        LocalTime startHour = bookingTime.minusHours(1);
+        LocalTime endHour = bookingTime.plusHours(1);
         double discountRate = 0.2; // 20%
         VfpDiscountInPercentPerk perk = new VfpDiscountInPercentPerk(discountRate, startHour, endHour);
 
         // Préparation d'un HappyKidsDiscountDTO fictif
         HappyKidsDiscountDTO discountDTO = mock(HappyKidsDiscountDTO.class);
         when(discountDTO.price()).thenReturn(8.0);
-        when(happyKidsProxy.computeDiscount(cartItem, discountRate)).thenReturn(discountDTO);
+        when(cartItem.getStartTime()).thenReturn(LocalDateTime.now());
+        when(cartItem.getQuantity()).thenReturn(1);
+        when(happyKidsProxy.computeDiscount(cartItem.getPrice(), discountRate)).thenReturn(discountDTO);
 
         boolean result = visitor.visit(perk, customer);
 
@@ -84,7 +86,7 @@ class PerkApplicationVisitorImplTest {
 
         boolean result = visitor.visit(perk, customer);
 
-        verify(happyKidsProxy, never()).computeDiscount(any(), anyDouble());
+        verify(happyKidsProxy, never()).computeDiscount(anyDouble(), anyDouble());
         verify(cartItem, never()).setPrice(anyDouble());
         assertTrue(result);
     }

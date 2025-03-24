@@ -16,6 +16,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -68,7 +69,7 @@ class BankProxyTest {
 
         // Then
         assertNotNull(response);
-        Assertions.assertEquals(100.0, response.amount());
+        assertEquals(100.0, response.amount());
         assertTrue(response.authorized());
     }
 

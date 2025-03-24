@@ -73,7 +73,7 @@ class HappyKidsProxyTest {
         CartItem cartItem = new CartItem(item, cartItemAddDTO);
 
         // When
-        HappyKidsDiscountDTO response = happyKidsProxy.computeDiscount(cartItem, discountRate);
+        HappyKidsDiscountDTO response = happyKidsProxy.computeDiscount(cartItem.getPrice(), discountRate);
 
         // Then
         assertNotNull(response);
@@ -98,7 +98,7 @@ class HappyKidsProxyTest {
         CartItem cartItem = new CartItem(item, cartItemAddDTO);
 
         // When
-        HappyKidsDiscountDTO response = happyKidsProxy.computeDiscount(cartItem, discountRate);
+        HappyKidsDiscountDTO response = happyKidsProxy.computeDiscount(cartItem.getPrice(), discountRate);
 
         // Then
         assertNotNull(response);
@@ -123,7 +123,7 @@ class HappyKidsProxyTest {
         CartItem cartItem = new CartItem(item, cartItemAddDTO);
 
         // When
-        HappyKidsDiscountDTO response = happyKidsProxy.computeDiscount(cartItem, discountRate);
+        HappyKidsDiscountDTO response = happyKidsProxy.computeDiscount(cartItem.getPrice(), discountRate);
 
         // Then
         assertNotNull(response);
@@ -148,7 +148,7 @@ class HappyKidsProxyTest {
         CartItem cartItem = new CartItem(item, cartItemAddDTO);
 
         // When
-        HappyKidsDiscountDTO response = happyKidsProxy.computeDiscount(cartItem, discountRate);
+        HappyKidsDiscountDTO response = happyKidsProxy.computeDiscount(cartItem.getPrice(), discountRate);
 
         // Then
         assertNotNull(response);
@@ -168,7 +168,7 @@ class HappyKidsProxyTest {
         CartItem cartItem = new CartItem(item, cartItemAddDTO);
 
         // When
-        HappyKidsDiscountDTO response = happyKidsProxy.computeDiscount(cartItem, 0.2);
+        HappyKidsDiscountDTO response = happyKidsProxy.computeDiscount(cartItem.getPrice(), 0.2);
 
         // Then
         assertNotNull(response);
@@ -186,7 +186,7 @@ class HappyKidsProxyTest {
 
         // When & Then
         assertThrows(UnreachableExternalServiceException.class, () ->
-                happyKidsProxy.computeDiscount(cartItem, 0.2));
+                happyKidsProxy.computeDiscount(cartItem.getPrice(), 0.2));
     }
 
     @Test
@@ -200,6 +200,6 @@ class HappyKidsProxyTest {
 
         // When & Then
         assertThrows(UnreachableExternalServiceException.class, () ->
-                happyKidsProxy.computeDiscount(cartItem, 0.2));
+                happyKidsProxy.computeDiscount(cartItem.getPrice(), 0.2));
     }
 }
