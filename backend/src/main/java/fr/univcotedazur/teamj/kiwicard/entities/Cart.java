@@ -83,7 +83,7 @@ public class Cart {
 
     public List<CartItem> getHKItems() {
         return this.itemList.stream()
-                .peek(ci-> System.out.println(ci.getItem().getLabel()))
+                .peek(ci -> System.out.println(ci.getItem().getLabel()))
                 .filter(item -> item.getItem().getLabel().contains(Constants.HAPPY_KIDS_ITEM_NAME))
                 .toList();
 
@@ -114,6 +114,10 @@ public class Cart {
         return perksToUse;
     }
 
+    public List<AbstractPerk> getPerksUsed() {
+        return perksUsed;
+    }
+
     public double getTotalPercentageReduction() {
         return totalPercentageReduction;
     }
@@ -128,7 +132,7 @@ public class Cart {
     }
 
     public boolean alreadyContains(Item item) {
-       return this.getItems().stream().map(CartItem::getItem).anyMatch(itm -> itm.equals(item));
+        return this.getItems().stream().map(CartItem::getItem).anyMatch(itm -> itm.equals(item));
     }
 
     public void addPerkUsed(AbstractPerk perk) {
