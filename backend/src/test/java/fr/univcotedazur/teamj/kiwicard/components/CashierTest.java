@@ -122,7 +122,7 @@ class CashierTest extends BaseUnitTest {
         Cart cart = new Cart();
         cart.addItem(cartItem1);
         cart.addItem(cartItem2);
-        cart.addToTotalPercentageReduction(0.2); // 20% discount
+        cart.addToTotalPercentageReduction(20); // 20% discount
 
         when(customer.getCart()).thenReturn(cart);
 
@@ -228,7 +228,7 @@ class CashierTest extends BaseUnitTest {
         cart.addItem(cartItem2);
 
         NPurchasedMGiftedPerk nPurchasedMGiftedPerk = new NPurchasedMGiftedPerk(3, 1, item1); // Buy 3, get 1 free
-        TimedDiscountInPercentPerk timedDiscountInPercentPerk = new TimedDiscountInPercentPerk(LocalTime.now().minusMinutes(15), 0.2); // 20% discount after 12:00
+        TimedDiscountInPercentPerk timedDiscountInPercentPerk = new TimedDiscountInPercentPerk(LocalTime.now().minusMinutes(15), 20); // 20% discount after 12:00
 
         cart.addPerkToUse(nPurchasedMGiftedPerk);
         cart.addPerkToUse(timedDiscountInPercentPerk);
@@ -254,7 +254,7 @@ class CashierTest extends BaseUnitTest {
         cart.addItem(cartItem1);
 
         // Simulating a VFP discount (10% discount for VFP members)
-        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(0.1, LocalTime.now().minusHours(1), LocalTime.now().plusHours(10));
+        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(10, LocalTime.now().minusHours(1), LocalTime.now().plusHours(10));
         cart.addPerkToUse(vfpDiscountInPercentPerk);
 
         // Set up customer and HappyKidsProxy mock behavior
@@ -279,7 +279,7 @@ class CashierTest extends BaseUnitTest {
         cart.addItem(cartItem1);
 
         // Simulating a VFP discount (10% discount for VFP members)
-        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(0.1, LocalTime.now().plusHours(1), LocalTime.now().plusHours(10));
+        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(10, LocalTime.now().plusHours(1), LocalTime.now().plusHours(10));
         cart.addPerkToUse(vfpDiscountInPercentPerk);
 
         // Set up customer and HappyKidsProxy mock behavior
@@ -307,7 +307,7 @@ class CashierTest extends BaseUnitTest {
         cart.addItem(cartItem2);
 
         // Simulating a VFP discount (10% discount for VFP members)
-        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(0.1, LocalTime.now().minusHours(1), LocalTime.now().plusHours(10));
+        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(10, LocalTime.now().minusHours(1), LocalTime.now().plusHours(10));
         cart.addPerkToUse(vfpDiscountInPercentPerk);
 
         // Set up customer and HappyKidsProxy mock behavior
@@ -332,7 +332,7 @@ class CashierTest extends BaseUnitTest {
         cart.addItem(cartItem1);
 
         // Simulating a VFP discount (10% discount for VFP members) between 21:00 and 02:00
-        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(0.1, LocalTime.of(21, 0), LocalTime.of(2, 0));
+        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(10, LocalTime.of(21, 0), LocalTime.of(2, 0));
         cart.addPerkToUse(vfpDiscountInPercentPerk);
 
         // Set up customer and HappyKidsProxy mock behavior
@@ -346,7 +346,7 @@ class CashierTest extends BaseUnitTest {
         // Assert
         assertNotNull(response);
         assertEquals(290.0, response.totalPrice());  // (300) - (100 * 2 * 0.1) = 280.0 after VFP discount
-        verify(happyKidsProxy).computeDiscount(100.0, 0.1);
+        verify(happyKidsProxy).computeDiscount(100.0, 10);
     }
 
     @Test
@@ -361,7 +361,7 @@ class CashierTest extends BaseUnitTest {
         cart.addItem(cartItem2);
 
         // Simulating a VFP discount (10% discount for VFP members)
-        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(0.1, LocalTime.of(21, 0), LocalTime.of(22, 0));
+        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(10, LocalTime.of(21, 0), LocalTime.of(22, 0));
         cart.addPerkToUse(vfpDiscountInPercentPerk);
 
         // Set up customer and HappyKidsProxy mock behavior
@@ -385,8 +385,8 @@ class CashierTest extends BaseUnitTest {
         cart.addItem(cartItem1);
 
         NPurchasedMGiftedPerk nPurchasedMGiftedPerk = new NPurchasedMGiftedPerk(3, 1, item1); // Buy 3, get 1 free
-        TimedDiscountInPercentPerk timedDiscountInPercentPerk = new TimedDiscountInPercentPerk(LocalTime.now().minusMinutes(15), 0.2); // 20% discount activated just before the purchase
-        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(0.1, LocalTime.now().minusHours(1), LocalTime.now().plusHours(10));
+        TimedDiscountInPercentPerk timedDiscountInPercentPerk = new TimedDiscountInPercentPerk(LocalTime.now().minusMinutes(15), 20); // 20% discount activated just before the purchase
+        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(10, LocalTime.now().minusHours(1), LocalTime.now().plusHours(10));
 
         cart.addPerkToUse(vfpDiscountInPercentPerk);
         cart.addPerkToUse(nPurchasedMGiftedPerk);

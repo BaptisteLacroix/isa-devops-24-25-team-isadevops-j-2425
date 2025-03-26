@@ -55,7 +55,7 @@ class PerkApplicationVisitorImplTest {
         // Création d'un perk avec une plage horaire couvrant bookingTime
         LocalTime startHour = bookingTime.minusHours(1);
         LocalTime endHour = bookingTime.plusHours(1);
-        double discountRate = 0.2; // 20%
+        double discountRate = 20;
         VfpDiscountInPercentPerk perk = new VfpDiscountInPercentPerk(discountRate, startHour, endHour);
 
         // Préparation d'un HappyKidsDiscountDTO fictif
@@ -81,7 +81,7 @@ class PerkApplicationVisitorImplTest {
         // Plage horaire ne contenant pas bookingTime
         LocalTime startHour = bookingTime.plusHours(1);
         LocalTime endHour = bookingTime.plusHours(2);
-        double discountRate = 0.2;
+        double discountRate = 20;
         VfpDiscountInPercentPerk perk = new VfpDiscountInPercentPerk(discountRate, startHour, endHour);
 
         boolean result = visitor.visit(perk, customer);
@@ -99,7 +99,7 @@ class PerkApplicationVisitorImplTest {
 
         LocalTime startHour = LocalTime.now().minusMinutes(10);
         LocalTime endHour = LocalTime.now().plusMinutes(10);
-        double discountRate = 0.2;
+        double discountRate = 20;
         VfpDiscountInPercentPerk perk = new VfpDiscountInPercentPerk(discountRate, startHour, endHour);
 
         assertThrows(BookingTimeNotSetException.class, () -> visitor.visit(perk, customer));

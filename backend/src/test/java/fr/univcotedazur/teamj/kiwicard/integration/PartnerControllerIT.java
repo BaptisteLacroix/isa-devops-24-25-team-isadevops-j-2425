@@ -257,8 +257,8 @@ class PartnerControllerIT extends BaseUnitTest {
     @Test
     void listAllPerksFromPartnerOK() throws Exception {
         Partner partner = new Partner(chezJohnCreationDTO);
-        VfpDiscountInPercentPerk perk1 = new VfpDiscountInPercentPerk(0.1, LocalTime.of(10, 0, 0), LocalTime.of(12, 0, 0));
-        VfpDiscountInPercentPerk perk2 = new VfpDiscountInPercentPerk(0.2, LocalTime.of(10, 0, 0), LocalTime.of(12, 0, 0));
+        VfpDiscountInPercentPerk perk1 = new VfpDiscountInPercentPerk(10, LocalTime.of(10, 0, 0), LocalTime.of(12, 0, 0));
+        VfpDiscountInPercentPerk perk2 = new VfpDiscountInPercentPerk(20, LocalTime.of(10, 0, 0), LocalTime.of(12, 0, 0));
         partner.addPerk(perk1);
         partner.addPerk(perk2);
         partnerRepository.save(partner);

@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import static fr.univcotedazur.teamj.kiwicard.configurations.Constants.MAX_DISCOUNT_RATE_OF_A_CART;
+
 /**
  * The {@code Cashier} class is responsible for handling the payment process of a customer.
  * It interacts with external banking services via {@link BankProxy} to process payments.
@@ -86,10 +88,10 @@ public class Cashier implements IPayment {
         // Apply perks to the customer
         applyPerksToCart(cart, customer);
         // Calculate the total price after applying discounts
-        double percentage = cart.getTotalPercentageReduction();
+        double percentage = Math.min(cart.getTotalPercentageReduction(),MAX_DISCOUNT_RATE_OF_A_CART);
         double totalPriceWithoutReduction = cart.getTotalPrice();
         // Recalculate the total price after applying discounts
-        double totalPrice = totalPriceWithoutReduction - (totalPriceWithoutReduction * percentage);
+        double totalPrice = totalPriceWithoutReduction - (totalPriceWithoutReduction * (percentage/100));
         return new PaymentResponseDTO(totalPrice);
     }
 

@@ -264,7 +264,7 @@ INSERT INTO public.abstract_perk (partner_id, perk_id) VALUES (2, 2);
 -- Data for Name: timed_discount_in_percent_perk; Type: TABLE DATA; Schema: public; Owner: postgresuser
 INSERT INTO public.timed_discount_in_percent_perk (discount_rate, "time", perk_id) VALUES (20, '8:00:00', 2);
 -- Data for Name: vfp_discount_in_percent_perk; Type: TABLE DATA; Schema: public; Owner: postgresuser
-INSERT INTO public.vfp_discount_in_percent_perk (discount_rate, end_hour, start_hour, perk_id) VALUES (0.05, '12:00:00', '08:00:00', 1);
+INSERT INTO public.vfp_discount_in_percent_perk (discount_rate, end_hour, start_hour, perk_id) VALUES (5, '12:00:00', '08:00:00', 1);
 
 --
 -- Data for Name: cart_item; Type: TABLE DATA; Schema: public; Owner: postgresuser

@@ -39,7 +39,7 @@ class VfpDiscountInPercentPerkTest {
 
         LocalTime startHour = LocalTime.of(10, 0);
         LocalTime endHour = LocalTime.of(12, 0);
-        perk = new VfpDiscountInPercentPerk(0.2, startHour, endHour);
+        perk = new VfpDiscountInPercentPerk(20, startHour, endHour);
 
         boolean result = perk.isConsumableFor(customer);
         assertTrue(result);
@@ -56,7 +56,7 @@ class VfpDiscountInPercentPerkTest {
         // Plage horaire ne contenant pas l'heure de réservation
         LocalTime startHour = bookingTime.plusHours(1);
         LocalTime endHour = bookingTime.plusHours(2);
-        perk = new VfpDiscountInPercentPerk(0.2, startHour, endHour);
+        perk = new VfpDiscountInPercentPerk(20, startHour, endHour);
 
         boolean result = perk.isConsumableFor(customer);
         assertFalse(result);
@@ -66,7 +66,7 @@ class VfpDiscountInPercentPerkTest {
     void testIsConsumableForWhenCartIsNull() {
         when(customer.getCart()).thenReturn(null);
         LocalTime now = LocalTime.now();
-        perk = new VfpDiscountInPercentPerk(0.2, now.minusMinutes(10), now.plusMinutes(10));
+        perk = new VfpDiscountInPercentPerk(20, now.minusMinutes(10), now.plusMinutes(10));
 
         boolean result = perk.isConsumableFor(customer);
         assertFalse(result);
@@ -80,7 +80,7 @@ class VfpDiscountInPercentPerkTest {
         when(cart.getHKItems()).thenReturn(List.of(cartItem));
 
         LocalTime now = LocalTime.now();
-        perk = new VfpDiscountInPercentPerk(0.2, now.minusMinutes(10), now.plusMinutes(10));
+        perk = new VfpDiscountInPercentPerk(20, now.minusMinutes(10), now.plusMinutes(10));
 
         boolean result = perk.isConsumableFor(customer);
         assertFalse(result);
