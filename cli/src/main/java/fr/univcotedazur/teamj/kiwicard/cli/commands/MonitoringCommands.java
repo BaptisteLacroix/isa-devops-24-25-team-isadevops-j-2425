@@ -16,6 +16,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 
 import static fr.univcotedazur.teamj.kiwicard.cli.constants.Constants.LOGGED_IN_ID_PLACEHOLDER;
 
@@ -91,7 +92,7 @@ public class MonitoringCommands {
                             payment.timestamp().format(DateTimeFormatter.ofPattern("dd/MM/yyyy à HH:mm")),
                             cart.partner().name(),
                             itemStr,
-                            String.format("%.2f€",payment.amount()),
+                            String.format(Locale.FRANCE, "%,.2f", payment.amount()),
                             perkStr));
                 } else {
                     sb.append(String.format(lineTemplate,

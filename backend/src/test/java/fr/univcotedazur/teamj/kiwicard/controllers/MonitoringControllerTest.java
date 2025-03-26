@@ -2,6 +2,7 @@ package fr.univcotedazur.teamj.kiwicard.controllers;
 
 import fr.univcotedazur.teamj.kiwicard.BaseUnitTest;
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.CartInPurchaseDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PaymentHistoryDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PurchaseHistoryDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Cart;
@@ -36,7 +37,7 @@ public class MonitoringControllerTest extends BaseUnitTest {
 
     @BeforeEach
     public void setup() {
-        var mockPurchase = new PurchaseHistoryDTO(mock(CartDTO.class),mock(PaymentHistoryDTO.class));
+        var mockPurchase = new PurchaseHistoryDTO(mock(CartInPurchaseDTO.class),mock(PaymentHistoryDTO.class));
         try {
             when(purchaseCatalog.findPurchasesByPartnerId(1L)).thenReturn(List.of(mockPurchase));
             when(purchaseCatalog.findPurchaseById(1L)).thenReturn(mockPurchase);
