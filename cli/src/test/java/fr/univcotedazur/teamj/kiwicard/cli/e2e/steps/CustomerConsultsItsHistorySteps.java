@@ -35,8 +35,6 @@ public class CustomerConsultsItsHistorySteps {
     public void seesPurchases(String email, String history) {
         // Prepare the expected and actual history strings
         String expectedHistory = history.replace("\\t", "\t")
-                .replaceAll("\\d{2}/\\d{2}/\\d{4} à \\d{2}:\\d{2}", "DATE_PLACEHOLDER")
-                .replaceAll("\\d{2}:\\d{2}", "TIME_PLACEHOLDER")
                 .lines().
                 map(String::trim).
                 reduce("", (acc, line) -> acc + line + "\n");

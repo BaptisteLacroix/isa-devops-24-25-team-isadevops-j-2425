@@ -4,7 +4,6 @@ import fr.univcotedazur.teamj.kiwicard.connectors.BankProxy;
 import fr.univcotedazur.teamj.kiwicard.connectors.externaldto.PaymentRequestDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PaymentDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PaymentResponseDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Cart;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;

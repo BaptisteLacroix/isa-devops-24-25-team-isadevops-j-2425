@@ -1,6 +1,7 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.CartInPurchaseDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CartItemAddDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CartItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PaymentDTO;
@@ -271,7 +272,7 @@ public class CartService implements ICartModifier, ICartFinder {
         Cart cart = verifyCart(customer);
         // Create the purchase
         PaymentDTO paymentDTO = payment.makePay(customer);
-        PurchaseDTO purchaseDTO = new PurchaseDTO(cartOwnerEmail, new CartDTO(cart), paymentDTO);
+        PurchaseDTO purchaseDTO = new PurchaseDTO(cartOwnerEmail, new CartInPurchaseDTO(cart), paymentDTO);
         customerCatalog.resetCart(cartOwnerEmail);
         return purchaseDTO;
     }
