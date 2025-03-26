@@ -112,7 +112,8 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
     }
 
     @Override
-    public Map<LocalTime, Integer> aggregateByDayAndDuration(long partnerId, LocalDate day, Duration separation) {
+    public Map<LocalTime, Integer> aggregateByDayAndDuration(long partnerId, LocalDate day, Duration separation) throws UnknownPartnerIdException {
+        this.partnerManager.findPartnerById(partnerId);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
         LocalDateTime day1 = day.atStartOfDay();
         List<Purchase> purchasesOfTheDay = this.purchaseRepository.findAllByPartnerAndDay(

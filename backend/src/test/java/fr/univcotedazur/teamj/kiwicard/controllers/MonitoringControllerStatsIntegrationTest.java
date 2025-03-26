@@ -82,7 +82,7 @@ public class MonitoringControllerStatsIntegrationTest {
     }
 
     @Test
-    void testComparePurchasesBadRequest() throws Exception {
+    void testComparePurchasesBadDuration() throws Exception {
         long partnerId = 4L; // partnerPoissonnerie id as an example
         LocalDate day1 = LocalDate.of(2025, 3, 16);
         LocalDate day2 = LocalDate.of(2025, 4, 16);
@@ -96,5 +96,21 @@ public class MonitoringControllerStatsIntegrationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Duration is expected to be less than a day, got" + duration));
 
+    }
+
+    @Test
+    void testComparePurchasesBadPartnerId() throws Exception {
+        long partnerId = 4712626265L; // bad id
+        LocalDate day1 = LocalDate.of(2025, 3, 16);
+        LocalDate day2 = LocalDate.of(2025, 4, 16);
+        Duration duration = Duration.ofHours(1);
+
+        mockMvc.perform(get("/monitoring/stats/{partnerId}/comparePurchases", partnerId)
+                        .param("day1", day1.format(dateFormatter))
+                        .param("day2", day2.format(dateFormatter))
+                        .param("duration", duration.toString())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Partner id : " + partnerId + "does not exist"));
     }
 }

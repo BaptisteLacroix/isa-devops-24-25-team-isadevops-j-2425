@@ -5,6 +5,7 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPurchaseIdException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.monitoring.IStatisticsExplorator;
+import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPartnerManager;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseStats;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -24,9 +25,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/monitoring")
 public class MonitoringController {
-    private final IPurchaseFinder purchaseFinder;
-    private final IPurchaseStats statisticMaker;
-
+    public final IPurchaseFinder purchaseFinder;
+    public final IPurchaseStats statisticMaker;
 
     @Autowired
     public MonitoringController(IPurchaseFinder purchaseFinder, IPurchaseStats statisticMaker) {
@@ -57,12 +57,16 @@ public class MonitoringController {
     }
 
     public record TwoDaysAggregation(Map<LocalTime, Integer> day1Aggregation, Map<LocalTime, Integer> day2Aggregation){}
-    @GetMapping("/stats/{partnerId}/comparePurchases")
+    @GetMapping("/stats/{partnerId}/comparePurchases") // todo : rename
     public ResponseEntity<?> comparePurchases (@PathVariable long partnerId, @RequestParam LocalDate day1, @RequestParam LocalDate day2, @RequestParam Optional<Duration> duration) {
         Duration dur = duration.orElse(Duration.ofHours(1));
         if (dur.compareTo(Duration.ofDays(1))>0) return ResponseEntity.badRequest().body("Duration is expected to be less than a day, got" + dur);
-        Map<LocalTime, Integer> day1Aggregation = this.statisticMaker.aggregateByDayAndDuration(partnerId, day1, dur);
-        Map<LocalTime, Integer> day2Aggregation = this.statisticMaker.aggregateByDayAndDuration(partnerId, day2, dur);
-        return ResponseEntity.ok(new TwoDaysAggregation(day1Aggregation, day2Aggregation));
+        try {
+            Map<LocalTime, Integer> day1Aggregation = this.statisticMaker.aggregateByDayAndDuration(partnerId, day1, dur);
+            Map<LocalTime, Integer> day2Aggregation = this.statisticMaker.aggregateByDayAndDuration(partnerId, day2, dur);
+            return ResponseEntity.ok(new TwoDaysAggregation(day1Aggregation, day2Aggregation));
+        }catch (UnknownPartnerIdException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Partner id : " + partnerId + "does not exist");
+        }
     }
 }

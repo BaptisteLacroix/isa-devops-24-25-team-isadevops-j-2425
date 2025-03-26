@@ -8,6 +8,7 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPurchaseIdException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseFinder;
+import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseStats;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,9 @@ public class MonitoringControllerTest extends BaseUnitTest {
 
     @MockitoBean
     public IPurchaseFinder purchaseCatalog;
+
+    @MockitoBean
+    public IPurchaseStats stats; // unused mock to avoid spring error
 
     @BeforeEach
     public void setup() {
