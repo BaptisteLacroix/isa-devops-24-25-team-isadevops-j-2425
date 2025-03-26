@@ -16,13 +16,10 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceExce
 import fr.univcotedazur.teamj.kiwicard.interfaces.IHappyKids;
 import fr.univcotedazur.teamj.kiwicard.interfaces.IPayment;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseCreator;
-import fr.univcotedazur.teamj.kiwicard.mappers.PerkMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import static fr.univcotedazur.teamj.kiwicard.configurations.Constants.MAX_DISCOUNT_RATE_OF_A_CART;
 
@@ -100,7 +97,6 @@ public class Cashier implements IPayment {
      *
      * @param cart The cart to which the perks are applied.
      * @param customer The customer whose cart is being processed.
-     * @return A list of successfully applied perks as {@link IPerkDTO}.
      */
     private void applyPerksToCart(Cart cart, Customer customer) throws BookingTimeNotSetException, ClosedTimeException, UnreachableExternalServiceException {
         PerkApplicationVisitor visitor = new PerkApplicationVisitorImpl(happyKidsProxy);

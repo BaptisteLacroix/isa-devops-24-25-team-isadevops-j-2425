@@ -14,8 +14,6 @@ import fr.univcotedazur.teamj.kiwicard.interfaces.customer.ICustomerFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.perks.IPerksConsumer;
 import fr.univcotedazur.teamj.kiwicard.interfaces.perks.IPerksFinder;
 import fr.univcotedazur.teamj.kiwicard.mappers.PerkMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

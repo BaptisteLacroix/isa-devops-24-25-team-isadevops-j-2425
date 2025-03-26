@@ -62,6 +62,7 @@ public class NewCustomerBuySomethingSteps {
 
     @When("the client pays the cart")
     public void payCart() {
+        System.out.println(customerCommands.getCart(cliSession.getLoggedInCustomerEmail()));
         response = customerCommands.payCart(cliSession.getLoggedInCustomerEmail());
     }
 

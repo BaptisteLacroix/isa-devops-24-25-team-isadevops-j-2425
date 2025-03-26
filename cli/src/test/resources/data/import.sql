@@ -124,7 +124,7 @@ INSERT INTO public.timed_discount_in_percent_perk (discount_rate, "time", perk_i
 VALUES (20, now() - interval '1 hours', 2);
 -- Data for Name: vfp_discount_in_percent_perk; Type: TABLE DATA; Schema: public; Owner: postgresuser
 INSERT INTO public.vfp_discount_in_percent_perk (discount_rate, end_hour, start_hour, perk_id)
-VALUES (0.05, '12:00:00', '08:00:00', 1);
+VALUES (5, '12:00:00', '08:00:00', 1);
 
 --
 -- Data for Name: cart_item; Type: TABLE DATA; Schema: public; Owner: postgresuser
