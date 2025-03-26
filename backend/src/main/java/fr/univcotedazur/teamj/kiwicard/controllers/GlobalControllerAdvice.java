@@ -16,7 +16,7 @@ public class GlobalControllerAdvice {
         return new ErrorDTO("External service is unreachable");
     }
 
-    @ExceptionHandler({NegativeQuantityException.class, EmptyCartException.class})
+    @ExceptionHandler({NegativeQuantityException.class, EmptyCartException.class, BookingTimeNotSetException.class})
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorDTO handleExceptions(NegativeQuantityException e) {
         return new ErrorDTO(e.getMessage());
@@ -28,7 +28,7 @@ public class GlobalControllerAdvice {
         return new ErrorDTO("Payment was rejected from Customer " + e.getName() + " for totalPrice " + e.getAmount());
     }
 
-    @ExceptionHandler({UnknownPartnerIdException.class, UnknownItemIdException.class, UnknownCustomerEmailException.class, UnknownCartIdException.class, UnknownPerkIdException.class, NoCartException.class})
+    @ExceptionHandler({UnknownPartnerIdException.class, UnknownItemIdException.class, UnknownCustomerEmailException.class, UnknownCartIdException.class, UnknownPerkIdException.class, NoCartException.class, UnknownCardNumberException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorDTO handleExceptions(Exception e) {
         return new ErrorDTO(e.getMessage());

@@ -73,8 +73,8 @@ public class NPurchasedMGiftedPerk extends AbstractPerk {
     }
 
     @Override
-    public boolean apply(PerkApplicationVisitor visitor) {
-        return visitor.visit(this);
+    public boolean apply(PerkApplicationVisitor visitor, Customer customer) {
+        return visitor.visit(this, customer);
     }
 
     @Override

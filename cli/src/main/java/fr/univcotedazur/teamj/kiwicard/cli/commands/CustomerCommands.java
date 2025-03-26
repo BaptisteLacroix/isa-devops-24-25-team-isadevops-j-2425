@@ -1,5 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.cli.commands;
 
+import fr.univcotedazur.teamj.kiwicard.cli.model.CliCart;
 import fr.univcotedazur.teamj.kiwicard.cli.CliSession;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliCustomerSubscribe;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliPurchase;
@@ -46,13 +47,11 @@ public class CustomerCommands {
             
                 Register a new client:
                 Usage: register-client --surname <surname> --firstname <firstname> --email <email> --address <address>
-            
                 Parameters:
                     --surname   The surname of the client.
                     --firstname The first name of the client.
                     --email     The email address of the client.
                     --address   The address of the client.
-            
                 Example:
                     register-client --surname "Doe" --firstname "John" --email "john.doe@example.com" --address "123 Main St, City, Country"
             """)
@@ -81,12 +80,17 @@ public class CustomerCommands {
      * @param customerEmail The email of the customer whose cart should be paid. If unspecified, uses the logged-in customer.
      * @return Confirmation message with purchase details or error message
      */
-    @ShellMethod(value="Pay cart", key="pay-cart")
-    public String payCart(@ShellOption(defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail) {
+    @ShellMethod(value = """
+                    Pay a customer's cart:
+                    Usage: pay-cart --customerEmail <customer-email>
+                    Parameters:
+                        --customer-email The email of the customer whose cart should be paid.
+                    Example:
+                        pay-cart --customerEmail clement@armeedeterre.fr"
+            """, key = "pay-cart")
+    public String payCart(@ShellOption(value = {"-e", "--customer-email"}, defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail) {
         customerEmail = cliSession.tryInjectingCustomerEmail(customerEmail);
         if (customerEmail == null) return "Erreur : Veuillez vous connecter ou spécifier un email de client valide.";
-        System.out.println("Validation et paiement du panier du client " + customerEmail + " : ");
-
         return webClient.post()
                 .uri( BASE_CART_URI + "/" + customerEmail + "/validate")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -95,6 +99,30 @@ public class CustomerCommands {
                         .flatMap(error -> Mono.error(new RuntimeException(error.errorMessage()))))
                 .bodyToMono(CliPurchase.class)
                 .map(res -> "Le panier a été validé avec succès ! Plus de détails : " + res.toString().replaceAll("(?m)^", "\t"))
+                .block();
+    }
+
+    /**
+     * CLI command to retrieve a customer's cart.
+     * Example usage:
+     * get-cart --customer-email "john.doe@example.com"
+     *
+     * @param customerEmail The email of the customer whose cart should be retrieved. If unspecified, uses the logged-in customer.
+     * @return The cart details of the customer or an error message
+     */
+    @ShellMethod(value="Get cart details", key="get-cart")
+    public String getCart(@ShellOption(defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail) {
+        customerEmail = cliSession.tryInjectingCustomerEmail(customerEmail);
+        if (customerEmail == null) {
+            return "Erreur : Veuillez vous connecter ou spécifier un email de client valide.";
+        }
+        return webClient.get()
+                .uri(BASE_CART_URI + "/" + customerEmail)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(CliError.class)
+                        .flatMap(error -> Mono.error(new RuntimeException(error.errorMessage()))))
+                .bodyToMono(CliCart.class)
+                .map(cart -> "Détails du panier :\n" + cart.toString().replaceAll("(?m)^", "\t"))
                 .block();
     }
 }

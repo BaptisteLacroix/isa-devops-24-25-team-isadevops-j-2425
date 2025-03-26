@@ -25,6 +25,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
@@ -179,7 +180,7 @@ class CustomerCatalogTest extends BaseUnitTest {
 
         customerCatalog.emptyCart("test@example.com");
 
-        assertTrue(customer.getCart().isEmpty());
+        assertNull(customer.getCart());
         verify(customerRepository, times(1)).findByEmail("test@example.com");
         verify(customerRepository, times(1)).save(customer);
     }

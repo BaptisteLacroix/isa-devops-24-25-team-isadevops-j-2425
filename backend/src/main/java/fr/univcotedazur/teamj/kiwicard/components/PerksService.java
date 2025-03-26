@@ -38,7 +38,7 @@ public class PerksService implements IPerksConsumer {
      */
     @Override
     @Transactional
-    public boolean applyPerk(long perkId, String cartOwnerEmail) throws UnknownPerkIdException, UnknownCustomerEmailException, NoCartException {
+    public boolean addPerkToApply(long perkId, String cartOwnerEmail) throws UnknownPerkIdException, UnknownCustomerEmailException, NoCartException {
         AbstractPerk perk = PerkMapper.fromDTO(perksFinder.findPerkById(perkId));
         Customer customer = customerFinder.findCustomerByEmail(cartOwnerEmail);
 
@@ -64,8 +64,8 @@ public class PerksService implements IPerksConsumer {
      * @throws UnknownCustomerEmailException si le client n'existe pas
      * @throws NoCartException               si le client n'a pas de panier
      */
-    @Transactional
     @Override
+    @Transactional
     public List<IPerkDTO> findConsumablePerksForConsumerAtPartner(String consumerEmail) throws UnknownCustomerEmailException, NoCartException {
         Customer customer = customerFinder.findCustomerByEmail(consumerEmail);
         Cart cart = customer.getCart();
