@@ -68,7 +68,7 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
         Cart cart = customer.getCart();
         cart = entityManager.merge(cart);
         Payment payment = new Payment(amount, LocalDateTime.now());
-        var purchase = new Purchase(
+        Purchase purchase = new Purchase(
                 payment,
                 cart
         );
