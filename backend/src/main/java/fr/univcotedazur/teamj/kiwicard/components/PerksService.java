@@ -42,7 +42,7 @@ public class PerksService implements IPerksConsumer {
      */
     @Override
     @Transactional
-    public CartDTO addPerkToApply(long perkId, String cartOwnerEmail) throws UnknownPerkIdException, UnknownCustomerEmailException, NoCartException {
+    public CartDTO addPerkToApply(long perkId, String cartOwnerEmail) throws UnknownPerkIdException, UnknownCustomerEmailException, NoCartException, InapplicablePerkException {
         AbstractPerk perk = PerkMapper.fromDTO(perksFinder.findPerkById(perkId));
         Customer customer = customerFinder.findCustomerByEmail(cartOwnerEmail);
 

@@ -13,6 +13,6 @@ import java.util.List;
  * Application d'un avantage sur un panier
  */
 public interface IPerksConsumer {
-    boolean addPerkToApply(long perkId, String cartOwnerEmail) throws UnknownPerkIdException, UnknownCustomerEmailException, NoCartException;
+    CartDTO addPerkToApply(long perkId, String cartOwnerEmail) throws UnknownPerkIdException, UnknownCustomerEmailException, NoCartException, InapplicablePerkException;
     List<IPerkDTO> findConsumablePerksForConsumerAtPartner(String consumerEmail) throws UnknownCustomerEmailException, NoCartException;
 }
