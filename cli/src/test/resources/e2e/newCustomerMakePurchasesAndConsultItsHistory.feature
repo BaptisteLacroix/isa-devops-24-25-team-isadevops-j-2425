@@ -22,11 +22,11 @@ Feature: Un nouveau client fait des achats et consulte son historique
 Historique du client pierre.dupont@gmail.com :
 \tDate                 | Commerçant           | Articles             | Total payé | Avantages
 \t----------------------------------------------------------------------------------------------------
-\t18/03/2025 à 10:00   | Fleuriste            | 2 rose  2,00€        | 1.60€      | • 2 : Discount of 20.0% after 11:04 on all items
+\tDATE_PLACEHOLDER   | Fleuriste            | 2 rose  2,00€        | 1,60€      | • 2 : Discount of 20.0% after TIME_PLACEHOLDER on all items
 \t----------------------------------------------------------------------------------------------------
-\t21/03/2025 à 11:57   | Boulange             | 1 croissant  1,00€   | 2,20€      |
+\tDATE_PLACEHOLDER   | Boulange             | 1 croissant  1,00€   | 2,20€      |
 \t                     |                      | 1 baguette  1,20€    |            |
 \t----------------------------------------------------------------------------------------------------
-\t21/03/2025 à 11:57   | Boulange             | 3 croissant  3,00€   | 3,00€      |
+\tDATE_PLACEHOLDER   | Boulange             | 3 croissant  3,00€   | 3,00€      |
 \t----------------------------------------------------------------------------------------------------
 """
