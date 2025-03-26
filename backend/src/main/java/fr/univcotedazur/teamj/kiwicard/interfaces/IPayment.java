@@ -2,6 +2,7 @@ package fr.univcotedazur.teamj.kiwicard.interfaces;
 
 import fr.univcotedazur.teamj.kiwicard.dto.PaymentDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
+import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 
@@ -9,5 +10,5 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceExce
  * Création et réglement d'un paiment
  */
 public interface IPayment {
-    PaymentDTO makePay(Customer customer) throws UnreachableExternalServiceException, ClosedTimeException;
+    PaymentDTO makePay(Customer customer) throws UnreachableExternalServiceException, ClosedTimeException, BookingTimeNotSetException;
 }

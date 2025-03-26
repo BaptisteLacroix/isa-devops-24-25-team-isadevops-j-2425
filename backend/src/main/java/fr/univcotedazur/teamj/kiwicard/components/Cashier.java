@@ -1,7 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
 import fr.univcotedazur.teamj.kiwicard.connectors.BankProxy;
-import fr.univcotedazur.teamj.kiwicard.connectors.HappyKidsProxy;
 import fr.univcotedazur.teamj.kiwicard.connectors.externaldto.PaymentRequestDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PaymentDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PaymentResponseDTO;
@@ -11,14 +10,17 @@ import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.PerkApplicationVisitor;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.PerkApplicationVisitorImpl;
+import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
+import fr.univcotedazur.teamj.kiwicard.interfaces.IHappyKids;
 import fr.univcotedazur.teamj.kiwicard.interfaces.IPayment;
 import fr.univcotedazur.teamj.kiwicard.mappers.PerkMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -30,19 +32,19 @@ import java.util.List;
 public class Cashier implements IPayment {
 
     private final BankProxy bankProxy;
-    private final HappyKidsProxy happyKidsProxy;
+    private final IHappyKids happyKidsProxy;
 
     /**
-     * Constructs a {@code Cashier} instance with the specified {@link BankProxy} dependency.
+     * Constructs a {@code Cashier} instance with the specified {@link BankProxy} and {@link IHappyKids} dependencies.
      *
      * @param bankProxy The proxy that handles interactions with the external banking system.
+     * @param happyKidsProxy The proxy that handles interactions with the HappyKids service.
      */
     @Autowired
-    public Cashier(BankProxy bankProxy, HappyKidsProxy happyKidsProxy) {
+    public Cashier(BankProxy bankProxy, IHappyKids happyKidsProxy) {
         this.bankProxy = bankProxy;
         this.happyKidsProxy = happyKidsProxy;
     }
-
 
     /**
      * Processes the payment for the given {@link Customer}.
@@ -54,37 +56,55 @@ public class Cashier implements IPayment {
      *                 the total price and apply any perks.
      * @return A {@link PaymentDTO} containing the result of the payment transaction, including the final totalPrice to be paid.
      * @throws UnreachableExternalServiceException If the external bank service is unreachable or fails during the payment request.
+     * @throws ClosedTimeException If the payment is attempted outside of allowed business hours.
+     * @throws BookingTimeNotSetException If the booking time is not set for the customer.
      */
     @Override
-    public PaymentDTO makePay(Customer customer) throws UnreachableExternalServiceException, ClosedTimeException {
+    public PaymentDTO makePay(Customer customer) throws UnreachableExternalServiceException, ClosedTimeException, BookingTimeNotSetException {
         PaymentResponseDTO paymentResponseDTO = computePrice(customer);
-
         // Prepare the payment request and process it via the bank proxy
         PaymentRequestDTO paymentRequestDTO = new PaymentRequestDTO(customer.getCardNumber(), paymentResponseDTO.totalPrice());
         return bankProxy.askPayment(paymentRequestDTO);
     }
 
-    private PaymentResponseDTO computePrice(Customer customer) throws ClosedTimeException, UnreachableExternalServiceException {
+    /**
+     * Computes the total price for the given {@link Customer} after applying any applicable perks.
+     *
+     * @param customer The customer whose cart is being processed.
+     * @return A {@link PaymentResponseDTO} containing the total price and the list of successfully applied perks.
+     * @throws ClosedTimeException If the computation is attempted outside of allowed business hours.
+     * @throws UnreachableExternalServiceException If an external service is unreachable during the computation.
+     * @throws BookingTimeNotSetException If the booking time is not set for the customer.
+     */
+    PaymentResponseDTO computePrice(Customer customer) throws ClosedTimeException, UnreachableExternalServiceException, BookingTimeNotSetException {
         Cart cart = customer.getCart();
-        // Calculate the total price before applying discounts
+        // Apply perks to the customer
+        applyPerksToCart(cart, customer);
+        // Calculate the total price after applying discounts
         double percentage = cart.getTotalPercentageReduction();
         double totalPriceWithoutReduction = cart.getTotalPrice();
-        double totalPrice = totalPriceWithoutReduction - (totalPriceWithoutReduction * percentage);
-        // Reset the total percentage reduction
-        cart.resetTotalPercentageReduction();
-        List<IPerkDTO> successfulPerks = new ArrayList<>();
-        // Apply perks to the customer
-        PerkApplicationVisitor visitor = new PerkApplicationVisitorImpl(customer, happyKidsProxy);
-        for (AbstractPerk perk : cart.getPerksToUse()) {
-            if (perk.apply(visitor)) {
-                successfulPerks.add(PerkMapper.toDTO(perk));
-            }
-        }
-        // Calculate the total price after applying discounts
-        percentage = cart.getTotalPercentageReduction();
         // Recalculate the total price after applying discounts
-        if (percentage != 0) totalPrice = totalPriceWithoutReduction - (totalPriceWithoutReduction * percentage);
-        return new PaymentResponseDTO(totalPrice, successfulPerks);
+        double totalPrice = totalPriceWithoutReduction - (totalPriceWithoutReduction * percentage);
+        return new PaymentResponseDTO(totalPrice);
     }
 
+    /**
+     * Applies the perks to the given {@link Cart} and returns the list of successfully applied perks.
+     *
+     * @param cart The cart to which the perks are applied.
+     * @param customer The customer whose cart is being processed.
+     * @return A list of successfully applied perks as {@link IPerkDTO}.
+     */
+    private void applyPerksToCart(Cart cart, Customer customer) throws BookingTimeNotSetException, ClosedTimeException, UnreachableExternalServiceException {
+        PerkApplicationVisitor visitor = new PerkApplicationVisitorImpl(happyKidsProxy);
+        Iterator<AbstractPerk> iterator = cart.getPerksToUse().iterator();
+
+        while (iterator.hasNext()) {
+            AbstractPerk perk = iterator.next();
+            if (perk.apply(visitor, customer)) {
+                iterator.remove();  // Safely remove the perk from the list
+                cart.addPerkUsed(perk);
+            }
+        }
+    }
 }

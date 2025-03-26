@@ -3,6 +3,7 @@ package fr.univcotedazur.teamj.kiwicard.entities.perks;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.VfpDiscountInPercentPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
+import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import fr.univcotedazur.teamj.kiwicard.mappers.PerkVisitor;
@@ -49,24 +50,12 @@ public class VfpDiscountInPercentPerk extends AbstractPerk {
         return discountRate;
     }
 
-    public void setDiscountRate(double percentage) {
-        this.discountRate = percentage;
-    }
-
     public LocalTime getStartHour() {
         return startHour;
     }
 
-    public void setStartHour(LocalTime startHour) {
-        this.startHour = startHour;
-    }
-
     public LocalTime getEndHour() {
         return endHour;
-    }
-
-    public void setEndHour(LocalTime endHour) {
-        this.endHour = endHour;
     }
 
     @Override
@@ -80,8 +69,8 @@ public class VfpDiscountInPercentPerk extends AbstractPerk {
     }
 
     @Override
-    public boolean apply(PerkApplicationVisitor visitor) throws ClosedTimeException, UnreachableExternalServiceException {
-        return visitor.visit(this);
+    public boolean apply(PerkApplicationVisitor visitor, Customer customer) throws ClosedTimeException, UnreachableExternalServiceException, BookingTimeNotSetException {
+        return visitor.visit(this, customer);
     }
 
     @Override

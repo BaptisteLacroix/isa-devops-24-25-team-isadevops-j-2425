@@ -1,11 +1,12 @@
 package fr.univcotedazur.teamj.kiwicard.entities.perks;
 
-import fr.univcotedazur.teamj.kiwicard.connectors.HappyKidsProxy;
 import fr.univcotedazur.teamj.kiwicard.dto.HappyKidsDiscountDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Cart;
 import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
+import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;
+import fr.univcotedazur.teamj.kiwicard.interfaces.IHappyKids;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -15,10 +16,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.mock;
@@ -29,7 +30,7 @@ import static org.mockito.Mockito.when;
 class PerkApplicationVisitorImplTest {
 
     @Mock
-    private HappyKidsProxy happyKidsProxy;
+    private IHappyKids happyKidsProxy;
     private Customer customer;
     private Cart cart;
     private PerkApplicationVisitorImpl visitor;
@@ -40,7 +41,7 @@ class PerkApplicationVisitorImplTest {
         cart = mock(Cart.class);
         customer = mock(Customer.class);
         when(customer.getCart()).thenReturn(cart);
-        visitor = new PerkApplicationVisitorImpl(customer, happyKidsProxy);
+        visitor = new PerkApplicationVisitorImpl(happyKidsProxy);
     }
 
     @Test
@@ -52,17 +53,19 @@ class PerkApplicationVisitorImplTest {
         when(cart.getHKItems()).thenReturn(List.of(cartItem));
 
         // Création d'un perk avec une plage horaire couvrant bookingTime
-        LocalTime startHour = bookingTime.minusMinutes(10);
-        LocalTime endHour = bookingTime.plusMinutes(10);
+        LocalTime startHour = bookingTime.minusHours(1);
+        LocalTime endHour = bookingTime.plusHours(1);
         double discountRate = 0.2; // 20%
         VfpDiscountInPercentPerk perk = new VfpDiscountInPercentPerk(discountRate, startHour, endHour);
 
         // Préparation d'un HappyKidsDiscountDTO fictif
         HappyKidsDiscountDTO discountDTO = mock(HappyKidsDiscountDTO.class);
         when(discountDTO.price()).thenReturn(8.0);
-        when(happyKidsProxy.computeDiscount(cartItem, discountRate)).thenReturn(discountDTO);
+        when(cartItem.getStartTime()).thenReturn(LocalDateTime.now());
+        when(cartItem.getQuantity()).thenReturn(1);
+        when(happyKidsProxy.computeDiscount(cartItem.getPrice(), discountRate)).thenReturn(discountDTO);
 
-        boolean result = visitor.visit(perk);
+        boolean result = visitor.visit(perk, customer);
 
         verify(cartItem).setPrice(8.0);
         assertTrue(result);
@@ -81,9 +84,9 @@ class PerkApplicationVisitorImplTest {
         double discountRate = 0.2;
         VfpDiscountInPercentPerk perk = new VfpDiscountInPercentPerk(discountRate, startHour, endHour);
 
-        boolean result = visitor.visit(perk);
+        boolean result = visitor.visit(perk, customer);
 
-        verify(happyKidsProxy, never()).computeDiscount(any(), anyDouble());
+        verify(happyKidsProxy, never()).computeDiscount(anyDouble(), anyDouble());
         verify(cartItem, never()).setPrice(anyDouble());
         assertTrue(result);
     }
@@ -99,7 +102,7 @@ class PerkApplicationVisitorImplTest {
         double discountRate = 0.2;
         VfpDiscountInPercentPerk perk = new VfpDiscountInPercentPerk(discountRate, startHour, endHour);
 
-        assertThrows(IllegalStateException.class, () -> visitor.visit(perk));
+        assertThrows(BookingTimeNotSetException.class, () -> visitor.visit(perk, customer));
     }
 
     @Test
@@ -111,7 +114,7 @@ class PerkApplicationVisitorImplTest {
 
         when(cart.addToTotalPercentageReduction(discountRate)).thenReturn(0.15);
 
-        boolean result = visitor.visit(perk);
+        boolean result = visitor.visit(perk, customer);
 
         verify(cart).addToTotalPercentageReduction(discountRate);
         assertTrue(result);
@@ -124,7 +127,7 @@ class PerkApplicationVisitorImplTest {
         double discountRate = 15.0;
         TimedDiscountInPercentPerk perk = new TimedDiscountInPercentPerk(discountTime, discountRate);
 
-        boolean result = visitor.visit(perk);
+        boolean result = visitor.visit(perk, customer);
 
         verify(cart, never()).addToTotalPercentageReduction(anyDouble());
         assertFalse(result);
@@ -141,9 +144,9 @@ class PerkApplicationVisitorImplTest {
         // Créer un perk pour "Achetez 3, recevez 1 gratuit"
         NPurchasedMGiftedPerk perk = new NPurchasedMGiftedPerk(3, 1, item);
 
-        boolean result = visitor.visit(perk);
+        boolean result = visitor.visit(perk, customer);
 
-        verify(cartItem).increaseQuantity(1);
+        verify(cartItem).addFreeItem(1);
         assertTrue(result);
     }
 
@@ -156,10 +159,46 @@ class PerkApplicationVisitorImplTest {
 
         NPurchasedMGiftedPerk perk = new NPurchasedMGiftedPerk(3, 1, item);
 
-        boolean result = visitor.visit(perk);
+        boolean result = visitor.visit(perk, customer);
 
-        verify(cartItem, never()).increaseQuantity(anyInt());
+        verify(cartItem, never()).addFreeItem(anyInt());
         assertFalse(result);
+    }
+
+    @Test
+    void testGetHoursInPerkInterval_withinPerkInterval() {
+        CartItem cartItem = mock(CartItem.class);
+        when(cartItem.getStartTime()).thenReturn(LocalDateTime.of(2023, 10, 10, 10, 0));
+        when(cartItem.getQuantity()).thenReturn(3);
+        LocalTime perkStart = LocalTime.of(9, 0);
+        LocalTime perkEnd = LocalTime.of(12, 0);
+
+        int result = visitor.getHoursInPerkInterval(cartItem, perkStart, perkEnd);
+        assertEquals(2, result);
+    }
+
+    @Test
+    void testGetHoursInPerkInterval_outsidePerkInterval() {
+        CartItem cartItem = mock(CartItem.class);
+        when(cartItem.getStartTime()).thenReturn(LocalDateTime.of(2023, 10, 10, 8, 0));
+        when(cartItem.getQuantity()).thenReturn(2);
+        LocalTime perkStart = LocalTime.of(10, 0);
+        LocalTime perkEnd = LocalTime.of(12, 0);
+
+        int result = visitor.getHoursInPerkInterval(cartItem, perkStart, perkEnd);
+        assertEquals(0, result);
+    }
+
+    @Test
+    void testGetHoursInPerkInterval_crossesMidnight() {
+        CartItem cartItem = mock(CartItem.class);
+        when(cartItem.getStartTime()).thenReturn(LocalDateTime.of(2023, 10, 10, 23, 0));
+        when(cartItem.getQuantity()).thenReturn(3);
+        LocalTime perkStart = LocalTime.of(21, 0);
+        LocalTime perkEnd = LocalTime.of(1, 0);
+
+        int result = visitor.getHoursInPerkInterval(cartItem, perkStart, perkEnd);
+        assertEquals(2, result);
     }
 }
 

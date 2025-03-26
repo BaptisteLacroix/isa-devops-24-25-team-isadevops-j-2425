@@ -48,7 +48,7 @@ public class Customer {
     @Column
     private final List<Purchase> purchaseList = new ArrayList<>();
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "cart_id", unique = true)
     private Cart cart;
 

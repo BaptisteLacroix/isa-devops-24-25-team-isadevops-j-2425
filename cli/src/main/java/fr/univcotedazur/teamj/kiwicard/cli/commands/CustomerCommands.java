@@ -91,8 +91,6 @@ public class CustomerCommands {
     public String payCart(@ShellOption(value = {"-e", "--customer-email"}, defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail) {
         customerEmail = cliSession.tryInjectingCustomerEmail(customerEmail);
         if (customerEmail == null) return "Erreur : Veuillez vous connecter ou spécifier un email de client valide.";
-        System.out.println("Validation et paiement du panier du client " + customerEmail + " : ");
-
         return webClient.post()
                 .uri( BASE_CART_URI + "/" + customerEmail + "/validate")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -118,15 +116,13 @@ public class CustomerCommands {
         if (customerEmail == null) {
             return "Erreur : Veuillez vous connecter ou spécifier un email de client valide.";
         }
-        System.out.println("Récupération du panier pour le client " + customerEmail + " : ");
-
         return webClient.get()
                 .uri(BASE_CART_URI + "/" + customerEmail)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(CliError.class)
                         .flatMap(error -> Mono.error(new RuntimeException(error.errorMessage()))))
                 .bodyToMono(CliCart.class)
-                .map(cart -> "Détails du panier : " + cart.toString().replaceAll("(?m)^", "\t"))
+                .map(cart -> "Détails du panier :\n" + cart.toString().replaceAll("(?m)^", "\t"))
                 .block();
     }
 }

@@ -1,5 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
+import fr.univcotedazur.teamj.kiwicard.dto.CartItemAddDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.NPurchasedMGiftedPerkDTO;
@@ -32,13 +33,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyDouble;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockConstruction;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -59,12 +57,13 @@ class PerksServiceTest {
     }
 
     @Test
-    void testApplyPerkIntermediateSuccess() throws Exception {
+    void testAddPerkToApplyIntermediateSuccess() throws Exception {
         long perkId = 1L;
         String email = "client@example.com";
         Item item = spy(new Item("Chocolatine", 1.5));
         when(item.getItemId()).thenReturn(1L);
-        CartItem cartItem = spy(new CartItem(item, 3));
+        CartItemAddDTO cartItemAddDTO = new CartItemAddDTO(3, null, 3);
+        CartItem cartItem = spy(new CartItem(item, cartItemAddDTO));
 
         ItemDTO itemDTO= mock(ItemDTO.class);
         when(itemDTO.itemId()).thenReturn(1L);
@@ -94,7 +93,7 @@ class PerksServiceTest {
             when(mock.getItemId()).thenReturn(1L);
         });
 
-        boolean result = perksService.applyPerk(perkId, email);
+        boolean result = perksService.addPerkToApply(perkId, email);
         // Test avec assertEquals car le contains avec le perk implique un equals sur le perk et l'item, ce qui n'est pas possible avec un mock
         assertEquals(1L, ((NPurchasedMGiftedPerk) cart.getPerksToUse().getFirst()).getItem().getItemId());
         assertTrue(result);
@@ -103,15 +102,15 @@ class PerksServiceTest {
 
 
     @Test
-    void testApplyPerkUnknownPerk() throws Exception {
+    void testAddPerkUnknownPerkToApply() throws Exception {
         long perkId = 999L;
         String email = "client@example.com";
         when(perksFinder.findPerkById(perkId)).thenThrow(new UnknownPerkIdException(perkId));
-        assertThrows(UnknownPerkIdException.class, () -> perksService.applyPerk(perkId, email));
+        assertThrows(UnknownPerkIdException.class, () -> perksService.addPerkToApply(perkId, email));
     }
 
     @Test
-    void testApplyPerkUnknownCustomer() throws Exception {
+    void testAddPerkToApplyUnknownCustomer() throws Exception {
         long perkId = 1L;
         String email = "unknown@example.com";
 
@@ -119,7 +118,7 @@ class PerksServiceTest {
         when(perksFinder.findPerkById(perkId)).thenReturn(dummyPerk.accept(new PerkToDTOVisitor()));
 
         when(customerFinder.findCustomerByEmail(email)).thenThrow(new UnknownCustomerEmailException(email));
-        assertThrows(UnknownCustomerEmailException.class, () -> perksService.applyPerk(perkId, email));
+        assertThrows(UnknownCustomerEmailException.class, () -> perksService.addPerkToApply(perkId, email));
     }
 
 

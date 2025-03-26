@@ -101,7 +101,7 @@ class PerksControllerWebMvcTest extends BaseUnitTest {
 
     @Test
     void applyPerkOK() throws Exception {
-        when(perksService.applyPerk(1L, "client@example.com")).thenReturn(true);
+        when(perksService.addPerkToApply(1L, "client@example.com")).thenReturn(true);
         PerksController.ApplyPerkRequest client = new PerksController.ApplyPerkRequest("client@example.com");
         mockMvc.perform(post(PerksController.BASE_URI + "/1/apply")
                         .contentType(APPLICATION_JSON)
@@ -113,7 +113,7 @@ class PerksControllerWebMvcTest extends BaseUnitTest {
 
     @Test
     void applyPerkNotFound() throws Exception {
-        when(perksService.applyPerk(999L, "client@example.com")).thenThrow(new UnknownPerkIdException(999L));
+        when(perksService.addPerkToApply(999L, "client@example.com")).thenThrow(new UnknownPerkIdException(999L));
         PerksController.ApplyPerkRequest client = new PerksController.ApplyPerkRequest("client@example.com");
         MvcResult result = mockMvc.perform(post(PerksController.BASE_URI + "/999/apply")
                         .contentType(APPLICATION_JSON)
@@ -129,7 +129,7 @@ class PerksControllerWebMvcTest extends BaseUnitTest {
 
     @Test
     void applyPerkUnknownCustomer() throws Exception {
-        when(perksService.applyPerk(1L, "unknown@example.com"))
+        when(perksService.addPerkToApply(1L, "unknown@example.com"))
                 .thenThrow(new UnknownCustomerEmailException("unknown@example.com"));
         PerksController.ApplyPerkRequest client = new PerksController.ApplyPerkRequest("unknown@example.com");
         MvcResult result = mockMvc.perform(post(PerksController.BASE_URI + "/1/apply")

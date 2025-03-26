@@ -16,7 +16,7 @@ public class GlobalControllerAdvice {
         return new ErrorDTO("External service is unreachable");
     }
 
-    @ExceptionHandler({NegativeQuantityException.class, EmptyCartException.class})
+    @ExceptionHandler({NegativeQuantityException.class, EmptyCartException.class, BookingTimeNotSetException.class})
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorDTO handleExceptions(NegativeQuantityException e) {
         return new ErrorDTO(e.getMessage());
