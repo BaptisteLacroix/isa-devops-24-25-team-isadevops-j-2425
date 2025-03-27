@@ -37,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPerkIdException;
-import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPerkManager;
+import fr.univcotedazur.teamj.kiwicard.interfaces.perks.IPerkManager;
 import fr.univcotedazur.teamj.kiwicard.components.PerksService;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;

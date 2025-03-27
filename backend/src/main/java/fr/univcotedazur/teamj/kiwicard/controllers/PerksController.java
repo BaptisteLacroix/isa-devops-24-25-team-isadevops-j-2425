@@ -7,7 +7,7 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.InapplicablePerkException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.NoCartException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPerkIdException;
-import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPerkManager;
+import fr.univcotedazur.teamj.kiwicard.interfaces.perks.IPerkManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
