@@ -2,7 +2,6 @@ package fr.univcotedazur.teamj.kiwicard.cli.e2e.steps;
 
 import fr.univcotedazur.teamj.kiwicard.cli.CliSession;
 import fr.univcotedazur.teamj.kiwicard.cli.commands.CustomerCommands;
-import fr.univcotedazur.teamj.kiwicard.cli.commands.PartnerCommands;
 import fr.univcotedazur.teamj.kiwicard.cli.commands.PerksCommands;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -20,9 +19,6 @@ public class NewCustomerBuySomethingSteps {
 
     @Autowired
     private CustomerCommands customerCommands;
-
-    @Autowired
-    private PartnerCommands partnerCommands;
 
     @Autowired
     private PerksCommands perksCommands;
@@ -51,7 +47,7 @@ public class NewCustomerBuySomethingSteps {
     public void addItemToCart(String itemId, int quantity) {
         // Utilise le client connecté (par exemple, via cliSession.getCurrentUser())
         String currentUser = cliSession.getLoggedInCustomerEmail();
-        partnerCommands.addItemToCart(currentUser, Long.parseLong(itemId), quantity);
+        customerCommands.addItemToCart(currentUser, Long.parseLong(itemId), quantity);
     }
 
     @When("the client applies perk with id {string}")

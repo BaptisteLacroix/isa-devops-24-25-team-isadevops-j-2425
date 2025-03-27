@@ -2,6 +2,7 @@ package fr.univcotedazur.teamj.kiwicard.cli.commands;
 
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliCart;
 import fr.univcotedazur.teamj.kiwicard.cli.CliSession;
+import fr.univcotedazur.teamj.kiwicard.cli.model.CliCartItemToSent;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliCustomerSubscribe;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliPurchase;
 import fr.univcotedazur.teamj.kiwicard.cli.model.error.CliError;
@@ -13,6 +14,8 @@ import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+
+import java.time.LocalDateTime;
 
 import static fr.univcotedazur.teamj.kiwicard.cli.constants.Constants.LOGGED_IN_ID_PLACEHOLDER;
 
@@ -71,6 +74,116 @@ public class CustomerCommands {
         cliSession.logIn(email);
         return "Client enregistré avec succès. Vous êtes maintenant connecté en tant que : " + email;
     }
+
+
+    /**
+     * Adds an item to a customer's shopping cart.
+     * <p>
+     * Example usage:
+     * add-item-to-cart --customerEmail <customerEmail> --itemId <itemId> --quantity <quantity>
+     *
+     * @param customerEmail The email of the customer to whom the cart belongs.
+     * @param itemId        The ID of the item to be added to the cart.
+     * @param quantity      The quantity of the item to be added to the cart.
+     */
+    @ShellMethod("""
+                Add an item to a customer's cart:
+                Usage: add-item-to-cart --customerEmail <customerEmail> --itemId <itemId> --quantity <quantity>
+            
+                Parameters:
+                    --customerEmail  The email of the customer to whom the cart belongs.
+                    --itemId         The ID of the item to be added to the cart.
+                    --quantity       The quantity of the item to add to the cart.
+            
+                Example:
+                    add-item-to-cart --customerEmail "customer@example.com" --itemId 123 --quantity 2
+            """)
+    public void addItemToCart(
+            String customerEmail,
+            Long itemId,
+            Integer quantity
+    ) {
+        checkQuantity(quantity);
+        CliCartItemToSent cartItemDTO = new CliCartItemToSent(quantity, null, itemId);
+        CliCart updatedCart = sendCartRequest(customerEmail, cartItemDTO);
+
+        if (updatedCart != null) {
+            System.out.println("Article ajouté au panier avec succès :");
+            System.out.println(updatedCart);
+        } else {
+            System.out.println("Erreur lors de l'ajout de l'article au panier.");
+        }
+    }
+
+    /**
+     * Reserves a time slot for a customer's cart.
+     * <p>
+     * Example usage:
+     * reserve-time-slot --customerEmail <customerEmail> --startTime <startTime> --endTime <endTime> --quantity <quantity> --itemId <itemId>
+     *
+     * @param customerEmail The email of the customer to whom the cart belongs.
+     * @param startTime     The start time for the time slot.
+     * @param endTime       The end time for the time slot.
+     * @param quantity      The quantity of the item to be added to the cart.
+     * @param itemId        The ID of the item to be added to the cart.
+     */
+    @ShellMethod("""
+                Reserve a time slot for a customer:
+                Usage: reserve-time-slot --customerEmail <customerEmail> --startTime <startTime> --endTime <endTime> --quantity <quantity> --itemId <itemId>
+            
+                Parameters:
+                    --customerEmail  The email of the customer to whom the cart belongs.
+                    --startTime      The start time for the item in the cart.
+                    --endTime        The end time for the item in the cart.
+                    --quantity       The quantity of the item to add to the cart.
+                    --itemId         The ID of the item to be added to the cart.
+            
+                Example:
+                    reserve-time-slot --customerEmail "customer@example.com" --startTime "2025-03-12T10:00:00" --endTime "2025-03-12T18:00:00" --quantity 2 --itemId 123
+            """)
+    public void reserveTimeSlot(
+            String customerEmail,
+            Long itemId,
+            LocalDateTime startTime,
+            LocalDateTime endTime,
+            Integer quantity
+    ) {
+        checkQuantity(quantity);
+        CliCartItemToSent cartItemDTO = new CliCartItemToSent(quantity, startTime, itemId);
+        CliCart updatedCart = sendCartRequest(customerEmail, cartItemDTO);
+
+        if (updatedCart != null) {
+            System.out.println("La réservation du créneau horaire a été effectuée avec succès:");
+            System.out.println(updatedCart);
+        } else {
+            System.out.println("Impossible de réserver le créneau horaire.");
+        }
+    }
+
+    private void checkQuantity(int quantity) {
+        if (quantity <= 0) {
+            throw new RuntimeException("Erreur: La quantité doit être supérieur ou égale à 0.");
+        }
+    }
+
+    /**
+     * Sends a request to update a customer's cart.
+     *
+     * @param customerEmail The email address of the customer whose cart is being updated.
+     * @param cartItemDTO   The details of the cart item being added or updated.
+     * @return The updated cart.
+     */
+    private CliCart sendCartRequest(String customerEmail, CliCartItemToSent cartItemDTO) {
+        return webClient.put()
+                .uri(BASE_CART_URI + "/" + customerEmail)
+                .bodyValue(cartItemDTO)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(CliError.class)
+                        .flatMap(error -> Mono.error(new RuntimeException(error.errorMessage()))))
+                .bodyToMono(CliCart.class)
+                .block();
+    }
+
 
     /**
      * CLI command to pay a customer's cart.
