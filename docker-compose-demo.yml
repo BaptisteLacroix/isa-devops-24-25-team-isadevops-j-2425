@@ -1,6 +1,6 @@
 services:
   kiwicard-server:
-    image: roxaane/kiwicard-spring-backend:250326-1235-SNAPSHOT
+    image: roxaane/kiwicard-spring-backend:250327-1022-SNAPSHOT
     container_name: backend
     ports:
       - 8080:8080
@@ -37,11 +37,11 @@ services:
       interval: 5s
       timeout: 3s
       retries: 3
-      start_period: 10s
+      start_period: 20s
 
   # A simple java CLI
   kiwicard-cli:
-    image: roxaane/kiwicard-cli:250326-1236-SNAPSHOT
+    image: roxaane/kiwicard-cli:250327-1022-SNAPSHOT
     container_name: cli
     environment:
       - SERVER_WITH_PORT=kiwicard-server:8080

@@ -97,7 +97,6 @@ pipeline {
                 anyOf {
                     branch 'dev'
                     branch 'main'
-                    environment name: 'CHANGE_TARGET', value: 'dev'
                 }
             }
             steps {
@@ -111,7 +110,6 @@ pipeline {
                 anyOf {
                     branch 'dev'
                     branch 'main'
-                    environment name: 'CHANGE_TARGET', value: 'dev'
                 }
             }
             steps {
@@ -125,7 +123,6 @@ pipeline {
                 anyOf {
                     branch 'dev'
                     branch 'main'
-                    environment name: 'CHANGE_TARGET', value: 'dev'
                 }
             }
             steps {
