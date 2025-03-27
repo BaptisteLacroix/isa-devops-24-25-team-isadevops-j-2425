@@ -42,7 +42,7 @@ public interface ICartModifier {
      * @return A CartDTO representing the updated shopping cart after the item has been removed.
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
      */
-    CartDTO removeItemFromCart(String cartOwnerEmail, Long itemId) throws UnknownCustomerEmailException, NoCartException, EmptyCartException;
+    CartDTO removeItemFromCart(String cartOwnerEmail, Long itemId) throws UnknownCustomerEmailException, NoCartException, EmptyCartException, UnknownItemIdException;
 
     /**
      * Validates a customer's shopping cart and processes a payment request to the external payment service.

@@ -239,12 +239,15 @@ public class CartService implements ICartModifier, ICartFinder {
      */
     @Override
     @Transactional
-    public CartDTO removeItemFromCart(String cartOwnerEmail, Long itemId) throws UnknownCustomerEmailException, EmptyCartException, NoCartException {
+    public CartDTO removeItemFromCart(String cartOwnerEmail, Long itemId) throws UnknownCustomerEmailException, EmptyCartException, NoCartException, UnknownItemIdException {
         // Check that the customer exists
         Customer customer = customerCatalog.findCustomerByEmail(cartOwnerEmail);
         Cart cart = verifyCart(customer);
         // Remove the item from the cart
-        cart.getItems().removeIf(cartItem -> cartItem.getItem().getItemId().equals(itemId));
+        boolean removed = cart.getItems().removeIf(cartItem -> cartItem.getItem().getItemId().equals(itemId));
+        if (!removed) {
+            throw new UnknownItemIdException(itemId);
+        }
         Customer updatedCustomer = customerCatalog.setCart(cartOwnerEmail, cart);
         return new CartDTO(updatedCustomer.getCart());
     }

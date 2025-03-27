@@ -331,7 +331,7 @@ class CartServiceTest extends BaseUnitTest {
     }
 
     @Test
-    void removeItemFromCart_shouldRemoveItemSuccessfully() throws UnknownCustomerEmailException, EmptyCartException, NoCartException {
+    void removeItemFromCart_shouldRemoveItemSuccessfully() throws UnknownCustomerEmailException, EmptyCartException, NoCartException, UnknownItemIdException {
         // Given
         when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
         when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
