@@ -7,12 +7,13 @@ pipeline {
         stage('Initialisation') {
             steps {
                 script {
+                    env.BUILD_DATE = new Date().format('yyMMdd-HHmm')
                     // Définition d'une closure pour factoriser la logique de push vers Jfrog
                     jfrogPush = { projectDir, projectPrefix, repository ->
                         dir(projectDir) {
                             echo "📦 Building the ${projectDir} project for Jfrog push!"
                             sh 'mvn install -DskipTests'
-                            def date = new Date().format('yyMMdd-HHmm')
+                            def date = env.BUILD_DATE
                             def fileName = (env.GIT_BRANCH == 'main') ?
                                 "${projectPrefix}-${date}.jar" : "${projectPrefix}-${date}-SNAPSHOT.jar"
                             def folderName = (env.GIT_BRANCH == 'main') ?
@@ -153,7 +154,7 @@ pipeline {
                         projects.each { project, data ->
                             dir(project) {
                                 echo "📥 Téléchargement du JAR depuis Artifactory pour ${project}..."
-                                def date = new Date().format('yyMMdd-HHmm')
+                                def date = env.BUILD_DATE
                                 def artifactoryFolder = (env.GIT_BRANCH == 'main') ? "release/${date}" : "snapshot/${date}"
                                 def fileSuffix = (env.GIT_BRANCH == 'main') ? "${date}" : "${date}-SNAPSHOT"
                                 def downloadUrl = "${data.artifactoryUrl}/${artifactoryFolder}/${data.artifactPrefix}-${fileSuffix}.jar"
