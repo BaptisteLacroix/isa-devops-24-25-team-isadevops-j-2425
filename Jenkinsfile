@@ -12,7 +12,7 @@ pipeline {
                     jfrogPush = { projectDir, projectPrefix, repository ->
                         dir(projectDir) {
                             echo "📦 Building the ${projectDir} project for Jfrog push!"
-                            sh 'mvn install -DskipTests'
+                            sh 'mvn -B install -DskipTests'
                             def date = env.BUILD_DATE
                             def fileName = (env.GIT_BRANCH == 'main') ?
                                 "${projectPrefix}-${date}.jar" : "${projectPrefix}-${date}-SNAPSHOT.jar"
@@ -29,7 +29,7 @@ pipeline {
             steps {
                 dir('backend') {
                     echo '🛠️ Pipeline is building the backend project !'
-                    sh 'mvn clean compile'
+                    sh 'mvn -B clean compile'
                 }
             }
         }
@@ -37,7 +37,7 @@ pipeline {
             steps {
                 dir('cli') {
                     echo '🛠️ Pipeline is building the CLI project !'
-                    sh 'mvn clean compile'
+                    sh 'mvn -B clean compile'
                 }
             }
         }
@@ -45,7 +45,7 @@ pipeline {
             steps {
                 dir('backend') {
                     echo '🧪 Pipeline is launching backend unit tests !'
-                    sh 'mvn test'
+                    sh 'mvn -B test'
                 }
             }
         }
@@ -53,7 +53,7 @@ pipeline {
             steps {
                 dir('cli') {
                     echo '🧪 Pipeline is launching cli unit tests !'
-                    sh 'mvn test'
+                    sh 'mvn -B test'
                 }
             }
         }
@@ -82,12 +82,12 @@ pipeline {
             steps {
                 dir('cli') {
                     withSonarQubeEnv("KiwiCardSonar") {
-                        sh "mvn verify sonar:sonar -Dsonar.projectKey=KiwiCardCLI -Dsonar.projectName='KiwiCardCLI' -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml,target/site/jacoco-it/jacoco.xml -Dsonar.junit.reportsPaths=target/surefire-reports,target/failsafe-reports"
+                        sh "mvn -B verify sonar:sonar -Dsonar.projectKey=KiwiCardCLI -Dsonar.projectName='KiwiCardCLI' -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml,target/site/jacoco-it/jacoco.xml -Dsonar.junit.reportsPaths=target/surefire-reports,target/failsafe-reports"
                     }
                 }
                 dir('backend') {
                     withSonarQubeEnv("KiwiCardSonar") {
-                        sh "mvn verify sonar:sonar -Dsonar.projectKey=KiwiCard -Dsonar.projectName='KiwiCard' -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml,target/site/jacoco-it/jacoco.xml -Dsonar.junit.reportsPaths=target/surefire-reports,target/failsafe-reports"
+                        sh "mvn -B verify sonar:sonar -Dsonar.projectKey=KiwiCard -Dsonar.projectName='KiwiCard' -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml,target/site/jacoco-it/jacoco.xml -Dsonar.junit.reportsPaths=target/surefire-reports,target/failsafe-reports"
                     }
                 }
             }
