@@ -1,7 +1,7 @@
 package fr.univcotedazur.teamj.kiwicard.cli.commands;
 
-import fr.univcotedazur.teamj.kiwicard.cli.model.CliCart;
 import fr.univcotedazur.teamj.kiwicard.cli.CliSession;
+import fr.univcotedazur.teamj.kiwicard.cli.model.CliCart;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliCartItemToSent;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliCustomerSubscribe;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliPurchase;
@@ -27,6 +27,7 @@ public class CustomerCommands {
     private final WebClient webClient;
 
     private final CliSession cliSession;
+    private static final String INVALID_EMAIL_MESSAGE = "Erreur : Veuillez vous connecter ou spécifier un email de client valide.";
 
     @Autowired
     public CustomerCommands(WebClient webClient, CliSession cliSession) {
@@ -166,6 +167,33 @@ public class CustomerCommands {
         }
     }
 
+    @ShellMethod("""
+                Remove an item from a customer's cart:
+                Usage: remove-item-from-cart --customerEmail <customerEmail> --itemId <itemId>
+                Parameters:
+                    --customer-email/-e  The email of the customer whose cart will be updated.
+                    --item-id/-i         The ID of the item to be removed from the cart.
+                Example:
+                    remove-item-from-cart --customerEmail "customer@example.com" --itemId 123
+            """)
+    public String removeItemFromCart(
+            @ShellOption(value = {"-e", "--customer-email"}) String customerEmail,
+            @ShellOption(value = {"-i", "--item-id"}) Long itemId
+    ) {
+        customerEmail = cliSession.tryInjectingCustomerEmail(customerEmail);
+        if (customerEmail == null) {
+            return INVALID_EMAIL_MESSAGE;
+        }
+        return webClient.delete()
+                .uri(BASE_CART_URI + "/" + customerEmail + "/item/" + itemId)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(CliError.class)
+                        .flatMap(error -> Mono.error(new RuntimeException(error.errorMessage()))))
+                .bodyToMono(CliCart.class)
+                .map(cart -> "Article retiré du panier avec succès ! Détails du panier :\n" + cart.toString().replaceAll("(?m)^", "\t"))
+                .block();
+    }
+
     /**
      * Sends a request to update a customer's cart.
      *
@@ -203,9 +231,9 @@ public class CustomerCommands {
             """, key = "pay-cart")
     public String payCart(@ShellOption(value = {"-e", "--customer-email"}, defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail) {
         customerEmail = cliSession.tryInjectingCustomerEmail(customerEmail);
-        if (customerEmail == null) return "Erreur : Veuillez vous connecter ou spécifier un email de client valide.";
+        if (customerEmail == null) return INVALID_EMAIL_MESSAGE;
         return webClient.post()
-                .uri( BASE_CART_URI + "/" + customerEmail + "/validate")
+                .uri(BASE_CART_URI + "/" + customerEmail + "/validate")
                 .contentType(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(CliError.class)
@@ -223,7 +251,7 @@ public class CustomerCommands {
      * @param customerEmail The email of the customer whose cart should be retrieved. If unspecified, uses the logged-in customer.
      * @return The cart details of the customer or an error message
      */
-    @ShellMethod(value="Get cart details", key="get-cart")
+    @ShellMethod(value = "Get cart details", key = "get-cart")
     public String getCart(@ShellOption(defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail) {
         customerEmail = cliSession.tryInjectingCustomerEmail(customerEmail);
         if (customerEmail == null) {
