@@ -1,13 +1,14 @@
 package fr.univcotedazur.teamj.kiwicard.controllers;
 
 import fr.univcotedazur.teamj.kiwicard.dto.PurchaseHistoryDTO;
-import fr.univcotedazur.teamj.kiwicard.entities.Purchase;
+import fr.univcotedazur.teamj.kiwicard.exceptions.ForbiddenDurationException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPurchaseIdException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseStats;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,7 +55,7 @@ public class MonitoringController {
         List<PurchaseHistoryDTO> purchases;
         if (limit.isPresent()) {
             purchases = this.purchaseFinder.findPurchasesByPartnerId(partnerId, limit.get());
-        }else{
+        } else {
             purchases = purchaseFinder.findPurchasesByPartnerId(partnerId);
         }
         return ResponseEntity.ok().body(purchases);
@@ -65,17 +66,16 @@ public class MonitoringController {
         return ResponseEntity.ok().body(purchaseFinder.findPurchasesByCustomerAndPartner(customerEmail, partnerId));
     }
 
-    public record TwoDaysAggregation(Map<LocalTime, Integer> day1Aggregation, Map<LocalTime, Integer> day2Aggregation){}
+    public record TwoDaysAggregation(Map<LocalTime, Integer> day1Aggregation, Map<LocalTime, Integer> day2Aggregation) {
+    }
+
     @GetMapping("/stats/{partnerId}/compare-purchases")
-    public ResponseEntity<?> comparePurchases (@PathVariable long partnerId, @RequestParam LocalDate day1, @RequestParam LocalDate day2, @RequestParam Optional<Duration> duration) {
+    public ResponseEntity<TwoDaysAggregation> comparePurchases(@PathVariable long partnerId, @RequestParam LocalDate day1, @RequestParam LocalDate day2, @RequestParam Optional<Duration> duration) throws UnknownPartnerIdException, ForbiddenDurationException {
         Duration dur = duration.orElse(Duration.ofHours(1));
-        if (dur.compareTo(Duration.ofDays(1))>0) return ResponseEntity.badRequest().body("Duration is expected to be less than a day, got" + dur);
-        try {
-            Map<LocalTime, Integer> day1Aggregation = this.statisticMaker.aggregatePurchasesByDayAndDuration(partnerId, day1, dur);
-            Map<LocalTime, Integer> day2Aggregation = this.statisticMaker.aggregatePurchasesByDayAndDuration(partnerId, day2, dur);
-            return ResponseEntity.ok(new TwoDaysAggregation(day1Aggregation, day2Aggregation));
-        }catch (UnknownPartnerIdException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Partner id : " + partnerId + "does not exist");
-        }
+        if (dur.compareTo(Duration.ofDays(1)) > 0)
+            throw new ForbiddenDurationException(dur);
+        Map<LocalTime, Integer> day1Aggregation = this.statisticMaker.aggregatePurchasesByDayAndDuration(partnerId, day1, dur);
+        Map<LocalTime, Integer> day2Aggregation = this.statisticMaker.aggregatePurchasesByDayAndDuration(partnerId, day2, dur);
+        return ResponseEntity.ok(new TwoDaysAggregation(day1Aggregation, day2Aggregation));
     }
 }
