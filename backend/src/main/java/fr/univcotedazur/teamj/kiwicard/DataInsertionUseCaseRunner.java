@@ -29,9 +29,6 @@ import static fr.univcotedazur.teamj.kiwicard.DateUtils.getLocalDateTimes;
 @Component
 public class DataInsertionUseCaseRunner implements CommandLineRunner {
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
     private final ICustomerRepository customerRepository;
     private final IPartnerRepository partnerRepository;
     private final IPerkRepository perkRepository;
@@ -57,8 +54,8 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws UnknownPartnerIdException {
-        tryToInsert();
-        tryToRetrieve();
+//        tryToInsert();
+//        tryToRetrieve();
     }
 
     private void tryToRetrieve() {
@@ -425,10 +422,5 @@ public class DataInsertionUseCaseRunner implements CommandLineRunner {
         // Payment
         Payment payment = new Payment(40, LocalDateTime.now());
 
-        LocalDate day1 = LocalDate.of(2025, 3, 16);
-        LocalDate day2 = LocalDate.of(2025, 4, 16);
-        // Purchases
-        new DataUtils(entityManager).createDummyPurchasesForDate(day1, getLocalDateTimes(day1, Duration.ofHours(1)), partnerPoissonnerie);
-        new DataUtils(entityManager).createDummyPurchasesForDate(day2, getLocalDateTimes(day2, Duration.ofHours(1)), partnerPoissonnerie);
     }
 }
