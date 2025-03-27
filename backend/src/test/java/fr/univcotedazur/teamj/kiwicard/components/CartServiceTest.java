@@ -327,7 +327,7 @@ class CartServiceTest extends BaseUnitTest {
         when(customerCatalog.findCustomerByEmail(anyString())).thenThrow(UnknownCustomerEmailException.class);
 
         // When & Then
-        assertThrows(UnknownCustomerEmailException.class, () -> cartService.removeItemFromCart("nonexistent@example.com", cartItemDTO));
+        assertThrows(UnknownCustomerEmailException.class, () -> cartService.removeItemFromCart("nonexistent@example.com", 1L));
     }
 
     @Test
@@ -337,7 +337,7 @@ class CartServiceTest extends BaseUnitTest {
         when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
 
         // When
-        CartDTO result = cartService.removeItemFromCart("customer@example.com", cartItemDTO);
+        CartDTO result = cartService.removeItemFromCart("customer@example.com", 1L);
 
         // Then
         assertNotNull(result);

@@ -231,7 +231,7 @@ public class CartService implements ICartModifier, ICartFinder {
      * then removes the item from the customer's cart if it exists. If the customer is not found, an exception is thrown.
      *
      * @param cartOwnerEmail The email address of the customer whose cart the item will be removed from.
-     * @param cartItemDTO    A CartItemDTO representing the item to be removed, including the item ID.
+     * @param itemId    The item ID of the item to be removed from the cart.
      * @return A CartDTO representing the updated shopping cart after the item has been removed.
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
      * @throws NoCartException               If the customer does not have a cart.
@@ -239,12 +239,12 @@ public class CartService implements ICartModifier, ICartFinder {
      */
     @Override
     @Transactional
-    public CartDTO removeItemFromCart(String cartOwnerEmail, CartItemDTO cartItemDTO) throws UnknownCustomerEmailException, EmptyCartException, NoCartException {
+    public CartDTO removeItemFromCart(String cartOwnerEmail, Long itemId) throws UnknownCustomerEmailException, EmptyCartException, NoCartException {
         // Check that the customer exists
         Customer customer = customerCatalog.findCustomerByEmail(cartOwnerEmail);
         Cart cart = verifyCart(customer);
         // Remove the item from the cart
-        cart.getItems().removeIf(cartItem -> cartItem.getItem().getItemId().equals(cartItemDTO.item().itemId()));
+        cart.getItems().removeIf(cartItem -> cartItem.getItem().getItemId().equals(itemId));
         Customer updatedCustomer = customerCatalog.setCart(cartOwnerEmail, cart);
         return new CartDTO(updatedCustomer.getCart());
     }

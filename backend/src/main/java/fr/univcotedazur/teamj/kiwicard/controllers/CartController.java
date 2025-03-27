@@ -65,14 +65,16 @@ public class CartController {
      * Removes an item from a customer's shopping cart.
      *
      * @param customerEmail The email address of the customer whose cart will be updated.
-     * @param cartItemDTO   The CartItemDTO containing the item details to be removed.
+     * @param itemId   The ID of the item to be removed from the cart.
      * @return A ResponseEntity containing the updated CartDTO with HTTP status 201 (Created).
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
      */
-    @DeleteMapping(path = "/{customerEmail}", consumes = APPLICATION_JSON_VALUE)
-    public ResponseEntity<CartDTO> removeItemFromCart(@PathVariable String customerEmail, @RequestBody CartItemDTO cartItemDTO) throws UnknownCustomerEmailException, NoCartException, EmptyCartException {
-        return ResponseEntity.created(null)
-                .body(modifier.removeItemFromCart(customerEmail, cartItemDTO));
+    @DeleteMapping(path = "/{customerEmail}/item/{itemId}")
+    public ResponseEntity<CartDTO> removeItemFromCart(@PathVariable String customerEmail, @PathVariable Long itemId) throws UnknownCustomerEmailException, NoCartException, EmptyCartException, UnknownItemIdException {
+        if(itemId == null){
+            throw new UnknownItemIdException(null);
+        }
+        return ResponseEntity.ok(modifier.removeItemFromCart(customerEmail, itemId));
     }
 
     /**

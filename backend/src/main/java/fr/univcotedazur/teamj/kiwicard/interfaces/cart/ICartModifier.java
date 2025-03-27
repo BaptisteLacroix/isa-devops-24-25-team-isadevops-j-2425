@@ -38,11 +38,11 @@ public interface ICartModifier {
      * then removes the item from the customer's cart if it exists. If the customer is not found, an exception is thrown.
      *
      * @param cartOwnerEmail The email address of the customer whose cart the item will be removed from.
-     * @param cartItemDTO    A CartItemDTO representing the item to be removed, including the item ID.
+     * @param itemId    The item ID of the item to be removed from the cart.
      * @return A CartDTO representing the updated shopping cart after the item has been removed.
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
      */
-    CartDTO removeItemFromCart(String cartOwnerEmail, CartItemDTO cartItemDTO) throws UnknownCustomerEmailException, NoCartException, EmptyCartException;
+    CartDTO removeItemFromCart(String cartOwnerEmail, Long itemId) throws UnknownCustomerEmailException, NoCartException, EmptyCartException;
 
     /**
      * Validates a customer's shopping cart and processes a payment request to the external payment service.
