@@ -5,18 +5,29 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPurchaseIdException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseFinder;
+import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseStats;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/monitoring")
 public class MonitoringController {
-    private final IPurchaseFinder purchaseFinder;
+    public final IPurchaseFinder purchaseFinder;
+    public final IPurchaseStats statisticMaker;
 
-    public MonitoringController(IPurchaseFinder purchaseFinder) {
+    @Autowired
+    public MonitoringController(IPurchaseFinder purchaseFinder, IPurchaseStats statisticMaker) {
         this.purchaseFinder = purchaseFinder;
+        this.statisticMaker = statisticMaker;
     }
 
     @GetMapping("/purchase/{purchaseId}")
@@ -39,5 +50,19 @@ public class MonitoringController {
     @GetMapping("/purchase")
     public List<Purchase> getByCustomerAndPartner(@RequestParam String customerEmail, @RequestParam long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException {
         return purchaseFinder.findPurchasesByCustomerAndPartner(customerEmail, partnerId);
+    }
+
+    public record TwoDaysAggregation(Map<LocalTime, Integer> day1Aggregation, Map<LocalTime, Integer> day2Aggregation){}
+    @GetMapping("/stats/{partnerId}/compare-purchases")
+    public ResponseEntity<?> comparePurchases (@PathVariable long partnerId, @RequestParam LocalDate day1, @RequestParam LocalDate day2, @RequestParam Optional<Duration> duration) {
+        Duration dur = duration.orElse(Duration.ofHours(1));
+        if (dur.compareTo(Duration.ofDays(1))>0) return ResponseEntity.badRequest().body("Duration is expected to be less than a day, got" + dur);
+        try {
+            Map<LocalTime, Integer> day1Aggregation = this.statisticMaker.aggregatePurchasesByDayAndDuration(partnerId, day1, dur);
+            Map<LocalTime, Integer> day2Aggregation = this.statisticMaker.aggregatePurchasesByDayAndDuration(partnerId, day2, dur);
+            return ResponseEntity.ok(new TwoDaysAggregation(day1Aggregation, day2Aggregation));
+        }catch (UnknownPartnerIdException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Partner id : " + partnerId + "does not exist");
+        }
     }
 }

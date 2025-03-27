@@ -7,16 +7,23 @@ import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPartnerManager;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseConsumer;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseCreator;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseFinder;
+import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseStats;
 import fr.univcotedazur.teamj.kiwicard.repositories.IPurchaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static fr.univcotedazur.teamj.kiwicard.DateUtils.getLocalDateTimes;
+
 @Component
-public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPurchaseFinder {
+public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPurchaseFinder, IPurchaseStats {
     private final IPurchaseRepository purchaseRepository;
     private final CustomerCatalog customerCatalog;
     private final IPartnerManager partnerManager;
@@ -102,6 +109,38 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
     public List<Purchase> findPurchasesByPartnerId(long partnerId, int limit) throws UnknownPartnerIdException {
         this.partnerManager.findPartnerById(partnerId);
         return this.purchaseRepository.findAllByPartner(partnerId, limit);
+    }
+
+    /**
+     * Aggregates the number of purchases per day by custom separation (an hour, 10 minutes, etc...)
+     * @param partnerId The id of the partner
+     * @param day The day of the purchases
+     * @param separation The custom time interval separation
+     * @return The aggregated result
+     * @throws UnknownPartnerIdException when the partner id is unknown
+     */
+    @Override
+    public Map<LocalTime, Integer> aggregatePurchasesByDayAndDuration(long partnerId, LocalDate day, Duration separation) throws UnknownPartnerIdException {
+        this.partnerManager.findPartnerById(partnerId);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
+        LocalDateTime day1 = day.atStartOfDay();
+        List<Purchase> purchasesOfTheDay = this.purchaseRepository.findAllByPartnerAndDay(
+                partnerId,
+                formatter.format(day1),
+                formatter.format(day1.plusDays(1))
+        );
+        List<LocalDateTime> timestamps = getLocalDateTimes(day, separation);
+        Map<LocalTime, Integer> result = new LinkedHashMap<>();
+        timestamps.forEach(t-> result.put(t.toLocalTime(), 0));
+        for (Purchase purchase : purchasesOfTheDay) {
+            var purchaseTime = purchase.getPayment().getTimestamp().toLocalTime();
+            long index = purchaseTime.toSecondOfDay() / separation.toSeconds();
+            LocalTime key = timestamps.get((int)index).toLocalTime();
+            result.putIfAbsent(key, 0);
+            result.put(key, result.get(key) + 1);
+        }
+
+        return result;
     }
 }
 
