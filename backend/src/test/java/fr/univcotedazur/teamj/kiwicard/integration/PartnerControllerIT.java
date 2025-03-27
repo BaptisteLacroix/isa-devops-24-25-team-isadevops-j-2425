@@ -63,8 +63,6 @@ class PartnerControllerIT extends BaseUnitTest {
         chezPaulCreationDTO = new PartnerCreationDTO("Chez Paul", "3 rue de la Paix");
         croissantDTO = new ItemDTO(1, "Croissant", 1.2);
         painAuChocolatDTO = new ItemDTO(2, "Pain au chocolat", 1.8);
-
-//        partnerRepository.deleteAll();
     }
 
     @Test

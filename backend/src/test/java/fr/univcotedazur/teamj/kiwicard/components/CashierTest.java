@@ -400,7 +400,6 @@ class CashierTest extends BaseUnitTest {
         PaymentResponseDTO response = cashier.computePurchaseTotalPrice(customer);
 
         // Assert
-//        verify(purchaseCreator).createPurchase(any(), anyDouble());
         assertNotNull(response);
         assertEquals(216.0, response.totalPrice());  // (300) - 10% = 270 - 20% = 216
         assertEquals(4, cartItem1.getQuantity()); // 3 purchased + 1 gifted

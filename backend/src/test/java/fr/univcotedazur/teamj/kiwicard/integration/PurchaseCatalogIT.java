@@ -50,14 +50,6 @@ class PurchaseCatalogIT extends BaseUnitTest {
     @BeforeEach
     public void setUp() {
         entityManager.clear();
-//        entityManager.createQuery("DELETE FROM Purchase").executeUpdate();
-//        entityManager.createQuery("DELETE FROM CartItem").executeUpdate();
-//        entityManager.createQuery("DELETE FROM Cart").executeUpdate();
-//        entityManager.createQuery("DELETE FROM Item").executeUpdate();
-//        entityManager.createQuery("DELETE FROM Payment").executeUpdate();
-//        entityManager.createQuery("DELETE FROM Customer").executeUpdate();
-//        entityManager.createQuery("DELETE FROM Partner").executeUpdate();
-//        entityManager.flush();
         assertNotNull(purchaseRepository);
         purchaseCatalog = new PurchaseCatalog(purchaseRepository, customerCatalog, partnerCatalog, entityManager);
         allGoodPurchases = new ArrayList<>();

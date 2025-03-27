@@ -83,7 +83,6 @@ public class Cart {
 
     public List<CartItem> getHKItems() {
         return this.itemList.stream()
-                .peek(ci -> System.out.println(ci.getItem().getLabel()))
                 .filter(item -> item.getItem().getLabel().contains(Constants.HAPPY_KIDS_ITEM_NAME))
                 .toList();
 
