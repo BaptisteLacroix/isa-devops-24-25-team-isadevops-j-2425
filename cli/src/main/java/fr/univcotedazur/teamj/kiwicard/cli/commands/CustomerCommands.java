@@ -175,7 +175,7 @@ public class CustomerCommands {
                     remove-item-from-cart --customerEmail "customer@example.com" --itemId 123
             """)
     public String removeItemFromCart(
-            @ShellOption(value = {"-e", "--customer-email"}) String customerEmail,
+            @ShellOption(value = {"-e", "--customer-email"}, defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail,
             @ShellOption(value = {"-i", "--item-id"}) Long itemId
     ) {
         customerEmail = cliSession.tryInjectingCustomerEmail(customerEmail);

@@ -41,6 +41,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -48,6 +49,7 @@ import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class CartServiceTest extends BaseUnitTest {
@@ -81,6 +83,8 @@ class CartServiceTest extends BaseUnitTest {
     private PartnerDTO partnerDTO;
     @Mock
     private CartItem cartItem;
+    @Mock
+    private Cart cart;
 
     @BeforeEach
     void setUp() {
@@ -102,7 +106,7 @@ class CartServiceTest extends BaseUnitTest {
         when(cartItem.getPrice()).thenReturn(20.0);
 
         // Mocking the Cart entity, including cartId
-        Cart cart = mock(Cart.class);
+        cart = mock(Cart.class);
         when(cart.getCartId()).thenReturn(1L);
         when(cart.getPartner()).thenReturn(partner);
         when(cart.getItems()).thenReturn(new HashSet<>(List.of(cartItem)));
@@ -111,7 +115,6 @@ class CartServiceTest extends BaseUnitTest {
         when(customer.getEmail()).thenReturn("customer@email.com");
         when(customer.getFirstName()).thenReturn("John");
         when(customer.getSurname()).thenReturn("Doe");
-        when(customer.getCart()).thenReturn(cart);
         when(customer.isVfp()).thenReturn(false);
         when(customer.getCardNumber()).thenReturn("1234567890");
         when(customer.getAddress()).thenReturn("Address");
@@ -331,17 +334,64 @@ class CartServiceTest extends BaseUnitTest {
     }
 
     @Test
+    void removeItemFromCart_shouldThrowUnknownItemIdException_whenItemNotFoundInCart() throws UnknownCustomerEmailException {
+        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
+        when(customer.getCart()).thenReturn(cart);
+
+        assertThrows(UnknownItemIdException.class, () -> cartService.removeItemFromCart("nonexistent@example.com", 2L));
+    }
+
+    @Test
     void removeItemFromCart_shouldRemoveItemSuccessfully() throws UnknownCustomerEmailException, EmptyCartException, NoCartException, UnknownItemIdException {
         // Given
+        Item item2 = mock(Item.class);
+        when(item2.getItemId()).thenReturn(2L);
+        when(item2.getLabel()).thenReturn("Item 2");
+        when(item2.getPrice()).thenReturn(15.0);
+        when(item2.getPartner()).thenReturn(partner);
+
+        CartItem cartItem2 = mock(CartItem.class);
+        when(cartItem2.getCartItemId()).thenReturn(2L);
+        when(cartItem2.getQuantity()).thenReturn(1);
+        when(cartItem2.getItem()).thenReturn(item2);
+        when(cartItem2.getPrice()).thenReturn(15.0);
+
+        // Mocking the Cart entity, including cartId
+        cart = mock(Cart.class);
+        when(cart.getCartId()).thenReturn(1L);
+        when(cart.getPartner()).thenReturn(partner);
+        when(cart.getItems()).thenReturn(new HashSet<>(List.of(cartItem, cartItem2)));
+        when(cart.getPerksToUse()).thenReturn(new ArrayList<>());
+
+        when(customer.getCart()).thenReturn(cart);
+
         when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
         when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
 
         // When
-        CartDTO result = cartService.removeItemFromCart("customer@example.com", 1L);
+        CartDTO result = cartService.removeItemFromCart("customer@email.com", 1L);
 
         // Then
         assertNotNull(result);
-        assertTrue(result.items().isEmpty());
+        assertEquals(1, result.items().size());
+        assertTrue(result.items().stream().anyMatch(ci -> ci.item().itemId() == 2L));
+    }
+
+    @Test
+    void removeItemFromCart_shouldRemoveItemAndResetCartSuccessfully() throws UnknownCustomerEmailException, EmptyCartException, NoCartException, UnknownItemIdException {
+        // Given
+        Customer noCartCustomer = customer;
+        when(noCartCustomer.getCart()).thenReturn(cart).thenReturn(null);
+
+        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
+        when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
+        when(customerCatalog.resetCart(customer.getEmail())).thenReturn(noCartCustomer);
+        // When
+        CartDTO result = cartService.removeItemFromCart("customer@email.com", 1L);
+
+        // Then
+        assertNull(result);
+        verify(customerCatalog).resetCart(customer.getEmail());
     }
 
     @Test

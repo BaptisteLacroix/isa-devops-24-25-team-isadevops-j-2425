@@ -210,12 +210,38 @@ class CustomerCommandsTest {
         String customerEmail = "customer@example.com";
 
         customerCommands.reserveTimeSlot(customerEmail, 1L,
-                LocalDateTime.now(),
-                LocalDateTime.now().plusHours(1), 1);
+                LocalDateTime.now(), 1);
 
         // Verify that the request was made to the correct endpoint
         RecordedRequest recordedRequest = mockWebServer.takeRequest();
         assertEquals("/cart/" + customerEmail, recordedRequest.getPath());
         assertEquals("PUT", recordedRequest.getMethod());
+    }
+
+    @Test
+    void removeItemFromCart() throws InterruptedException {
+        mockWebServer.enqueue(new MockResponse()
+                .setBody("""
+                        {
+                            "cartId": 11,
+                            "partner": {
+                              "id": 1,
+                              "name": "Boulange",
+                              "address": "14 rue du paindemie, Draguignan"
+                            },
+                            "items": [],
+                            "perksList": []
+                          }
+                        """)
+                .addHeader("Content-Type", "application/json"));
+
+        String customerEmail = "customer@example.com";
+
+        customerCommands.removeItemFromCart(customerEmail, 21L);
+
+        // Verify that the request was made to the correct endpoint
+        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+        assertEquals("/cart/" + customerEmail + "/item/21", recordedRequest.getPath());
+        assertEquals("DELETE", recordedRequest.getMethod());
     }
 }
