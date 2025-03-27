@@ -1,5 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.entities;
 
+import fr.univcotedazur.teamj.kiwicard.configurations.Constants;
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import jakarta.persistence.CascadeType;
@@ -18,9 +19,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static fr.univcotedazur.teamj.kiwicard.configurations.Constants.HAPPY_KIDS_ITEM_NAME;
-
 
 @Entity
 public class Cart {
@@ -85,7 +83,7 @@ public class Cart {
 
     public List<CartItem> getHKItems() {
         return this.itemList.stream()
-                .filter(item -> item.getItem().getLabel().contains(HAPPY_KIDS_ITEM_NAME))
+                .filter(item -> item.getItem().getLabel().contains(Constants.HAPPY_KIDS_ITEM_NAME))
                 .toList();
 
     }
@@ -115,6 +113,10 @@ public class Cart {
         return perksToUse;
     }
 
+    public List<AbstractPerk> getPerksUsed() {
+        return perksUsed;
+    }
+
     public double getTotalPercentageReduction() {
         return totalPercentageReduction;
     }
@@ -129,7 +131,7 @@ public class Cart {
     }
 
     public boolean alreadyContains(Item item) {
-       return this.getItems().stream().map(CartItem::getItem).anyMatch(itm -> itm.equals(item));
+        return this.getItems().stream().map(CartItem::getItem).anyMatch(itm -> itm.equals(item));
     }
 
     public void addPerkUsed(AbstractPerk perk) {

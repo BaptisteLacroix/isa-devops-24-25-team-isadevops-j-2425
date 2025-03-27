@@ -18,6 +18,7 @@ import fr.univcotedazur.teamj.kiwicard.entities.perks.VfpDiscountInPercentPerk;
 import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
+import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseCreator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -32,9 +33,16 @@ import java.time.LocalTime;
 
 import static fr.univcotedazur.teamj.kiwicard.configurations.Constants.HAPPY_KIDS_ITEM_NAME;
 import static fr.univcotedazur.teamj.kiwicard.entities.Item.createTestItem;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -42,6 +50,9 @@ class CashierTest extends BaseUnitTest {
 
     @MockitoBean
     private HappyKidsProxy happyKidsProxy;
+
+    @Mock
+    private IPurchaseCreator purchaseCreator;
 
     @InjectMocks
     private Cashier cashier;
@@ -54,7 +65,7 @@ class CashierTest extends BaseUnitTest {
 
     @BeforeEach
     void setUp() {
-        cashier = new Cashier(bankProxy, happyKidsProxy);
+        cashier = new Cashier(bankProxy, happyKidsProxy, purchaseCreator);
     }
 
     @Test
@@ -111,12 +122,12 @@ class CashierTest extends BaseUnitTest {
         Cart cart = new Cart();
         cart.addItem(cartItem1);
         cart.addItem(cartItem2);
-        cart.addToTotalPercentageReduction(0.2); // 20% discount
+        cart.addToTotalPercentageReduction(20); // 20% discount
 
         when(customer.getCart()).thenReturn(cart);
 
         // Act
-        PaymentResponseDTO response = cashier.computePrice(customer);
+        PaymentResponseDTO response = cashier.computePurchaseTotalPrice(customer);
 
         // Assert
         assertNotNull(response);
@@ -138,7 +149,7 @@ class CashierTest extends BaseUnitTest {
         when(customer.getCart()).thenReturn(cart);
 
         // Act
-        PaymentResponseDTO response = cashier.computePrice(customer);
+        PaymentResponseDTO response = cashier.computePurchaseTotalPrice(customer);
 
         // Assert
         assertNotNull(response);
@@ -154,7 +165,7 @@ class CashierTest extends BaseUnitTest {
         when(customer.getCart()).thenReturn(cart);
 
         // Act
-        PaymentResponseDTO response = cashier.computePrice(customer);
+        PaymentResponseDTO response = cashier.computePurchaseTotalPrice(customer);
 
         // Assert
         assertNotNull(response);
@@ -175,7 +186,7 @@ class CashierTest extends BaseUnitTest {
         when(customer.getCart()).thenReturn(cart);
 
         // Act
-        PaymentResponseDTO response = cashier.computePrice(customer);
+        PaymentResponseDTO response = cashier.computePurchaseTotalPrice(customer);
 
         // Assert
         assertNotNull(response);
@@ -197,7 +208,7 @@ class CashierTest extends BaseUnitTest {
         when(customer.getCart()).thenReturn(cart);
 
         // Act
-        PaymentResponseDTO response = cashier.computePrice(customer);
+        PaymentResponseDTO response = cashier.computePurchaseTotalPrice(customer);
 
         // Assert
         assertNotNull(response);
@@ -217,7 +228,7 @@ class CashierTest extends BaseUnitTest {
         cart.addItem(cartItem2);
 
         NPurchasedMGiftedPerk nPurchasedMGiftedPerk = new NPurchasedMGiftedPerk(3, 1, item1); // Buy 3, get 1 free
-        TimedDiscountInPercentPerk timedDiscountInPercentPerk = new TimedDiscountInPercentPerk(LocalTime.now().minusMinutes(15), 0.2); // 20% discount after 12:00
+        TimedDiscountInPercentPerk timedDiscountInPercentPerk = new TimedDiscountInPercentPerk(LocalTime.now().minusMinutes(15), 20); // 20% discount after 12:00
 
         cart.addPerkToUse(nPurchasedMGiftedPerk);
         cart.addPerkToUse(timedDiscountInPercentPerk);
@@ -226,7 +237,7 @@ class CashierTest extends BaseUnitTest {
         when(customer.isVfp()).thenReturn(true);
 
         // Act
-        PaymentResponseDTO response = cashier.computePrice(customer);
+        PaymentResponseDTO response = cashier.computePurchaseTotalPrice(customer);
 
         // Assert
         assertNotNull(response);
@@ -243,7 +254,7 @@ class CashierTest extends BaseUnitTest {
         cart.addItem(cartItem1);
 
         // Simulating a VFP discount (10% discount for VFP members)
-        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(0.1, LocalTime.now().minusHours(1), LocalTime.now().plusHours(10));
+        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(10, LocalTime.now().minusHours(1), LocalTime.now().plusHours(10));
         cart.addPerkToUse(vfpDiscountInPercentPerk);
 
         // Set up customer and HappyKidsProxy mock behavior
@@ -252,7 +263,7 @@ class CashierTest extends BaseUnitTest {
         when(happyKidsProxy.computeDiscount(anyDouble(), anyDouble())).thenReturn(new HappyKidsDiscountDTO(270.0));
 
         // Act
-        PaymentResponseDTO response = cashier.computePrice(customer);
+        PaymentResponseDTO response = cashier.computePurchaseTotalPrice(customer);
 
         // Assert
         assertNotNull(response);
@@ -268,7 +279,7 @@ class CashierTest extends BaseUnitTest {
         cart.addItem(cartItem1);
 
         // Simulating a VFP discount (10% discount for VFP members)
-        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(0.1, LocalTime.now().plusHours(1), LocalTime.now().plusHours(10));
+        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(10, LocalTime.now().plusHours(1), LocalTime.now().plusHours(10));
         cart.addPerkToUse(vfpDiscountInPercentPerk);
 
         // Set up customer and HappyKidsProxy mock behavior
@@ -277,7 +288,7 @@ class CashierTest extends BaseUnitTest {
         when(happyKidsProxy.computeDiscount(anyDouble(), anyDouble())).thenReturn(new HappyKidsDiscountDTO(270.0));
 
         // Act
-        PaymentResponseDTO response = cashier.computePrice(customer);
+        PaymentResponseDTO response = cashier.computePurchaseTotalPrice(customer);
 
         // Assert
         assertNotNull(response);
@@ -296,7 +307,7 @@ class CashierTest extends BaseUnitTest {
         cart.addItem(cartItem2);
 
         // Simulating a VFP discount (10% discount for VFP members)
-        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(0.1, LocalTime.now().minusHours(1), LocalTime.now().plusHours(10));
+        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(10, LocalTime.now().minusHours(1), LocalTime.now().plusHours(10));
         cart.addPerkToUse(vfpDiscountInPercentPerk);
 
         // Set up customer and HappyKidsProxy mock behavior
@@ -305,7 +316,7 @@ class CashierTest extends BaseUnitTest {
         when(happyKidsProxy.computeDiscount(anyDouble(), anyDouble())).thenReturn(new HappyKidsDiscountDTO(270.0));
 
         // Act
-        PaymentResponseDTO response = cashier.computePrice(customer);
+        PaymentResponseDTO response = cashier.computePurchaseTotalPrice(customer);
 
         // Assert
         assertNotNull(response);
@@ -321,7 +332,7 @@ class CashierTest extends BaseUnitTest {
         cart.addItem(cartItem1);
 
         // Simulating a VFP discount (10% discount for VFP members) between 21:00 and 02:00
-        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(0.1, LocalTime.of(21, 0), LocalTime.of(2, 0));
+        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(10, LocalTime.of(21, 0), LocalTime.of(2, 0));
         cart.addPerkToUse(vfpDiscountInPercentPerk);
 
         // Set up customer and HappyKidsProxy mock behavior
@@ -330,12 +341,12 @@ class CashierTest extends BaseUnitTest {
         when(happyKidsProxy.computeDiscount(anyDouble(), anyDouble())).thenReturn(new HappyKidsDiscountDTO(290.0));
 
         // Act
-        PaymentResponseDTO response = cashier.computePrice(customer);
+        PaymentResponseDTO response = cashier.computePurchaseTotalPrice(customer);
 
         // Assert
         assertNotNull(response);
         assertEquals(290.0, response.totalPrice());  // (300) - (100 * 2 * 0.1) = 280.0 after VFP discount
-        verify(happyKidsProxy).computeDiscount(100.0, 0.1);
+        verify(happyKidsProxy).computeDiscount(100.0, 10);
     }
 
     @Test
@@ -350,7 +361,7 @@ class CashierTest extends BaseUnitTest {
         cart.addItem(cartItem2);
 
         // Simulating a VFP discount (10% discount for VFP members)
-        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(0.1, LocalTime.of(21, 0), LocalTime.of(22, 0));
+        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(10, LocalTime.of(21, 0), LocalTime.of(22, 0));
         cart.addPerkToUse(vfpDiscountInPercentPerk);
 
         // Set up customer and HappyKidsProxy mock behavior
@@ -358,7 +369,7 @@ class CashierTest extends BaseUnitTest {
         when(customer.isVfp()).thenReturn(true);
 
         // Act
-        PaymentResponseDTO response = cashier.computePrice(customer);
+        PaymentResponseDTO response = cashier.computePurchaseTotalPrice(customer);
 
         // Assert
         assertNotNull(response);
@@ -374,8 +385,8 @@ class CashierTest extends BaseUnitTest {
         cart.addItem(cartItem1);
 
         NPurchasedMGiftedPerk nPurchasedMGiftedPerk = new NPurchasedMGiftedPerk(3, 1, item1); // Buy 3, get 1 free
-        TimedDiscountInPercentPerk timedDiscountInPercentPerk = new TimedDiscountInPercentPerk(LocalTime.now().minusMinutes(15), 0.2); // 20% discount activated just before the purchase
-        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(0.1, LocalTime.now().minusHours(1), LocalTime.now().plusHours(10));
+        TimedDiscountInPercentPerk timedDiscountInPercentPerk = new TimedDiscountInPercentPerk(LocalTime.now().minusMinutes(15), 20); // 20% discount activated just before the purchase
+        VfpDiscountInPercentPerk vfpDiscountInPercentPerk = new VfpDiscountInPercentPerk(10, LocalTime.now().minusHours(1), LocalTime.now().plusHours(10));
 
         cart.addPerkToUse(vfpDiscountInPercentPerk);
         cart.addPerkToUse(nPurchasedMGiftedPerk);
@@ -386,7 +397,7 @@ class CashierTest extends BaseUnitTest {
         when(happyKidsProxy.computeDiscount(anyDouble(), anyDouble())).thenReturn(new HappyKidsDiscountDTO(270.0));
 
         // Act
-        PaymentResponseDTO response = cashier.computePrice(customer);
+        PaymentResponseDTO response = cashier.computePurchaseTotalPrice(customer);
 
         // Assert
         assertNotNull(response);

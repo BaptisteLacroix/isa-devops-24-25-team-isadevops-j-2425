@@ -34,6 +34,10 @@ public class Payment {
     public LocalDateTime getTimestamp() {
         return timestamp;
     }
+
+    public double getAmount() {
+        return amount;
+    }
 }
 
 

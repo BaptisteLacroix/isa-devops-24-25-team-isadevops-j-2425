@@ -1,6 +1,9 @@
-package fr.univcotedazur.teamj.kiwicard.components;
+package fr.univcotedazur.teamj.kiwicard.integration;
 
 import fr.univcotedazur.teamj.kiwicard.BaseUnitTest;
+import fr.univcotedazur.teamj.kiwicard.components.CustomerCatalog;
+import fr.univcotedazur.teamj.kiwicard.components.PartnerCatalog;
+import fr.univcotedazur.teamj.kiwicard.components.PurchaseCatalog;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.*;
@@ -20,7 +23,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-class PurchaseCatalogTest extends BaseUnitTest {
+class PurchaseCatalogIT extends BaseUnitTest {
 
     @Autowired
     private IPurchaseRepository purchaseRepository;
@@ -48,7 +51,7 @@ class PurchaseCatalogTest extends BaseUnitTest {
     public void setUp() {
         entityManager.clear();
         assertNotNull(purchaseRepository);
-        purchaseCatalog = new PurchaseCatalog(purchaseRepository, customerCatalog, partnerCatalog);
+        purchaseCatalog = new PurchaseCatalog(purchaseRepository, customerCatalog, partnerCatalog, entityManager);
         allGoodPurchases = new ArrayList<>();
 
         customer = new Customer(new CustomerSubscribeDTO("test@example.com", "Alice", "Bob", "14 rue du trottoir, Draguignan"), "51");
@@ -114,7 +117,7 @@ class PurchaseCatalogTest extends BaseUnitTest {
 
     @Test
     @Transactional
-    public void consumeNLastPurchaseOfCustomerWithBadPurchase() throws UnknownCustomerEmailException, UnknownPartnerIdException {
+    public void consumeNLastPurchaseOfCustomerWithBadPurchase() {
         // good partner, bad customer
         Cart cart3 = new Cart();
         cart3.setPartner(partner);
@@ -187,7 +190,7 @@ class PurchaseCatalogTest extends BaseUnitTest {
     @Transactional
     @Test
     public void testCreatePurchase() throws UnknownCustomerEmailException {
-        assertTrue(this.purchaseRepository.findById(this.purchaseCatalog.createPurchase(customer.getEmail(), 5L).getPurchaseId()).isPresent());
+        assertTrue(this.purchaseRepository.findById(this.purchaseCatalog.createPurchase(customer, 5L).getPurchaseId()).isPresent());
     }
 
     @Transactional

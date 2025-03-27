@@ -2,8 +2,11 @@ package fr.univcotedazur.teamj.kiwicard.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.univcotedazur.teamj.kiwicard.BaseUnitTest;
+import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.CartItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.ErrorDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.NPurchasedMGiftedPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.TimedDiscountInPercentPerkDTO;
@@ -19,9 +22,11 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Set;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -101,14 +106,21 @@ class PerksControllerWebMvcTest extends BaseUnitTest {
 
     @Test
     void applyPerkOK() throws Exception {
-        when(perksService.addPerkToApply(1L, "client@example.com")).thenReturn(true);
+        when(perksService.addPerkToApply(1L, "client@example.com")).thenReturn(new CartDTO(3L,
+                new PartnerDTO(1L,"PerkStore", "20 place de l'avantage"),
+                Set.of(new CartItemDTO(3,null ,new ItemDTO(1L, "Chocolatine", 1.5))),
+                List.of(new NPurchasedMGiftedPerkDTO(1L, 3, new ItemDTO(1L, "Chocolatine", 1.5), 1))));
         PerksController.ApplyPerkRequest client = new PerksController.ApplyPerkRequest("client@example.com");
-        mockMvc.perform(post(PerksController.BASE_URI + "/1/apply")
+        MvcResult result = mockMvc.perform(post(PerksController.BASE_URI + "/1/apply")
                         .contentType(APPLICATION_JSON)
                         .content(OBJECT_MAPPER.writeValueAsString(client)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().string("true"));
+                .andReturn();
+        String jsonResult = result.getResponse().getContentAsString();
+        CartDTO cartDTO = OBJECT_MAPPER.readValue(jsonResult, CartDTO.class);
+        assertEquals(3L, cartDTO.cartId());
+        assertTrue(cartDTO.perksList().stream().anyMatch(p -> p.perkId() == 1L));
     }
 
     @Test

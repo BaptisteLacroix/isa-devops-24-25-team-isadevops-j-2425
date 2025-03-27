@@ -227,8 +227,7 @@ class PartnerCommandsTest {
         String customerEmail = "customer@example.com";
 
         commands.reserveTimeSlot(customerEmail, 1L,
-                LocalDateTime.now(),
-                LocalDateTime.now().plusHours(1), 1);
+                LocalDateTime.now(), 1);
 
         // Verify that the request was made to the correct endpoint
         RecordedRequest recordedRequest = mockWebServer.takeRequest();

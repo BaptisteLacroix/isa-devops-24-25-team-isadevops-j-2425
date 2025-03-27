@@ -32,6 +32,7 @@ public class Purchase {
     public Purchase(Payment payment, Cart cart) {
         this.payment = payment;
         this.cart = cart;
+        this.partner = cart.getPartner();
         this.alreadyConsumedInAPerk = false;
     }
 

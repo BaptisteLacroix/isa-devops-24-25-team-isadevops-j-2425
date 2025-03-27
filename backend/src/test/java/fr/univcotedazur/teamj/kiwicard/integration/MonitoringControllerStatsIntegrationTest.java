@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import fr.univcotedazur.teamj.kiwicard.DataUtils;
+import fr.univcotedazur.teamj.kiwicard.dto.ErrorDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Partner;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
@@ -22,7 +24,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 import static fr.univcotedazur.teamj.kiwicard.DateUtils.getLocalDateTimes;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -30,6 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 public class MonitoringControllerStatsIntegrationTest {
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private EntityManager entityManager;
@@ -120,14 +125,18 @@ public class MonitoringControllerStatsIntegrationTest {
         LocalDate day2 = LocalDate.of(2025, 4, 16);
         Duration duration = Duration.ofDays(2);
 
-        mockMvc.perform(get("/monitoring/stats/{partnerId}/compare-purchases", partner.getPartnerId())
+        MvcResult result = mockMvc.perform(get("/monitoring/stats/{partnerId}/compare-purchases", partner.getPartnerId())
                         .param("day1", day1.format(dateFormatter))
                         .param("day2", day2.format(dateFormatter))
                         .param("duration", duration.toString())
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("Duration is expected to be less than a day, got" + duration));
+                .andExpect(status().isForbidden())
+                .andExpect(content().contentType(APPLICATION_JSON))
+                .andReturn();
 
+        String jsonResult = result.getResponse().getContentAsString();
+        ErrorDTO errorDTOResult = OBJECT_MAPPER.readValue(jsonResult, ErrorDTO.class);
+        assertEquals("Duration is expected to be less than a day, got " + duration, errorDTOResult.errorMessage());
     }
 
     @Transactional
@@ -138,12 +147,17 @@ public class MonitoringControllerStatsIntegrationTest {
         LocalDate day2 = LocalDate.of(2025, 4, 16);
         Duration duration = Duration.ofHours(1);
 
-        mockMvc.perform(get("/monitoring/stats/{partnerId}/compare-purchases", partnerId)
+        MvcResult result = mockMvc.perform(get("/monitoring/stats/{partnerId}/compare-purchases", partnerId)
                         .param("day1", day1.format(dateFormatter))
                         .param("day2", day2.format(dateFormatter))
                         .param("duration", duration.toString())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string("Partner id : " + partnerId + "does not exist"));
+                .andExpect(content().contentType(APPLICATION_JSON))
+                .andReturn();
+
+        String jsonResult = result.getResponse().getContentAsString();
+        ErrorDTO errorDTOResult = OBJECT_MAPPER.readValue(jsonResult, ErrorDTO.class);
+        assertEquals("Partner with id " + partnerId + " not found", errorDTOResult.errorMessage());
     }
 }
