@@ -65,6 +65,8 @@ INSERT INTO public.customer (vfp, cart_id, address, card_number, email, first_na
 VALUES (false, 9, '5 rue des anonymes, St Laurent du Var', '1234567894', 'baptiste@tabarnak.fr', 'Baptiste', 'xxx');
 INSERT INTO public.customer (vfp, cart_id, address, card_number, email, first_name, surname)
 VALUES (false, 7, 'Place du capitole, Toulouse', '1234567895', 'roxane@princesse.fr', 'Roxane', 'Roxx');
+INSERT INTO public.customer (vfp, cart_id, address, card_number, email, first_name, surname)
+VALUES (true, 11, '6 rue des orthopésistes parce que Pierre nous fait mal aux Pieds avec ses cailloux, Gallet', '1234567896', 'pierre.cailloux@cafaismal.auxpieds', 'Pierre', 'Cailloux');
 
 --
 -- Data for Name: item; Type: TABLE DATA; Schema: public; Owner: postgresuser
