@@ -149,11 +149,9 @@ class CartControllerWebMvcTest extends BaseUnitTest {
         cartItemDTOS.remove(cartItemDTO);
         // Modified CartDTO with the updated set of items
         CartDTO modifiedCartDTO = new CartDTO(cartDTO.cartId(), cartDTO.partner(), cartItemDTOS, cartDTO.perksList());
-        when(modifier.removeItemFromCart(customerEmail, cartItemDTO)).thenReturn(modifiedCartDTO);
-        MvcResult result = mockMvc.perform(delete(CartController.CART_URI + "/" + customerEmail)
-                        .contentType(APPLICATION_JSON)
-                        .content(OBJECT_MAPPER.writeValueAsString(cartItemDTO)))
-                .andExpect(status().isCreated())
+        when(modifier.removeItemFromCart(customerEmail, 1L)).thenReturn(modifiedCartDTO);
+        MvcResult result = mockMvc.perform(delete(CartController.CART_URI + "/" + customerEmail + "/item/" + cartItemDTO.item().itemId()))
+                .andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_JSON))
                 .andReturn();
 
@@ -233,11 +231,9 @@ class CartControllerWebMvcTest extends BaseUnitTest {
 
     @Test
     void removeItemFromCartUnknownCustomer() throws Exception {
-        when(modifier.removeItemFromCart(customerEmail, cartItemDTO)).thenThrow(new UnknownCustomerEmailException(customerEmail));
+        when(modifier.removeItemFromCart(customerEmail, 1L)).thenThrow(new UnknownCustomerEmailException(customerEmail));
 
-        mockMvc.perform(delete(CartController.CART_URI + "/" + customerEmail)
-                        .contentType(APPLICATION_JSON)
-                        .content(OBJECT_MAPPER.writeValueAsString(cartItemDTO)))
+        mockMvc.perform(delete(CartController.CART_URI + "/" + customerEmail + "/item/" + cartItemDTO.item().itemId()))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(APPLICATION_JSON));
     }
