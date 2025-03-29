@@ -9,6 +9,7 @@ import fr.univcotedazur.teamj.kiwicard.dto.PartnerCreationDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import fr.univcotedazur.teamj.kiwicard.entities.Partner;
+import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.VfpDiscountInPercentPerk;
 import fr.univcotedazur.teamj.kiwicard.repositories.IPartnerRepository;
 import fr.univcotedazur.teamj.kiwicard.repositories.IPerkRepository;
@@ -253,7 +254,7 @@ class PartnerControllerIT extends BaseUnitTest {
                 .andExpect(content().contentType(APPLICATION_JSON));
     }
 
-    @Test
+    @Test()
     void listAllPerksFromPartnerOK() throws Exception {
         Partner partner = new Partner(chezJohnCreationDTO);
         VfpDiscountInPercentPerk perk1 = new VfpDiscountInPercentPerk(0.1, LocalTime.of(10, 0, 0), LocalTime.of(12, 0, 0));
@@ -264,16 +265,20 @@ class PartnerControllerIT extends BaseUnitTest {
         long partnerId = partner.getPartnerId();
 
 
+        AbstractPerk firstPerk = perk1.getPerkId() < perk2.getPerkId() ? perk1 : perk2;
+        AbstractPerk secondPerk = perk1.getPerkId() > perk2.getPerkId() ? perk1 : perk2;
+
+
         mockMvc.perform(get(PartnerController.BASE_URI + "/" + partnerId + "/perks")
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].perkId").value(perk1.getPerkId()))
-                .andExpect(jsonPath("$[0].description").value(perk1.toString()))
-                .andExpect(jsonPath("$[1].perkId").value(perk2.getPerkId()))
-                .andExpect(jsonPath("$[1].description").value(perk2.toString()));
+                .andExpect(jsonPath("$[0].perkId").value(firstPerk.getPerkId()))
+                .andExpect(jsonPath("$[0].description").value(firstPerk.toString()))
+                .andExpect(jsonPath("$[1].perkId").value(secondPerk.getPerkId()))
+                .andExpect(jsonPath("$[1].description").value(secondPerk.toString()));
     }
 
     @Test

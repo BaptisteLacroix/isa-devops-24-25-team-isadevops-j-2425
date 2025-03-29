@@ -4,26 +4,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.univcotedazur.teamj.kiwicard.cli.CliSession;
-import fr.univcotedazur.teamj.kiwicard.cli.model.CliPurchase;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliTwoDaysAggregation;
 import fr.univcotedazur.teamj.kiwicard.cli.model.error.CliError;
-import io.cucumber.core.internal.com.fasterxml.jackson.core.ObjectCodec;
-import org.apache.commons.io.output.TaggedWriter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.http.MediaType;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,7 +53,6 @@ public class StatsCommands {
         formatAggregation(aggs.getDay1Aggregation()) + "\n" +
         "purchases at : " + day2 + " : \n" +
         formatAggregation(aggs.getDay2Aggregation()) + "\n";
-
     }
 
     private String makeAggregRequest(String day1, String day2, String duration, String finalPartnerId) {
@@ -81,6 +72,27 @@ public class StatsCommands {
     }
 
     private String formatAggregation(Map<String, Integer> agg) {
-        return agg.toString();
+        return agg.entrySet().stream()
+                .map(entry-> entry.getKey() + " : " + entry.getValue())
+                .reduce((a, b)-> a + "\n" + b).orElseThrow();
+    }
+
+    @ShellMethod(key = "Aggregate Perks", value = "aggregate-perks")
+    public String aggregatePerks(@ShellOption String partnerId) throws JsonProcessingException {
+        partnerId = cliSession.tryInjectingPartnerId(partnerId);
+        if (partnerId == null) return "Erreur : ID de partenaire invalide.";
+
+        String finalPartnerId = partnerId;
+        String result =  webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/stats/{partnerId}/nb-perks-by-type")
+                        .build(finalPartnerId))
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(CliError.class)
+                        .flatMap(error -> Mono.error(new RuntimeException(error.errorMessage()))))
+                .bodyToMono(String.class)
+                .block();
+        HashMap<String, Integer> aggregation = objectMapper.readValue(result, new TypeReference<>() {});
+        return formatAggregation(aggregation);
     }
 }

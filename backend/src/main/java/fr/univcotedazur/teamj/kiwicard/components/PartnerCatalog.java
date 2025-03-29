@@ -6,6 +6,7 @@ import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import fr.univcotedazur.teamj.kiwicard.entities.Partner;
+import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPartnerManager;
@@ -18,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -85,7 +88,9 @@ public class PartnerCatalog implements IPartnerManager {
     public List<IPerkDTO> findAllPartnerPerks(long partnerId) throws UnknownPartnerIdException {
         return partnerRepository.findById(partnerId)
                 .map(Partner::getPerkSet)
-                .map(perks -> perks.stream().map(PerkMapper::toDTO).toList())
+                .map(perks -> new ArrayList<>(perks)
+                        .stream().sorted(Comparator.comparing(AbstractPerk::getPerkId))
+                        .map(PerkMapper::toDTO).toList())
                 .orElseThrow(() -> new UnknownPartnerIdException(partnerId));
     }
 }
