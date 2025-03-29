@@ -1,8 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.cli.commands;
 
 import fr.univcotedazur.teamj.kiwicard.cli.CliSession;
-import fr.univcotedazur.teamj.kiwicard.cli.model.CliCart;
-import fr.univcotedazur.teamj.kiwicard.cli.model.CliCartItemToSent;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliItem;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliPartner;
 import fr.univcotedazur.teamj.kiwicard.cli.model.CliPerk;
@@ -40,7 +38,6 @@ import static fr.univcotedazur.teamj.kiwicard.cli.constants.Constants.LOGGED_IN_
 public class PartnerCommands {
 
     public static final String BASE_URI = "/partners";
-    public static final String CART_BASE_URI = "/cart";
 
     private final WebClient webClient;
     private final CliSession cliSession;
@@ -152,113 +149,6 @@ public class PartnerCommands {
         return "Liste des réductions : \n" + perks.stream()
                 .map(CliPerk::toString)
                 .collect(Collectors.joining("\n"));
-    }
-
-    /**
-     * Adds an item to a customer's shopping cart.
-     * <p>
-     * Example usage:
-     * add-item-to-cart --customer-email <customerEmail> --itemId <itemId> --quantity <quantity>
-     *
-     * @param customerEmail The email of the customer to whom the cart belongs.
-     * @param itemId        The ID of the item to be added to the cart.
-     * @param quantity      The quantity of the item to be added to the cart.
-     */
-    @ShellMethod("""
-                Add an item to a customer's cart:
-                Usage: add-item-to-cart --customer-email <customerEmail> --item-id <itemId> --quantity <quantity>
-            
-                Parameters:
-                    --customer-email/-e  The email of the customer to whom the cart belongs.
-                    --item-id/-i         The ID of the item to be added to the cart.
-                    --quantity/-q        The quantity of the item to add to the cart.
-            
-                Example:
-                    add-item-to-cart --customer-email "customer@example.com" --item-id 123 --quantity 2
-            """)
-    public String addItemToCart(
-            @ShellOption(value = {"-e", "--customer-email"}, defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail,
-            @ShellOption(value = {"-i", "--item-id"}) Long itemId,
-            @ShellOption(value = {"-q", "--quantity"}) Integer quantity
-    ) {
-        customerEmail = cliSession.tryInjectingCustomerEmail(customerEmail);
-        if (customerEmail == null) return "Erreur : Veuillez vous connecter ou spécifier un email de client valide.";
-        checkQuantity(quantity);
-        CliCartItemToSent cartItemDTO = new CliCartItemToSent(quantity, null, itemId);
-        CliCart updatedCart = sendCartRequest(customerEmail, cartItemDTO);
-
-        if (updatedCart != null) {
-            System.out.println("Article ajouté au panier avec succès :");
-            return "" + updatedCart;
-        } else {
-            return "Erreur lors de l'ajout de l'article au panier.";
-        }
-    }
-
-    /**
-     * Reserves a time slot for a customer's cart.
-     * <p>
-     * Example usage:
-     * reserve-time-slot --customer-email <customerEmail> --start-time <startTime> --endTime <endTime> --quantity <quantity> --itemId <itemId>
-     *
-     * @param customerEmail The email of the customer to whom the cart belongs.
-     * @param startTime     The start time for the time slot.
-     * @param quantity      The quantity of the item to be added to the cart.
-     * @param itemId        The ID of the item to be added to the cart.
-     */
-    @ShellMethod("""
-                Reserve a time slot for a customer:
-                Usage: reserve-time-slot --customer-email <customerEmail> --start-time <startTime> --endTime <endTime> --quantity <quantity> --itemId <itemId>
-            
-                Parameters:
-                    --customer-email/-e  The email of the customer to whom the cart belongs.
-                    --start-time      The start time for the item in the cart.
-                    --quantity/-q        The quantity of the item to add to the cart.
-                    --item-id/-i      The ID of the item to be added to the cart.
-            
-                Example:
-                    reserve-time-slot --customer-email "customer@example.com" --start-time "2025-03-12T10:00:00" --quantity 2 --item-id 123
-            """)
-    public void reserveTimeSlot(
-            @ShellOption(value = {"-e", "--customer-email"}, defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail,
-            @ShellOption(value = {"-i", "--item-id"}) Long itemId,
-            LocalDateTime startTime,
-            @ShellOption(value = {"-q", "--quantity"}) Integer quantity
-    ) {
-        checkQuantity(quantity);
-        CliCartItemToSent cartItemDTO = new CliCartItemToSent(quantity, startTime, itemId);
-        CliCart updatedCart = sendCartRequest(customerEmail, cartItemDTO);
-
-        if (updatedCart != null) {
-            System.out.println("La réservation du créneau horaire a été effectuée avec succès:");
-            System.out.println(updatedCart);
-        } else {
-            System.out.println("Impossible de réserver le créneau horaire.");
-        }
-    }
-
-    private void checkQuantity(int quantity) {
-        if (quantity <= 0) {
-            throw new RuntimeException("Erreur: La quantité doit être supérieur ou égale à 0.");
-        }
-    }
-
-    /**
-     * Sends a request to update a customer's cart.
-     *
-     * @param customerEmail The email address of the customer whose cart is being updated.
-     * @param cartItemDTO   The details of the cart item being added or updated.
-     * @return The updated cart.
-     */
-    private CliCart sendCartRequest(String customerEmail, CliCartItemToSent cartItemDTO) {
-        return webClient.put()
-                .uri(CART_BASE_URI + "/" + customerEmail)
-                .bodyValue(cartItemDTO)
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(CliError.class)
-                        .flatMap(error -> Mono.error(new RuntimeException(error.errorMessage()))))
-                .bodyToMono(CliCart.class)
-                .block();
     }
 }
 
