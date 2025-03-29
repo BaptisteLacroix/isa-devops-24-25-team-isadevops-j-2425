@@ -96,6 +96,7 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
     }
 
     @Override
+    @Transactional
     public List<PurchaseHistoryDTO> findPurchasesByPartnerId(long partnerId) throws UnknownPartnerIdException {
         this.partnerManager.findPartnerById(partnerId);
         return this.purchaseRepository.findAllByPartner(partnerId).stream().map(PurchaseHistoryDTO::new).toList();
@@ -117,6 +118,7 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
     }
 
     @Override
+    @Transactional
     public List<PurchaseHistoryDTO> findPurchasesByPartnerId(long partnerId, int limit) throws UnknownPartnerIdException {
         this.partnerManager.findPartnerById(partnerId);
         return this.purchaseRepository.findAllByPartner(partnerId, limit).stream().map(PurchaseHistoryDTO::new).toList();

@@ -40,6 +40,7 @@ public class NPurchasedMGiftedPerk extends AbstractPerk {
         this.nbPurchased = perkDTO.nbPurchased();
         this.nbGifted = perkDTO.nbGifted();
         this.item = new Item(perkDTO.item());
+
     }
 
     @NotNull
@@ -69,7 +70,7 @@ public class NPurchasedMGiftedPerk extends AbstractPerk {
     }
 
     private boolean isEligibleForGift(CartItem cartItem) {
-        return cartItem.getQuantity() >= nbPurchased;
+        return cartItem != null && cartItem.getQuantity() >= nbPurchased;
     }
 
     @Override
@@ -91,6 +92,6 @@ public class NPurchasedMGiftedPerk extends AbstractPerk {
 
     @Override
     public String toString() {
-        return "Buy " + nbPurchased + " " + item.getLabel() + " and get " + nbGifted + " for free";
+        return "Acheter " + nbPurchased + " " + item.getLabel() + " pour en avoir " + nbGifted + " offert(s)";
     }
 }

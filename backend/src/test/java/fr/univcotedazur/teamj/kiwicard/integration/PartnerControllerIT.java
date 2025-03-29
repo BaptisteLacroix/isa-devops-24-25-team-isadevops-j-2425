@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.univcotedazur.teamj.kiwicard.BaseUnitTest;
 import fr.univcotedazur.teamj.kiwicard.controllers.PartnerController;
 import fr.univcotedazur.teamj.kiwicard.dto.ErrorDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.ItemCreationDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerCreationDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
@@ -57,6 +58,8 @@ class PartnerControllerIT extends BaseUnitTest {
     private PartnerCreationDTO chezPaulCreationDTO;
     private ItemDTO croissantDTO;
     private ItemDTO painAuChocolatDTO;
+    private ItemCreationDTO croissantCreationDTO;
+    private ItemCreationDTO painAuChocolatCreationDTO;
 
     @BeforeEach
     void setUp() {
@@ -64,6 +67,8 @@ class PartnerControllerIT extends BaseUnitTest {
         chezPaulCreationDTO = new PartnerCreationDTO("Chez Paul", "3 rue de la Paix");
         croissantDTO = new ItemDTO(1, "Croissant", 1.2);
         painAuChocolatDTO = new ItemDTO(2, "Pain au chocolat", 1.8);
+        croissantCreationDTO = new ItemCreationDTO("Croissant", 1.2);
+        painAuChocolatCreationDTO = new ItemCreationDTO("Pain au chocolat", 1.8);
     }
 
     @Test
@@ -139,7 +144,7 @@ class PartnerControllerIT extends BaseUnitTest {
 
         mockMvc.perform(patch(PartnerController.BASE_URI + "/" + partnerId + "/add-item")
                         .contentType(APPLICATION_JSON)
-                        .content(OBJECT_MAPPER.writeValueAsString(painAuChocolatDTO)))
+                        .content(OBJECT_MAPPER.writeValueAsString(painAuChocolatCreationDTO)))
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
@@ -169,7 +174,7 @@ class PartnerControllerIT extends BaseUnitTest {
     @Transactional
     void removeItemFromPartnerCatalogOK() throws Exception {
         Partner partner = new Partner(chezJohnCreationDTO);
-        Item item = new Item(croissantDTO);
+        Item item = new Item(croissantCreationDTO);
         partner.addItem(item);
         partnerRepository.save(partner);
         long partnerId = partner.getPartnerId();
@@ -201,7 +206,7 @@ class PartnerControllerIT extends BaseUnitTest {
     @Test
     void removeItemFromPartnerCatalogItemNotRemoved() throws Exception {
         Partner partner = new Partner(chezJohnCreationDTO);
-        Item item = new Item(croissantDTO);
+        Item item = new Item(croissantCreationDTO);
         partner.addItem(item);
         partnerRepository.save(partner);
         long partnerId = partner.getPartnerId();
@@ -222,9 +227,9 @@ class PartnerControllerIT extends BaseUnitTest {
     @Test
     void listAllItemsFromPartnerOK() throws Exception {
         Partner partner = new Partner(chezJohnCreationDTO);
-        Item croissant = new Item(croissantDTO);
+        Item croissant = new Item(croissantCreationDTO);
         partner.addItem(croissant);
-        Item chocolatine = new Item(painAuChocolatDTO);
+        Item chocolatine = new Item(painAuChocolatCreationDTO);
         partner.addItem(chocolatine);
         partnerRepository.save(partner);
         long partnerId = partner.getPartnerId();
