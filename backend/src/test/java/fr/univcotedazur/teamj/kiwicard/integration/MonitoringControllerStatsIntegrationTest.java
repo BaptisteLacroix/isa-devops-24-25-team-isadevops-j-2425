@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import fr.univcotedazur.teamj.kiwicard.PurchaseCreationUtils;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
-import fr.univcotedazur.teamj.kiwicard.DataUtils;
 import fr.univcotedazur.teamj.kiwicard.dto.ErrorDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Partner;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
