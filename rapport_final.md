@@ -28,8 +28,11 @@ Les réductions sont appliquées une fois que tous les articles ont été ajout�
 
 ### Intégration avec HappyKids
 
-Lors de l'appel au service externe HappyKids, un prix ainsi qu’un pourcentage de réduction lui sont transmis (
-exemple : `0.2` pour une réduction de `-20%`).
+Chaque réservation d'heure de garde HappyKids se fait par créneau d'une heure pleine. (exemple de 10h à 11h et non de
+10h30 à 11h30).
+
+De fait, pour simuler une heure de garde "gratuite", une réduction de 50% s'appliquera sur le créneau choisi. Par
+exemple pour une réservation de 10h à 12h, soit 2 heures, le montant sera de 50% du prix, soit une heure offerte.
 
 # 2 - Use case
 
@@ -135,6 +138,16 @@ public interface CustomerCartSaver {
 }
 ```
 
+## VfpStatus
+
+```java
+/**
+ * Permet de mettre à jour le statut VFP d'un client
+ */
+public interface VfpStatus {
+    void refreshVfpStatus();
+}
+```
 # Cart Handler
 
 ## Cart Modifier
@@ -236,6 +249,8 @@ public interface PerksConsumer {
 ```
 
 # Perks Catalog
+
+### Les 3 interfaces ci dessous sont regroupées dans une seule interface PerksManager.
 
 ## Perks Finder
 
@@ -435,7 +450,7 @@ marqué comme consommé dans un avantage.
     2. Retour positif de Bank Service → Bank Proxy → Cashier → Purchase Registry→ Purchase Repository
     3. Retour de Purchase Repository → Purchase Registry→ Cashier → Cart Handler → Cart Controller → CLI Application
 
-## 4. **Consulter un avantage par un client:**
+## 4. **Consulter un avantage par un client :**
 
     1. Perks Repository → Perks Registry→ Perks Controller → CLI Application
     2. CLI Application → Perks Controller → Perks Registry→ Perks Repository
