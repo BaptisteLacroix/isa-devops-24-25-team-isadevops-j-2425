@@ -84,10 +84,9 @@ public class PartnerCatalog implements IPartnerManager {
     @Transactional
     public List<IPerkDTO> findAllPartnerPerks(long partnerId) throws UnknownPartnerIdException {
         return partnerRepository.findById(partnerId)
-                .map(Partner::getPerkList)
+                .map(Partner::getPerkSet)
                 .map(perks -> perks.stream().map(PerkMapper::toDTO).toList())
                 .orElseThrow(() -> new UnknownPartnerIdException(partnerId));
     }
-
 }
 

@@ -28,6 +28,7 @@ import org.mockito.MockitoAnnotations;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -83,7 +84,7 @@ class PerksServiceTest {
 
         Partner partner = mock(Partner.class);
         when(partner.getPartnerId()).thenReturn(1L);
-        when(partner.getPerkList()).thenReturn(List.of(dummyPerk));
+        when(partner.getPerkSet()).thenReturn(Set.of(dummyPerk));
         when(partnerRepository.findById(anyLong())).thenReturn(Optional.of(partner));
 
         when(cart.getPartner()).thenReturn(partner);
@@ -139,7 +140,7 @@ class PerksServiceTest {
 
         AbstractPerk dummyPerk = new TimedDiscountInPercentPerk(LocalTime.now().minusMinutes(10), 20);
         AbstractPerk dummyPerk1 = new TimedDiscountInPercentPerk(LocalTime.now().plusMinutes(10), 20);
-        when(partner.getPerkList()).thenReturn(List.of(dummyPerk, dummyPerk1));
+        when(partner.getPerkSet()).thenReturn(Set.of(dummyPerk, dummyPerk1));
         List<IPerkDTO> result =
                 perksService.findConsumablePerksForConsumerAtPartner(email);
         assertEquals(1, result.size());

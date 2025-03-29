@@ -46,7 +46,7 @@ public class PerksService implements IPerksConsumer {
         if (cart == null) {
             throw new NoCartException(customer.getEmail());
         }
-        if (cart.getPartner().getPerkList().stream().map(AbstractPerk::getPerkId).noneMatch(id -> id.equals(perkId))) {
+        if (cart.getPartner().getPerkSet().stream().map(AbstractPerk::getPerkId).noneMatch(id -> id.equals(perkId))) {
             throw new UnknownPerkIdException(perkId);
         }
         if (perk.isConsumableFor(customer)) {
@@ -73,7 +73,7 @@ public class PerksService implements IPerksConsumer {
             throw new NoCartException(customer.getEmail());
         }
         Partner partner = cart.getPartner();
-        return partner.getPerkList()
+        return partner.getPerkSet()
                 .stream()
                 .filter(perk -> perk.isConsumableFor(customer))
                 .map(PerkMapper::toDTO)
