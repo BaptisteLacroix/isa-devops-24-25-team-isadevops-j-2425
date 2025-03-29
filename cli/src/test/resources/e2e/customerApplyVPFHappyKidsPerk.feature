@@ -1,6 +1,6 @@
 Feature: Un client réserve des créneaux horaires chez happy kids et applique le perks de vfp.
   Background: Initialize the database with simple data
-    Given a simple dataset
+    Given [Pierre HappyKids] a simple dataset
 
   Scenario: Un client réserve des créneaux horaires chez happy kids et applique le perks de vfp.
     Given le client Pierre Cailloux est connecté en tant que client VFP avec son email "pierre.cailloux@cafaismal.auxpieds"

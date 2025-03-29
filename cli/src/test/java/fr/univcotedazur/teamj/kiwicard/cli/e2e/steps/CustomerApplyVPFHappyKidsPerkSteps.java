@@ -46,7 +46,7 @@ public class CustomerApplyVPFHappyKidsPerkSteps {
         response = null;
     }
 
-    @Given("a simple dataset")
+    @Given("[Pierre HappyKids] a simple dataset")
     public void aSimpleDataset() throws SQLException {
         ScriptUtils.executeSqlScript(dataSource.getConnection(), new ClassPathResource("data/import.sql"));
     }
@@ -89,7 +89,6 @@ public class CustomerApplyVPFHappyKidsPerkSteps {
                     cliCustomer.email(),
                     Long.parseLong(arg0),
                     LocalDateTime.now().withHour(Integer.parseInt(arg1)),
-                    LocalDateTime.now().withHour(Integer.parseInt(arg1)).plusHours(Integer.parseInt(arg2)),
                     Integer.parseInt(arg2)
             );
         } catch (RuntimeException e) {
