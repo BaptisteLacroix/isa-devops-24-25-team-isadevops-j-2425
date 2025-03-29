@@ -35,6 +35,7 @@ public class Item {
 
     public Item(ItemDTO itemDTO) {
         this(itemDTO.label(), itemDTO.price());
+        this.itemId = itemDTO.itemId();
     }
 
     /**
