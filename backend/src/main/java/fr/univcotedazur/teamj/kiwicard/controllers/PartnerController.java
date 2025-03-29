@@ -1,5 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.controllers;
 
+import fr.univcotedazur.teamj.kiwicard.dto.ItemCreationDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerCreationDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
@@ -53,7 +54,7 @@ public class PartnerController {
     }
 
     @PatchMapping("/{partnerId}/add-item")
-    public ResponseEntity<Void> addItemToPartnerCatalog(@PathVariable long partnerId, @RequestBody ItemDTO itemDTO) throws UnknownPartnerIdException {
+    public ResponseEntity<Void> addItemToPartnerCatalog(@PathVariable long partnerId, @RequestBody ItemCreationDTO itemDTO) throws UnknownPartnerIdException {
         partnerManager.addItemToPartnerCatalog(partnerId, itemDTO);
         return ResponseEntity.noContent().build();
     }

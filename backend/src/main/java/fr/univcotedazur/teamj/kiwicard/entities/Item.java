@@ -2,6 +2,7 @@ package fr.univcotedazur.teamj.kiwicard.entities;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import fr.univcotedazur.teamj.kiwicard.dto.ItemCreationDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -36,6 +37,10 @@ public class Item {
     public Item(ItemDTO itemDTO) {
         this(itemDTO.label(), itemDTO.price());
         this.itemId = itemDTO.itemId();
+    }
+
+    public Item(ItemCreationDTO itemDTO) {
+        this(itemDTO.label(), itemDTO.price());
     }
 
     /**

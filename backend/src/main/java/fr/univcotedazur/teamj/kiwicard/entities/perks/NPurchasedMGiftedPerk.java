@@ -70,10 +70,7 @@ public class NPurchasedMGiftedPerk extends AbstractPerk {
     }
 
     private boolean isEligibleForGift(CartItem cartItem) {
-        if (cartItem == null) {
-            return false;
-        }
-        return cartItem.getQuantity() >= nbPurchased;
+        return cartItem != null && cartItem.getQuantity() >= nbPurchased;
     }
 
     @Override
