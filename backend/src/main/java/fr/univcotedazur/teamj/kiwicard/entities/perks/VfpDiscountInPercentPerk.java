@@ -14,6 +14,9 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalTime;
 import java.util.List;
 
+import static fr.univcotedazur.teamj.kiwicard.configurations.Constants.MAX_DISCOUNT_RATE_OF_A_PERK;
+import static fr.univcotedazur.teamj.kiwicard.configurations.Constants.MIN_DISCOUNT_RATE_OF_A_PERK;
+
 @Entity
 public class VfpDiscountInPercentPerk extends AbstractPerk {
     @Column
@@ -33,8 +36,8 @@ public class VfpDiscountInPercentPerk extends AbstractPerk {
     }
 
     public VfpDiscountInPercentPerk(double discountRate, LocalTime startHour, LocalTime endHour) {
-        while (discountRate > 1) {
-            discountRate = discountRate / 100;
+        if(discountRate > MAX_DISCOUNT_RATE_OF_A_PERK || discountRate < MIN_DISCOUNT_RATE_OF_A_PERK) {
+            throw new IllegalArgumentException("Discount rate must be between 0 and 100");
         }
         this.discountRate = discountRate;
         this.startHour = startHour;

@@ -3,6 +3,7 @@ package fr.univcotedazur.teamj.kiwicard.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.univcotedazur.teamj.kiwicard.BaseUnitTest;
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.CartInPurchaseDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CartItemAddDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CartItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
@@ -64,6 +65,8 @@ class CartControllerWebMvcTest extends BaseUnitTest {
     private CartItemAddDTO cartItemAddDTO;
     private String customerEmail = "test@customer.com";
     private Long partnerId = 1L;
+    private PartnerDTO partnerDTO;
+
 
     @BeforeEach
     void setUp() {
@@ -76,7 +79,7 @@ class CartControllerWebMvcTest extends BaseUnitTest {
         cartItemAddDTO = new CartItemAddDTO(2, null, item.getItemId());
 
         // Updated CartDTO initialization with PartnerDTO and IPerkDTO List
-        PartnerDTO partnerDTO = new PartnerDTO(partnerId, "Partner Name", "Partner Address");
+        partnerDTO = new PartnerDTO(partnerId, "Partner Name", "Partner Address");
         cartDTO = new CartDTO(100L, partnerDTO, Set.of(cartItemDTO), List.of());
     }
 
@@ -163,8 +166,9 @@ class CartControllerWebMvcTest extends BaseUnitTest {
 
     @Test
     void validateCart_shouldReturnCreated_whenCartIsValid() throws Exception {
+        CartInPurchaseDTO cartInPurchaseDTO = new CartInPurchaseDTO(100L, partnerDTO, Set.of(cartItemDTO), List.of());
         // Given
-        PurchaseDTO purchaseDTO = new PurchaseDTO(customerEmail, cartDTO, new PaymentDTO(
+        PurchaseDTO purchaseDTO = new PurchaseDTO(customerEmail, cartInPurchaseDTO, new PaymentDTO(
                 "1234-5678-9012-3456",
                 23.0,
                 true

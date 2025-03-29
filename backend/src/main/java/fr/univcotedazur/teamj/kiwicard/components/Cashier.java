@@ -4,7 +4,6 @@ import fr.univcotedazur.teamj.kiwicard.connectors.BankProxy;
 import fr.univcotedazur.teamj.kiwicard.connectors.externaldto.PaymentRequestDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PaymentDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PaymentResponseDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Cart;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
@@ -15,13 +14,13 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.IHappyKids;
 import fr.univcotedazur.teamj.kiwicard.interfaces.IPayment;
-import fr.univcotedazur.teamj.kiwicard.mappers.PerkMapper;
+import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseCreator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
+
+import static fr.univcotedazur.teamj.kiwicard.configurations.Constants.MAX_DISCOUNT_RATE_OF_A_CART;
 
 /**
  * The {@code Cashier} class is responsible for handling the payment process of a customer.
@@ -33,6 +32,7 @@ public class Cashier implements IPayment {
 
     private final BankProxy bankProxy;
     private final IHappyKids happyKidsProxy;
+    private final IPurchaseCreator purchaseCreator;
 
     /**
      * Constructs a {@code Cashier} instance with the specified {@link BankProxy} and {@link IHappyKids} dependencies.
@@ -41,9 +41,10 @@ public class Cashier implements IPayment {
      * @param happyKidsProxy The proxy that handles interactions with the HappyKids service.
      */
     @Autowired
-    public Cashier(BankProxy bankProxy, IHappyKids happyKidsProxy) {
+    public Cashier(BankProxy bankProxy, IHappyKids happyKidsProxy, IPurchaseCreator purchaseCreator) {
         this.bankProxy = bankProxy;
         this.happyKidsProxy = happyKidsProxy;
+        this.purchaseCreator = purchaseCreator;
     }
 
     /**
@@ -61,10 +62,12 @@ public class Cashier implements IPayment {
      */
     @Override
     public PaymentDTO makePay(Customer customer) throws UnreachableExternalServiceException, ClosedTimeException, BookingTimeNotSetException {
-        PaymentResponseDTO paymentResponseDTO = computePrice(customer);
+        PaymentResponseDTO paymentResponseDTO = computePurchaseTotalPrice(customer);
         // Prepare the payment request and process it via the bank proxy
         PaymentRequestDTO paymentRequestDTO = new PaymentRequestDTO(customer.getCardNumber(), paymentResponseDTO.totalPrice());
-        return bankProxy.askPayment(paymentRequestDTO);
+        PaymentDTO paymentDTO = bankProxy.askPayment(paymentRequestDTO);
+        purchaseCreator.createPurchase(customer, paymentResponseDTO.totalPrice());
+        return paymentDTO;
     }
 
     /**
@@ -76,15 +79,15 @@ public class Cashier implements IPayment {
      * @throws UnreachableExternalServiceException If an external service is unreachable during the computation.
      * @throws BookingTimeNotSetException If the booking time is not set for the customer.
      */
-    PaymentResponseDTO computePrice(Customer customer) throws ClosedTimeException, UnreachableExternalServiceException, BookingTimeNotSetException {
+    PaymentResponseDTO computePurchaseTotalPrice(Customer customer) throws ClosedTimeException, UnreachableExternalServiceException, BookingTimeNotSetException {
         Cart cart = customer.getCart();
         // Apply perks to the customer
         applyPerksToCart(cart, customer);
         // Calculate the total price after applying discounts
-        double percentage = cart.getTotalPercentageReduction();
+        double percentage = Math.min(cart.getTotalPercentageReduction(),MAX_DISCOUNT_RATE_OF_A_CART);
         double totalPriceWithoutReduction = cart.getTotalPrice();
         // Recalculate the total price after applying discounts
-        double totalPrice = totalPriceWithoutReduction - (totalPriceWithoutReduction * percentage);
+        double totalPrice = totalPriceWithoutReduction - (totalPriceWithoutReduction * (percentage/100));
         return new PaymentResponseDTO(totalPrice);
     }
 
@@ -93,7 +96,6 @@ public class Cashier implements IPayment {
      *
      * @param cart The cart to which the perks are applied.
      * @param customer The customer whose cart is being processed.
-     * @return A list of successfully applied perks as {@link IPerkDTO}.
      */
     private void applyPerksToCart(Cart cart, Customer customer) throws BookingTimeNotSetException, ClosedTimeException, UnreachableExternalServiceException {
         PerkApplicationVisitor visitor = new PerkApplicationVisitorImpl(happyKidsProxy);
