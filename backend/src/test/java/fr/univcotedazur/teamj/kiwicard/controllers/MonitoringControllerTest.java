@@ -7,6 +7,7 @@ import fr.univcotedazur.teamj.kiwicard.entities.Purchase;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPurchaseIdException;
+import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPerkManager;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseStats;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,8 +34,12 @@ public class MonitoringControllerTest extends BaseUnitTest {
     public IPurchaseFinder purchaseCatalog;
 
     @MockitoBean
-    public IPurchaseStats stats; // unused mock to avoid spring error
+    public IPerkManager perkManager; // unused mock to avoid spring autowiring error
 
+    @MockitoBean
+    public IPurchaseStats stats; // unused mock to avoid spring autowiring error
+
+    
     @BeforeEach
     public void setup() {
         var mockPurchase = new Purchase(mock(Payment.class), mock(Cart.class));

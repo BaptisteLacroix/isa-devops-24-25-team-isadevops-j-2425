@@ -175,7 +175,7 @@ public class MonitoringControllerStatsIntegrationTest {
     @Transactional
     @Test
     void testComparePurchasesBadPartnerId() throws Exception {
-        long partnerId = partner.getPartnerId() +1; // bad id
+        long partnerId = partner.getPartnerId() +154; // bad id
         LocalDate day1 = LocalDate.of(2025, 3, 16);
         LocalDate day2 = LocalDate.of(2025, 4, 16);
         Duration duration = Duration.ofHours(1);

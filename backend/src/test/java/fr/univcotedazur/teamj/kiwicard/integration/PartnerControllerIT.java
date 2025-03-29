@@ -263,6 +263,7 @@ class PartnerControllerIT extends BaseUnitTest {
         partnerRepository.save(partner);
         long partnerId = partner.getPartnerId();
 
+
         mockMvc.perform(get(PartnerController.BASE_URI + "/" + partnerId + "/perks")
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
