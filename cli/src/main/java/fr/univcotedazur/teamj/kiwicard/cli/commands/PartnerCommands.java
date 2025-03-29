@@ -109,21 +109,23 @@ public class PartnerCommands {
      * Consults the perks of a partner based on the partner's ID.
      * <p>
      * Example usage:
-     * consult-partner-perks --partnerId <partnerId>
+     * consult-partner-perks --partner-id <partnerId>
      *
      * @param partnerId The ID of the partner whose perks are to be consulted.
      */
     @ShellMethod("""
                 Consult the perks of a partner:
-                Usage: consult-partner-perks --partnerId <partnerId>
+                Usage: consult-partner-perks --partner-id <partner-id>
             
                 Parameters:
-                    --partnerId  The ID of the partner whose perks you want to consult.
+                    --partner-id/-p  The ID of the partner whose perks you want to consult.
             
                 Example:
-                    consult-partner-perks --partnerId "12345"
+                    consult-partner-perks --partner-id "12345"
             """)
-    public void consultPartnerPerks(String partnerId) {
+    public String consultPartnerPerks(@ShellOption(value = {"-p", "--partner-id"}, defaultValue = LOGGED_IN_ID_PLACEHOLDER) String partnerId) {
+        partnerId = cliSession.tryInjectingPartnerId(partnerId);
+        if (partnerId == null) return "Erreur : ID de partenaire invalide.";
         List<CliPerk> perksList = webClient.get()
                 .uri(BASE_URI + "/" + partnerId + "/perks")
                 .retrieve()
@@ -133,10 +135,9 @@ public class PartnerCommands {
                 .collectList()
                 .block();
         if (perksList == null) {
-            System.out.println("Pas d'avantages disponibles pour ce partenaire.");
-            return;
+            return "Pas d'avantages disponibles pour ce partenaire.";
         }
-        printPerks(perksList);
+        return printPerks(perksList);
     }
 
     /**
@@ -144,20 +145,20 @@ public class PartnerCommands {
      *
      * @param perks A list of perks to be displayed.
      */
-    private void printPerks(List<CliPerk> perks) {
+    private String printPerks(List<CliPerk> perks) {
         if (perks.isEmpty()) {
-            System.out.println("Pas d'avantages disponibles pour ce partenaire.");
-            return;
+            return "Pas d'avantages disponibles pour ce partenaire.";
         }
-        System.out.println("Liste des réductions : \n");
-        perks.forEach(System.out::println);
+        return "Liste des réductions : \n" + perks.stream()
+                .map(CliPerk::toString)
+                .collect(Collectors.joining("\n"));
     }
 
     /**
      * Adds an item to a customer's shopping cart.
      * <p>
      * Example usage:
-     * add-item-to-cart --customerEmail <customerEmail> --itemId <itemId> --quantity <quantity>
+     * add-item-to-cart --customer-email <customerEmail> --itemId <itemId> --quantity <quantity>
      *
      * @param customerEmail The email of the customer to whom the cart belongs.
      * @param itemId        The ID of the item to be added to the cart.
@@ -165,30 +166,32 @@ public class PartnerCommands {
      */
     @ShellMethod("""
                 Add an item to a customer's cart:
-                Usage: add-item-to-cart --customerEmail <customerEmail> --itemId <itemId> --quantity <quantity>
+                Usage: add-item-to-cart --customer-email <customerEmail> --item-id <itemId> --quantity <quantity>
             
                 Parameters:
-                    --customerEmail  The email of the customer to whom the cart belongs.
-                    --itemId         The ID of the item to be added to the cart.
-                    --quantity       The quantity of the item to add to the cart.
+                    --customer-email/-e  The email of the customer to whom the cart belongs.
+                    --item-id/-i         The ID of the item to be added to the cart.
+                    --quantity/-q        The quantity of the item to add to the cart.
             
                 Example:
-                    add-item-to-cart --customerEmail "customer@example.com" --itemId 123 --quantity 2
+                    add-item-to-cart --customer-email "customer@example.com" --item-id 123 --quantity 2
             """)
-    public void addItemToCart(
-            String customerEmail,
-            Long itemId,
-            Integer quantity
+    public String addItemToCart(
+            @ShellOption(value = {"-e", "--customer-email"}, defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail,
+            @ShellOption(value = {"-i", "--item-id"}) Long itemId,
+            @ShellOption(value = {"-q", "--quantity"}) Integer quantity
     ) {
+        customerEmail = cliSession.tryInjectingCustomerEmail(customerEmail);
+        if (customerEmail == null) return "Erreur : Veuillez vous connecter ou spécifier un email de client valide.";
         checkQuantity(quantity);
         CliCartItemToSent cartItemDTO = new CliCartItemToSent(quantity, null, itemId);
         CliCart updatedCart = sendCartRequest(customerEmail, cartItemDTO);
 
         if (updatedCart != null) {
             System.out.println("Article ajouté au panier avec succès :");
-            System.out.println(updatedCart);
+            return "" + updatedCart;
         } else {
-            System.out.println("Erreur lors de l'ajout de l'article au panier.");
+            return "Erreur lors de l'ajout de l'article au panier.";
         }
     }
 
@@ -196,34 +199,31 @@ public class PartnerCommands {
      * Reserves a time slot for a customer's cart.
      * <p>
      * Example usage:
-     * reserve-time-slot --customerEmail <customerEmail> --startTime <startTime> --endTime <endTime> --quantity <quantity> --itemId <itemId>
+     * reserve-time-slot --customer-email <customerEmail> --start-time <startTime> --endTime <endTime> --quantity <quantity> --itemId <itemId>
      *
      * @param customerEmail The email of the customer to whom the cart belongs.
      * @param startTime     The start time for the time slot.
-     * @param endTime       The end time for the time slot.
      * @param quantity      The quantity of the item to be added to the cart.
      * @param itemId        The ID of the item to be added to the cart.
      */
     @ShellMethod("""
                 Reserve a time slot for a customer:
-                Usage: reserve-time-slot --customerEmail <customerEmail> --startTime <startTime> --endTime <endTime> --quantity <quantity> --itemId <itemId>
+                Usage: reserve-time-slot --customer-email <customerEmail> --start-time <startTime> --endTime <endTime> --quantity <quantity> --itemId <itemId>
             
                 Parameters:
-                    --customerEmail  The email of the customer to whom the cart belongs.
-                    --startTime      The start time for the item in the cart.
-                    --endTime        The end time for the item in the cart.
-                    --quantity       The quantity of the item to add to the cart.
-                    --itemId         The ID of the item to be added to the cart.
+                    --customer-email/-e  The email of the customer to whom the cart belongs.
+                    --start-time      The start time for the item in the cart.
+                    --quantity/-q        The quantity of the item to add to the cart.
+                    --item-id/-i      The ID of the item to be added to the cart.
             
                 Example:
-                    reserve-time-slot --customerEmail "customer@example.com" --startTime "2025-03-12T10:00:00" --endTime "2025-03-12T18:00:00" --quantity 2 --itemId 123
+                    reserve-time-slot --customer-email "customer@example.com" --start-time "2025-03-12T10:00:00" --quantity 2 --item-id 123
             """)
     public void reserveTimeSlot(
-            String customerEmail,
-            Long itemId,
+            @ShellOption(value = {"-e", "--customer-email"}, defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail,
+            @ShellOption(value = {"-i", "--item-id"}) Long itemId,
             LocalDateTime startTime,
-            LocalDateTime endTime,
-            Integer quantity
+            @ShellOption(value = {"-q", "--quantity"}) Integer quantity
     ) {
         checkQuantity(quantity);
         CliCartItemToSent cartItemDTO = new CliCartItemToSent(quantity, startTime, itemId);

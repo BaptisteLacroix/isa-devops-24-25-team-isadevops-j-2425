@@ -72,6 +72,12 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
 
     @Override
     @Transactional
+    public CustomerDTO findCustomerDTOByEmail(String customerEmail) throws UnknownCustomerEmailException {
+        return new CustomerDTO(findCustomerByEmail(customerEmail));
+    }
+
+    @Override
+    @Transactional
     public CustomerDTO findCustomerByCardNum(String cardNumber) throws UnknownCardNumberException {
         Customer customer = customerRepository.findByCardNumber(cardNumber).orElse(null);
         if (customer == null) {
@@ -115,7 +121,8 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
      * @throws UnknownCustomerEmailException si l'adresse email n'est pas reconnue
      */
     @Override
-    public Customer emptyCart(String customerEmail) throws UnknownCustomerEmailException {
+    @Transactional
+    public Customer resetCart(String customerEmail) throws UnknownCustomerEmailException {
         Customer customer = customerRepository.findByEmail(customerEmail).orElse(null);
         if (customer == null) {
             throw new UnknownCustomerEmailException(customerEmail);

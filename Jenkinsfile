@@ -4,11 +4,32 @@ pipeline {
         jfrog 'jfrog-cli'
     }
     stages {
+        stage('Initialisation') {
+            steps {
+                script {
+                    env.BUILD_DATE = new Date().format('yyMMdd-HHmm')
+                    // Définition d'une closure pour factoriser la logique de push vers Jfrog
+                    jfrogPush = { projectDir, projectPrefix, repository ->
+                        dir(projectDir) {
+                            echo "📦 Building the ${projectDir} project for Jfrog push!"
+                            sh 'mvn -B install -DskipTests'
+                            def date = env.BUILD_DATE
+                            def fileName = (env.GIT_BRANCH == 'main') ?
+                                "${projectPrefix}-${date}.jar" : "${projectPrefix}-${date}-SNAPSHOT.jar"
+                            def folderName = (env.GIT_BRANCH == 'main') ?
+                                "release/${date}" : "snapshot/${date}"
+                            echo "📤 Publishing the ${projectDir} project to jfrog folder ${folderName} as ${fileName}"
+                            jf "rt u *.jar ${repository}/${folderName}/${fileName}"
+                        }
+                    }
+                }
+            }
+        }
         stage('[BE] Build') {
             steps {
                 dir('backend') {
                     echo '🛠️ Pipeline is building the backend project !'
-                    sh 'mvn clean compile'
+                    sh 'mvn -B clean compile'
                 }
             }
         }
@@ -16,7 +37,7 @@ pipeline {
             steps {
                 dir('cli') {
                     echo '🛠️ Pipeline is building the CLI project !'
-                    sh 'mvn clean compile'
+                    sh 'mvn -B clean compile'
                 }
             }
         }
@@ -24,7 +45,7 @@ pipeline {
             steps {
                 dir('backend') {
                     echo '🧪 Pipeline is launching backend unit tests !'
-                    sh 'mvn test'
+                    sh 'mvn -B test'
                 }
             }
         }
@@ -32,7 +53,7 @@ pipeline {
             steps {
                 dir('cli') {
                     echo '🧪 Pipeline is launching cli unit tests !'
-                    sh 'mvn test'
+                    sh 'mvn -B test'
                 }
             }
         }
@@ -61,12 +82,12 @@ pipeline {
             steps {
                 dir('cli') {
                     withSonarQubeEnv("KiwiCardSonar") {
-                        sh "mvn verify sonar:sonar -Dsonar.projectKey=KiwiCardCLI -Dsonar.projectName='KiwiCardCLI' -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml,target/site/jacoco-it/jacoco.xml -Dsonar.junit.reportsPaths=target/surefire-reports,target/failsafe-reports"
+                        sh "mvn -B verify sonar:sonar -Dsonar.projectKey=KiwiCardCLI -Dsonar.projectName='KiwiCardCLI' -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml,target/site/jacoco-it/jacoco.xml -Dsonar.junit.reportsPaths=target/surefire-reports,target/failsafe-reports"
                     }
                 }
                 dir('backend') {
                     withSonarQubeEnv("KiwiCardSonar") {
-                        sh "mvn verify sonar:sonar -Dsonar.projectKey=KiwiCard -Dsonar.projectName='KiwiCard' -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml,target/site/jacoco-it/jacoco.xml -Dsonar.junit.reportsPaths=target/surefire-reports,target/failsafe-reports"
+                        sh "mvn -B verify sonar:sonar -Dsonar.projectKey=KiwiCard -Dsonar.projectName='KiwiCard' -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml,target/site/jacoco-it/jacoco.xml -Dsonar.junit.reportsPaths=target/surefire-reports,target/failsafe-reports"
                     }
                 }
             }
@@ -79,24 +100,8 @@ pipeline {
                 }
             }
             steps {
-                dir('backend') {
-                    script {
-                        echo '📦 Building the backend project !'
-                        sh 'mvn install -DskipTests'
-                        def folderName
-                        def fileName = 'kiwi-card-be'
-                        if (env.GIT_BRANCH == 'main') {
-                            def date = new Date().format('yyMMdd-HHmm')
-                            fileName = fileName + "-${date}.jar"
-                            folderName = "release/${date}"
-                        }else {
-                            def date = new Date().format('yyMMdd-HHmm')
-                            fileName = fileName + "-${date}-SNAPSHOT.jar"
-                            folderName = "snapshot/${date}"
-                        }
-                        echo "📤 Publishing the backend project to jfrog folder ${folderName} as ${fileName}"
-                        jf "rt u *.jar kiwi-card-be-generic-local/${folderName}/${fileName}"
-                    }
+                script {
+                    jfrogPush('backend', 'kiwi-card-be', 'kiwi-card-be-generic-local')
                 }
             }
         }
@@ -108,23 +113,66 @@ pipeline {
                 }
             }
             steps {
-                dir('cli') {
+                script {
+                    jfrogPush('cli', 'kiwi-card-cli', 'kiwi-card-cli-generic-local')
+                }
+            }
+        }
+        stage('[BE][CLI] Docker Push') {
+            when {
+                anyOf {
+                    branch 'dev'
+                    branch 'main'
+                }
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                     script {
-                        echo '📦 Building the cli project !'
-                        sh 'mvn install -DskipTests'
-                        def folderName
-                        def fileName = 'kiwi-card-cli'
-                        if (env.GIT_BRANCH == 'main') {
-                            def date = new Date().format('yyMMdd-HHmm')
-                            fileName = fileName + "-${date}.jar"
-                            folderName = "release/${date}"
-                        }else {
-                            def date = new Date().format('yyMMdd-HHmm')
-                            fileName = fileName + "-${date}-SNAPSHOT.jar"
-                            folderName = "snapshot/${date}"
+                        // Connexion à Docker Hub (effectuée une seule fois)
+                        sh "docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD"
+
+                        // Définition des informations spécifiques à chaque projet
+                        def projects = [
+                            backend: [
+                                artifactoryUrl: 'http://vmpx10.polytech.unice.fr:8011/artifactory/kiwi-card-be-generic-local',
+                                artifactPrefix: 'kiwi-card-be',
+                                imageName: 'teamj/kiwicard-spring-backend',
+                                dockerHubRepo: 'kiwicard-spring-backend'
+                            ],
+                            cli: [
+                                artifactoryUrl: 'http://vmpx10.polytech.unice.fr:8011/artifactory/kiwi-card-cli-generic-local',
+                                artifactPrefix: 'kiwi-card-cli',
+                                imageName: 'teamj/kiwicard-cli',
+                                dockerHubRepo: 'kiwicard-cli'
+                            ]
+                        ]
+
+                        // Boucle sur chaque projet (backend et cli)
+                        projects.each { project, data ->
+                            dir(project) {
+                                echo "📥 Téléchargement du JAR depuis Artifactory pour ${project}..."
+                                def date = env.BUILD_DATE
+                                def artifactoryFolder = (env.GIT_BRANCH == 'main') ? "release/${date}" : "snapshot/${date}"
+                                def fileSuffix = (env.GIT_BRANCH == 'main') ? "${date}" : "${date}-SNAPSHOT"
+                                def downloadUrl = "${data.artifactoryUrl}/${artifactoryFolder}/${data.artifactPrefix}-${fileSuffix}.jar"
+                                echo "Downloading ${project} JAR from ${downloadUrl}"
+                                withCredentials([usernamePassword(credentialsId: 'jfrog-creds', usernameVariable: 'JFROG_USER', passwordVariable: 'JFROG_PASSWORD')]) {
+                                    sh "curl -u $JFROG_USER:$JFROG_PASSWORD  -L -o app.jar '${downloadUrl}'"
+                                }
+
+                                echo "🐳 Construction de l'image Docker pour ${project} avec le tag ${fileSuffix}"
+                                sh "docker build -t ${data.imageName}:${fileSuffix} -f Dockerfile ."
+
+                                echo "📤 Push de l'image Docker ${project} sur Docker Hub avec le tag ${fileSuffix}"
+                                sh "docker tag ${data.imageName}:${fileSuffix} \$DOCKERHUB_USERNAME/${data.dockerHubRepo}:${fileSuffix}"
+                                sh "docker push \$DOCKERHUB_USERNAME/${data.dockerHubRepo}:${fileSuffix}"
+                                if (env.GIT_BRANCH == 'main') {
+                                    echo "📤 Push de l'image Docker ${project} avec le tag latest"
+                                    sh "docker tag ${data.imageName}:${fileSuffix} \$DOCKERHUB_USERNAME/${data.dockerHubRepo}:latest"
+                                    sh "docker push \$DOCKERHUB_USERNAME/${data.dockerHubRepo}:latest"
+                                }
+                            }
                         }
-                        echo "📤 Publishing the cli project to jfrog folder ${folderName} as ${fileName}"
-                        jf "rt u *.jar kiwi-card-cli-generic-local/${folderName}/${fileName}"
                     }
                 }
             }
