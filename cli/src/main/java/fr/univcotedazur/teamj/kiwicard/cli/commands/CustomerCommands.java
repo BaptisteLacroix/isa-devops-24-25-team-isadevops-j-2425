@@ -110,8 +110,7 @@ public class CustomerCommands {
         CliCart updatedCart = sendCartRequest(customerEmail, cartItemDTO);
 
         if (updatedCart != null) {
-            System.out.println("Article ajouté au panier avec succès :");
-            return "" + updatedCart;
+            return "Article ajouté au panier avec succès :\n" + updatedCart;
         } else {
             return "Erreur lors de l'ajout de l'article au panier.";
         }
