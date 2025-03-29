@@ -77,7 +77,7 @@ public class MonitoringControllerStatsIntegrationTest {
         // Perks
         var item = new Item("unused", 0);
         entityManager.persist(item);
-        VfpDiscountInPercentPerk perk1 = new VfpDiscountInPercentPerk(0.05, LocalTime.of(8, 0), LocalTime.of(12, 0));
+        VfpDiscountInPercentPerk perk1 = new VfpDiscountInPercentPerk(5, LocalTime.of(8, 0), LocalTime.of(12, 0));
         TimedDiscountInPercentPerk perk2 = new TimedDiscountInPercentPerk(LocalTime.now(), 20);
         NPurchasedMGiftedPerk perk3 = new NPurchasedMGiftedPerk(0, 0, item);
         entityManager.persist(perk1);
