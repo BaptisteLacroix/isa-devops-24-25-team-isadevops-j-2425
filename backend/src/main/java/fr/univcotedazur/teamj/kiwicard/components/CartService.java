@@ -10,6 +10,7 @@ import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import fr.univcotedazur.teamj.kiwicard.entities.Partner;
+import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyBookedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
@@ -33,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class CartService implements ICartModifier, ICartFinder {
@@ -103,6 +105,12 @@ public class CartService implements ICartModifier, ICartFinder {
         } else {
             doAddItemToCart(cartItemDTOToAdd, itemToAdd, customerCart);
         }
+
+        // Filter only discount perks and add them to cart
+        customerCart.getPartner().getPerkList().stream()
+                .filter(AbstractPerk::isDiscountPerk)
+                .toList()
+                .forEach(customerCart::addPerkToUse);
 
         // Update the customer's cart
         Customer updatedCustomer = customerCatalog.setCart(customer.getEmail(), customerCart);
@@ -201,8 +209,12 @@ public class CartService implements ICartModifier, ICartFinder {
         // Create the list of CartItem
         CartItem cartItem = new CartItem(item, cartItemDTO);
         Partner partner = partnerManager.findPartnerById(item.getPartner().getPartnerId());
+        // Filter only discount perks
+        List<AbstractPerk> discountPerks = partner.getPerkList().stream()
+                .filter(AbstractPerk::isDiscountPerk)
+                .toList();
         // Create the cart
-        Cart cart = new Cart(partner, Set.of(cartItem), new ArrayList<>());
+        Cart cart = new Cart(partner, Set.of(cartItem), discountPerks);
         customer = customerCatalog.setCart(customer.getEmail(), cart);
         return new CartDTO(customer.getCart());
     }

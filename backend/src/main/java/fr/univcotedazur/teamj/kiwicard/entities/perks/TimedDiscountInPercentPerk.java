@@ -43,6 +43,11 @@ public class TimedDiscountInPercentPerk extends AbstractPerk{
         this.discountRate = dto.discountRate();
     }
 
+    @Override
+    public boolean isDiscountPerk() {
+        return true;
+    }
+
     public @NotNull LocalTime getTime() {
         return time;
     }

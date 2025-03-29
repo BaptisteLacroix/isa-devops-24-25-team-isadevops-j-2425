@@ -49,6 +49,11 @@ public class VfpDiscountInPercentPerk extends AbstractPerk {
         this.setPerkId(dto.perkId());
     }
 
+    @Override
+    public boolean isDiscountPerk() {
+        return true;
+    }
+
     public double getDiscountRate() {
         return discountRate;
     }

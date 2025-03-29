@@ -8,6 +8,8 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.IHappyKids;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +19,8 @@ import java.util.List;
 
 @Component
 public class PerkApplicationVisitorImpl implements PerkApplicationVisitor {
+
+    private static final Logger logger = LoggerFactory.getLogger(PerkApplicationVisitorImpl.class);
 
     private final IHappyKids happyKidsProxy;
 
@@ -59,8 +63,12 @@ public class PerkApplicationVisitorImpl implements PerkApplicationVisitor {
 
             // If any hours fall within the perk interval, apply the discount
             if (hoursInPerkInterval > 0) {
+                logger.info("ITEM GET PRICE: {}", item.getPrice());
+                logger.info("HOURS IN PERK INTERVAL: {}", hoursInPerkInterval);
+                logger.info("PERK DISCOUNT RATE: {}", perk.getDiscountRate());
                 HappyKidsDiscountDTO discountDTO = happyKidsProxy.computeDiscount(item.getItemPrice() * hoursInPerkInterval, perk.getDiscountRate());
                 if (discountDTO != null) {
+                    logger.info("DISCOUNT: {}", discountDTO.price());
                     item.setPrice(discountDTO.price());
                 }
             }

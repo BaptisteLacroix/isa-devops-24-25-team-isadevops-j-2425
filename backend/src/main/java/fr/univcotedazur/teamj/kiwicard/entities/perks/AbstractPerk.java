@@ -36,6 +36,14 @@ public abstract class AbstractPerk {
     }
 
     /**
+     * Indicates whether this perk is a discount perk.
+     * Subclasses should override this method if they represent a discount perk.
+     */
+    public boolean isDiscountPerk() {
+        return false;
+    }
+
+    /**
      * Tente d’appliquer le perk sur le panier du client.
      * La méthode vérifie si les conditions sont remplies puis modifie le panier en conséquence.
      *
