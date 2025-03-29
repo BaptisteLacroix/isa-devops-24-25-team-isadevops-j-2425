@@ -74,8 +74,8 @@ public class PerksCatalog implements IPerkManager {
                 .countByTypeForPartner(partnerId);
         return entries.stream()
                 .collect(Collectors.toMap(
-                        PerkCountDTO::getPerkType,
-                        PerkCountDTO::getCount
+                        PerkCountDTO::perkType,
+                        PerkCountDTO::count
                 ));
     }
 }
