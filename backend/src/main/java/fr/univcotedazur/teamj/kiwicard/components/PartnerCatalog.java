@@ -1,6 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
-import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.ItemCreationDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerCreationDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
@@ -51,7 +51,7 @@ public class PartnerCatalog implements IPartnerManager {
 
     @Override
     @Transactional
-    public void addItemToPartnerCatalog(long partnerId, @NotNull ItemDTO itemDTO) throws UnknownPartnerIdException {
+    public void addItemToPartnerCatalog(long partnerId, @NotNull ItemCreationDTO itemDTO) throws UnknownPartnerIdException {
         Partner partner = partnerRepository.findById(partnerId).orElseThrow(() -> new UnknownPartnerIdException(partnerId));
 
         Item item = new Item(itemDTO);

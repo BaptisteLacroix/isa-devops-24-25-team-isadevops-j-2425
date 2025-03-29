@@ -3,6 +3,7 @@ package fr.univcotedazur.teamj.kiwicard.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.univcotedazur.teamj.kiwicard.BaseUnitTest;
 import fr.univcotedazur.teamj.kiwicard.dto.ErrorDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.ItemCreationDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerCreationDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
@@ -56,7 +57,7 @@ class PartnerControllerWebMvcTest extends BaseUnitTest {
     private PartnerDTO chezPaul;
     private Item painAuChocolat;
     private Item croissant;
-    private ItemDTO chocolatineDTO;
+    private ItemCreationDTO chocolatineDTO;
     private IPerkDTO perk1;
     private IPerkDTO perk2;
 
@@ -66,7 +67,7 @@ class PartnerControllerWebMvcTest extends BaseUnitTest {
         chezPaul = new PartnerDTO(2, "Chez Paul", "3 rue de la Paix");
         painAuChocolat = Item.createTestItem(1, "Pain au chocolat", 1.5);
         croissant = Item.createTestItem(2, "Croissant", 1.2);
-        chocolatineDTO = new ItemDTO(3, "Chocolatine", 1.8);
+        chocolatineDTO = new ItemCreationDTO("Chocolatine", 1.8);
         perk1 = new NPurchasedMGiftedPerkDTO(1L, 3, new ItemDTO(painAuChocolat), 1);
         perk2 = new TimedDiscountInPercentPerkDTO(2L, LocalTime.now(), 30);
     }
