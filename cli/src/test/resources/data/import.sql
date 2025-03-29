@@ -134,7 +134,7 @@ INSERT INTO public.vfp_discount_in_percent_perk (discount_rate, end_hour, start_
 VALUES (5, '12:00:00', '08:00:00', 1);
 -- Data for Name: npurchasedmgifted_perk; Type: TABLE DATA; Schema: public; Owner: postgresuser
 INSERT INTO public.npurchasedmgifted_perk (nb_gifted, nb_purchased, item_item_id, perk_id)
-VALUES (1, 5, 10, 3=4);
+VALUES (1, 5, 10, 4);
 --
 -- Data for Name: cart_item; Type: TABLE DATA; Schema: public; Owner: postgresuser
 --

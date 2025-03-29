@@ -13,7 +13,7 @@ Feature: Un partenaire fait des ventes et consulte son historique
 
     And the client "robert.chef@gmail.com" is registered with surname "Chef", firstname "Robert" and address "Nice"
     And the client adds item with id "10" and quantity 5 to the cart
-    And the client applies perk with id "3"
+    And the client applies perk with id "4"
     And the client pays the cart
 
 
@@ -24,7 +24,7 @@ Feature: Un partenaire fait des ventes et consulte son historique
 Historique du partenaire Boucherie :
 \tDate                 | Articles             | Total payé | Avantages
 \t----------------------------------------------------------------------------------------------------
-\tDATE_PLACEHOLDER   | 6 saucisse  7,20€    | 6,00€      | • 3 : Buy 5 saucisse and get 1 for free
+\tDATE_PLACEHOLDER   | 6 saucisse  7,20€    | 6,00€      | • 4 : Buy 5 saucisse and get 1 for free
 \t----------------------------------------------------------------------------------------------------
 \tDATE_PLACEHOLDER   | 1 jambon  1,50€      | 3,50€      |
 \t                     | 2 steak  2,00€       |            |
