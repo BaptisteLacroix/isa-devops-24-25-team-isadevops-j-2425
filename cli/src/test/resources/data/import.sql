@@ -118,7 +118,7 @@ VALUES (1.8, 20, 5, 'comte');
 -- -- Data for Name: abstract_perk; Type: TABLE DATA; Schema: public; Owner: postgresuser
 -- --
 INSERT INTO public.abstract_perk (partner_id, perk_id)
-VALUES (2, 1);
+VALUES (6, 1);
 INSERT INTO public.abstract_perk (partner_id, perk_id)
 VALUES (2, 2);
 -- Data for Name: timed_discount_in_percent_perk; Type: TABLE DATA; Schema: public; Owner: postgresuser
