@@ -26,6 +26,7 @@ public class MonitoringCommands {
 
     private static final String BASE_URI = "/monitoring";
     private final WebClient webClient;
+    private static final String SPLIT_LINE = "\t----------------------------------------------------------------------------------------------------\n";
 
     private final CliSession cliSession;
 
@@ -71,15 +72,15 @@ public class MonitoringCommands {
                 )
                 .bodyToFlux(CliHistoryPurchase.class)
                 .collectList()
-                .map(historyList -> formatPurchaseHistory(historyList, finalCustomerEmail)).block();
+                .map(historyList -> formatCustomerPurchaseHistory(historyList, finalCustomerEmail)).block();
     }
 
-    private static String formatPurchaseHistory(List<CliHistoryPurchase> historyList, String finalCustomerEmail) {
+    private static String formatCustomerPurchaseHistory(List<CliHistoryPurchase> historyList, String customerEmail) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Historique du client ").append(finalCustomerEmail).append(" :\n");
+        sb.append("Historique du client ").append(customerEmail).append(" :\n");
         String lineTemplate = "\t%-20s | %-20s | %-20s | %-10s | %-20s%n";
         sb.append(String.format(lineTemplate, "Date", "Commerçant", "Articles", "Total payé", "Avantages"));
-        sb.append("\t----------------------------------------------------------------------------------------------------\n");
+        sb.append(SPLIT_LINE);
         for (CliHistoryPurchase history : historyList) {
             CliHistoryCart cart = history.cartDTO();
             CliHistoryPayment payment = history.paymentDTO();
@@ -103,8 +104,84 @@ public class MonitoringCommands {
                             perkStr));
                 }
             }
-            sb.append("\t----------------------------------------------------------------------------------------------------\n");
+            sb.append(SPLIT_LINE);
         }
         return sb.toString();
     }
+
+    @ShellMethod("""
+            
+            Get partner history:
+                Usage: partner-history --partner-id <partner-id> --limit <limit>
+            
+                Parameters:
+                    --partner-id/-p   The ID of the partner. If not provided, the logged-in partner's ID will be used.
+                    --limit/-l        The maximum number of history records to retrieve. Optional.
+            
+                Example:
+                    partner-history --partner-id 12345 --limit 10
+            """)
+    public String partnerHistory(@ShellOption(value = {"-p", "--partner-id"}, defaultValue = LOGGED_IN_ID_PLACEHOLDER) String partnerId,
+                                 @ShellOption(value = {"-l", "--limit"}, defaultValue = "") String limit) {
+        partnerId = cliSession.tryInjectingPartnerId(partnerId);
+        if (partnerId == null)
+            return "Erreur : Veuillez vous connecter ou spécifier un identifiant de partenaire valide.";
+        try {
+            if (!limit.isEmpty()) Integer.parseInt(limit);
+        } catch (NumberFormatException e) {
+            return "Erreur : La limite spécifiée n'est pas un nombre valide.";
+        }
+        String finalPartnerId = partnerId;
+        return webClient.get()
+                .uri(uriBuilder -> {
+                    uriBuilder.path(BASE_URI + "/partner/" + finalPartnerId + "/history");
+                    if (!limit.isEmpty()) {
+                        uriBuilder.queryParam("limit", limit);
+                    }
+                    return uriBuilder.build();
+                })
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(CliError.class)
+                        .flatMap(error -> Mono.error(new KiwiCardQueryException(error.errorMessage())))
+                )
+                .bodyToFlux(CliHistoryPurchase.class)
+                .collectList()
+                .map(MonitoringCommands::formatPartnerPurchaseHistory).block();
+    }
+
+    private static String formatPartnerPurchaseHistory(List<CliHistoryPurchase> historyList) {
+        if (historyList.isEmpty()) return "Aucune ventes trouvée pour ce partenaire.";
+        StringBuilder sb = new StringBuilder();
+        String partnerName = historyList.getFirst().cartDTO().partner().name();
+        sb.append("Historique du partenaire ").append(partnerName).append(" :\n");
+        String lineTemplate = "\t%-20s | %-20s | %-10s | %-20s%n";
+        sb.append(String.format(lineTemplate, "Date", "Articles", "Total payé", "Avantages"));
+        sb.append(SPLIT_LINE);
+        for (CliHistoryPurchase history : historyList) {
+            CliHistoryCart cart = history.cartDTO();
+            CliHistoryPayment payment = history.paymentDTO();
+            int greatestList = Math.max(cart.items().size(), cart.perksList().size());
+            for (int i = 0; i < greatestList; i++) {
+                String itemStr = i < cart.items().size() ? cart.items().get(i).toString() : "";
+                String perkStr = i < cart.perksList().size() ? cart.perksList().get(i).toString() : "";
+                if (i == 0) {
+                    sb.append(String.format(lineTemplate,
+                            payment.timestamp().format(DateTimeFormatter.ofPattern("dd/MM/yyyy à HH:mm")),
+                            itemStr,
+                            String.format(Locale.FRANCE, "%,.2f€", payment.amount()),
+                            perkStr));
+                } else {
+                    sb.append(String.format(lineTemplate,
+                            "",
+                            itemStr,
+                            "",
+                            perkStr));
+                }
+            }
+            sb.append(SPLIT_LINE);
+        }
+        return sb.toString();
+    }
+
+
 }
