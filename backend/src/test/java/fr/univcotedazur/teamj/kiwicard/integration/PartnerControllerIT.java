@@ -258,7 +258,7 @@ class PartnerControllerIT extends BaseUnitTest {
                 .andExpect(content().contentType(APPLICATION_JSON));
     }
 
-    @Test()
+    @Test
     void listAllPerksFromPartnerOK() throws Exception {
         Partner partner = new Partner(chezJohnCreationDTO);
         VfpDiscountInPercentPerk perk1 = new VfpDiscountInPercentPerk(10, LocalTime.of(10, 0, 0), LocalTime.of(12, 0, 0));
