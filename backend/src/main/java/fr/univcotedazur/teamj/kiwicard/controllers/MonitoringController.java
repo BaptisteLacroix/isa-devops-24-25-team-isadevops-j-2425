@@ -1,13 +1,11 @@
 package fr.univcotedazur.teamj.kiwicard.controllers;
 
-import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
-import fr.univcotedazur.teamj.kiwicard.entities.Purchase;
 import fr.univcotedazur.teamj.kiwicard.dto.PurchaseHistoryDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ForbiddenDurationException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPurchaseIdException;
-import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPerkManager;
+import fr.univcotedazur.teamj.kiwicard.interfaces.perks.IPerksFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseStats;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +28,13 @@ import java.util.Optional;
 public class MonitoringController {
     public final IPurchaseFinder purchaseFinder;
     public final IPurchaseStats statisticMaker;
-    public final IPerkManager perkManager;
+    public final IPerksFinder perkFinder;
 
     @Autowired
-    public MonitoringController(IPurchaseFinder purchaseFinder, IPurchaseStats statisticMaker, IPerkManager perkManager) {
+    public MonitoringController(IPurchaseFinder purchaseFinder, IPurchaseStats statisticMaker, IPerksFinder perksFinder) {
         this.purchaseFinder = purchaseFinder;
         this.statisticMaker = statisticMaker;
-        this.perkManager = perkManager;
+        this.perkFinder = perksFinder;
     }
 
     @GetMapping("/purchase/{purchaseId}")
@@ -88,6 +86,6 @@ public class MonitoringController {
     public ResponseEntity<Map<String, Long>> aggregatePartnerPerksUsageByType(
             @PathVariable long partnerId
     ) throws UnknownPartnerIdException {
-        return ResponseEntity.ok(this.perkManager.aggregatePartnerPerksUsageByType(partnerId));
+        return ResponseEntity.ok(this.perkFinder.aggregatePartnerPerksUsageByType(partnerId));
     }
 }
