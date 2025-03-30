@@ -14,12 +14,13 @@
 
 ### Utilisation d'un avantage
 
-Le client peut demander à utiliser un avantage avant de procéder au paiement. La partenaire vérifie alors si l'avantage
+Le client peut demander à utiliser un avantage avant de procéder au paiement. Le système vérifie alors si l'avantage
 est applicable. Si tel est le cas, l'avantage est activé, puis le paiement peut être effectué.
 
 ### Carte Avantage
 
-Lors de l'enregistrement d'un client, une carte physique lui est envoyée à son domicile. Il n'existe pas de version
+Lors de l'enregistrement d'un client, une carte physique lui est envoyée à son domicile à l'aide du service externe
+Card Service. Il n'existe pas de version
 numérique de cette carte.
 
 ### Application des réductions
@@ -148,6 +149,7 @@ public interface VfpStatus {
     void refreshVfpStatus();
 }
 ```
+
 # Cart Handler
 
 ## Cart Modifier
