@@ -51,7 +51,7 @@ public class GlobalControllerAdvice {
 
     @ExceptionHandler({AlreadyUsedEmailException.class, AlreadyBookedTimeException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorDTO handleAlreadyUsedEmail(AlreadyUsedEmailException ex) {
+    public ErrorDTO handleConflictExceptions(AlreadyUsedEmailException ex) {
         return new ErrorDTO(ex.getMessage());
     }
 

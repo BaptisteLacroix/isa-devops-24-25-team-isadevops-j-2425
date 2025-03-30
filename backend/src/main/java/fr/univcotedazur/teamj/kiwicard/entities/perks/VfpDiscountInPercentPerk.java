@@ -86,16 +86,20 @@ public class VfpDiscountInPercentPerk extends AbstractPerk {
         if (customer.getCart() == null) {
             return false;
         }
+        if (!customer.isVfp()) {
+            return false;
+        }
         List<CartItem> hkItems = customer.getCart().getHKItems();
 
         for (CartItem item : hkItems) {
             if (item.getStartTime() == null) {
                 return false;
             }
-            int bookingHour = item.getStartTime().getHour();
-            if (customer.isVfp() && bookingHour >= startHour.getHour() && bookingHour < endHour.getHour()) {
-                return true;
+            LocalTime bookingTime = item.getStartTime().toLocalTime();
+            if (!startHour.isAfter(endHour)) { // same-day interval
+                return !bookingTime.isBefore(startHour) && bookingTime.isBefore(endHour);
             }
+            return !bookingTime.isBefore(startHour) || bookingTime.isBefore(endHour);
         }
         return false;
     }

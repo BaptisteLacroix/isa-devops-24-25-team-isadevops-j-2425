@@ -110,7 +110,7 @@ class CartServiceTest extends BaseUnitTest {
         when(cart.getCartId()).thenReturn(1L);
         when(cart.getPartner()).thenReturn(partner);
         when(cart.getItems()).thenReturn(new HashSet<>(List.of(cartItem)));
-        when(cart.getPerksToUse()).thenReturn(new ArrayList<>());
+        when(cart.getPerksToUse()).thenReturn(new HashSet<>());
 
         when(customer.getEmail()).thenReturn("customer@email.com");
         when(customer.getFirstName()).thenReturn("John");
@@ -232,7 +232,7 @@ class CartServiceTest extends BaseUnitTest {
         when(hkCartItem.getStartTime()).thenReturn(LocalDateTime.of(2025, 3, 15, 10, 0));
         when(hkCartItem.getItem()).thenReturn(happyKidsItem);
         when(hkCartItem.getPrice()).thenReturn(10.0);
-        Cart cartHKCartItem = spy(new Cart(partner, new HashSet<>(List.of(hkCartItem)), new ArrayList<>()));
+        Cart cartHKCartItem = spy(new Cart(partner, new HashSet<>(List.of(hkCartItem)), new HashSet<>()));
         when(cartHKCartItem.getCartId()).thenReturn(2L);
         when(customer.getCart()).thenReturn(cartHKCartItem);
 
@@ -258,7 +258,7 @@ class CartServiceTest extends BaseUnitTest {
         when(hkCartItem.getStartTime()).thenReturn(LocalDateTime.of(2025, 3, 15, 10, 0));
         when(hkCartItem.getItem()).thenReturn(happyKidsItem);
         when(hkCartItem.getPrice()).thenReturn(10.0);
-        Cart cartHKCartItem = spy(new Cart(partner, new HashSet<>(List.of(hkCartItem)), new ArrayList<>()));
+        Cart cartHKCartItem = spy(new Cart(partner, new HashSet<>(List.of(hkCartItem)), new HashSet<>()));
         when(cartHKCartItem.getCartId()).thenReturn(2L);
         when(customer.getCart()).thenReturn(cartHKCartItem);
 
@@ -284,7 +284,7 @@ class CartServiceTest extends BaseUnitTest {
         when(hkCartItem.getStartTime()).thenReturn(LocalDateTime.of(2025, 3, 15, 10, 0));
         when(hkCartItem.getItem()).thenReturn(happyKidsItem);
         when(hkCartItem.getPrice()).thenReturn(10.0);
-        Cart cartHKCartItem = spy(new Cart(partner, new HashSet<>(List.of(hkCartItem)), new ArrayList<>()));
+        Cart cartHKCartItem = spy(new Cart(partner, new HashSet<>(List.of(hkCartItem)), new HashSet<>()));
         when(cartHKCartItem.getCartId()).thenReturn(2L);
         when(customer.getCart()).thenReturn(cartHKCartItem);
 
@@ -310,7 +310,7 @@ class CartServiceTest extends BaseUnitTest {
         when(hkCartItem.getStartTime()).thenReturn(LocalDateTime.of(2025, 3, 15, 10, 0));
         when(hkCartItem.getItem()).thenReturn(happyKidsItem);
         when(hkCartItem.getPrice()).thenReturn(10.0);
-        Cart cartHKCartItem = spy(new Cart(partner, new HashSet<>(List.of(hkCartItem)), new ArrayList<>()));
+        Cart cartHKCartItem = spy(new Cart(partner, new HashSet<>(List.of(hkCartItem)), new HashSet<>()));
         when(cartHKCartItem.getCartId()).thenReturn(2L);
         when(customer.getCart()).thenReturn(cartHKCartItem);
 
@@ -361,7 +361,7 @@ class CartServiceTest extends BaseUnitTest {
         when(cart.getCartId()).thenReturn(1L);
         when(cart.getPartner()).thenReturn(partner);
         when(cart.getItems()).thenReturn(new HashSet<>(List.of(cartItem, cartItem2)));
-        when(cart.getPerksToUse()).thenReturn(new ArrayList<>());
+        when(cart.getPerksToUse()).thenReturn(new HashSet<>());
 
         when(customer.getCart()).thenReturn(cart);
 

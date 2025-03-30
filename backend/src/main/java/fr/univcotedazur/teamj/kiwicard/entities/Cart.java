@@ -39,7 +39,7 @@ public class Cart {
      */
     @ManyToMany
     @Column
-    private List<AbstractPerk> perksToUse = new ArrayList<>();
+    private Set<AbstractPerk> perksToUse = new HashSet<>();
 
     /**
      * The list of perks that have been applied to the cart
@@ -59,7 +59,7 @@ public class Cart {
         this.cartId = cartDTO.cartId();
     }
 
-    public Cart(Partner partner, Set<CartItem> itemList, List<AbstractPerk> perks) {
+    public Cart(Partner partner, Set<CartItem> itemList, Set<AbstractPerk> perks) {
         this.partner = partner;
         this.itemList = itemList;
         this.perksToUse = perks;
@@ -109,7 +109,7 @@ public class Cart {
         return this.itemList.isEmpty();
     }
 
-    public List<AbstractPerk> getPerksToUse() {
+    public Set<AbstractPerk> getPerksToUse() {
         return perksToUse;
     }
 

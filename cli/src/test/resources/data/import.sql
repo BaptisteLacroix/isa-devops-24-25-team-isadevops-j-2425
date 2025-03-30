@@ -123,6 +123,8 @@ INSERT INTO public.abstract_perk (partner_id, perk_id)
 VALUES (2, 2);
 INSERT INTO public.abstract_perk (partner_id, perk_id)
 VALUES (1, 3);
+INSERT INTO public.abstract_perk (partner_id, perk_id)
+VALUES (1, 2);
 -- Data for Name: timed_discount_in_percent_perk; Type: TABLE DATA; Schema: public; Owner: postgresuser
 INSERT INTO public.timed_discount_in_percent_perk (discount_rate, "time", perk_id)
 VALUES (20, now() - interval '1 hours', 2);

@@ -10,7 +10,6 @@ import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import fr.univcotedazur.teamj.kiwicard.entities.Partner;
-import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyBookedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
@@ -31,10 +30,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class CartService implements ICartModifier, ICartFinder {
@@ -108,7 +107,7 @@ public class CartService implements ICartModifier, ICartFinder {
 
         // Filter only discount perks and add them to cart
         customerCart.getPartner().getPerkList().stream()
-                .filter((perk) -> perk.isDiscountPerk() && perk.isConsumableFor(customer))
+                .filter(perk -> perk.isDiscountPerk() && perk.isConsumableFor(customer))
                 .toList()
                 .forEach(customerCart::addPerkToUse);
 
@@ -209,15 +208,18 @@ public class CartService implements ICartModifier, ICartFinder {
         // Create the list of CartItem
         CartItem cartItem = new CartItem(item, cartItemDTO);
         Partner partner = partnerManager.findPartnerById(item.getPartner().getPartnerId());
-        // Filter only discount perks
-        Customer finalCustomer = customer;
-        List<AbstractPerk> discountPerks = partner.getPerkList().stream()
-                .filter((perk) -> perk.isDiscountPerk() && perk.isConsumableFor(finalCustomer))
-                .toList();
         // Create the cart
-        Cart cart = new Cart(partner, Set.of(cartItem), discountPerks);
-        customer = customerCatalog.setCart(customer.getEmail(), cart);
-        return new CartDTO(customer.getCart());
+        Cart cart = new Cart(partner, Set.of(cartItem), new HashSet<>());
+
+        // Filter only discount perks and add them to cart
+        cart.getPartner().getPerkList().stream()
+                .filter(perk -> perk.isDiscountPerk() && perk.isConsumableFor(customer))
+                .toList()
+                .forEach(cart::addPerkToUse);
+
+        // Update the customer's cart
+        Customer updatedCustomer = customerCatalog.setCart(customer.getEmail(), cart);
+        return new CartDTO(updatedCustomer.getCart());
     }
 
 
@@ -266,7 +268,7 @@ public class CartService implements ICartModifier, ICartFinder {
         if (cart.getItems().isEmpty()) {
             customerCatalog.resetCart(cartOwnerEmail);
             return null;
-        }else{
+        } else {
             Customer updatedCustomer = customerCatalog.setCart(cartOwnerEmail, cart);
             return new CartDTO(updatedCustomer.getCart());
         }

@@ -99,7 +99,7 @@ class PerksServiceTest {
 
         CartDTO result = perksService.addPerkToApply(perkId, email);
         // Test avec assertEquals car le contains avec le perk implique un equals sur le perk et l'item, ce qui n'est pas possible avec un mock
-        assertEquals(1L, ((NPurchasedMGiftedPerk) cart.getPerksToUse().getFirst()).getItem().getItemId());
+        assertEquals(1L, ((NPurchasedMGiftedPerk) cart.getPerksToUse().iterator().next()).getItem().getItemId());
         assertEquals(new CartDTO(3L,
                     new PartnerDTO(1L,"PerkStore", "20 place de l'avantage"),
                     Set.of(new CartItemDTO(3,cartItem.getStartTime() ,new ItemDTO(1L, "Chocolatine", 1.5))),
