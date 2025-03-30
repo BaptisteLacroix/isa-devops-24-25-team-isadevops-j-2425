@@ -51,11 +51,13 @@ public class CustomerCommands {
             
                 Register a new client:
                 Usage: register-client --surname <surname> --firstname <firstname> --email <email> --address <address>
+            
                 Parameters:
                     --surname   The surname of the client.
                     --firstname The first name of the client.
                     --email     The email address of the client.
                     --address   The address of the client.
+            
                 Example:
                     register-client --surname "Doe" --firstname "John" --email "john.doe@example.com" --address "123 Main St, City, Country"
             """)
@@ -133,28 +135,29 @@ public class CustomerCommands {
             
                 Parameters:
                     --customer-email/-e  The email of the customer to whom the cart belongs.
-                    --start-time      The start time for the item in the cart.
+                    --start-time/-s      The start time for the item in the cart.
                     --quantity/-q        The quantity of the item to add to the cart.
                     --item-id/-i      The ID of the item to be added to the cart.
             
                 Example:
                     reserve-time-slot --customer-email "customer@example.com" --start-time "2025-03-12T10:00:00" --quantity 2 --item-id 123
             """)
-    public void reserveTimeSlot(
+    public String reserveTimeSlot(
             @ShellOption(value = {"-e", "--customer-email"}, defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail,
             @ShellOption(value = {"-i", "--item-id"}) Long itemId,
-            LocalDateTime startTime,
+            @ShellOption(value = {"-s", "--start-time"}) LocalDateTime startTime,
             @ShellOption(value = {"-q", "--quantity"}) Integer quantity
     ) {
+        customerEmail = cliSession.tryInjectingCustomerEmail(customerEmail);
+        if (customerEmail == null) return INVALID_EMAIL_MESSAGE;
         checkQuantity(quantity);
         CliCartItemToSent cartItemDTO = new CliCartItemToSent(quantity, startTime, itemId);
         CliCart updatedCart = sendCartRequest(customerEmail, cartItemDTO);
 
         if (updatedCart != null) {
-            System.out.println("La réservation du créneau horaire a été effectuée avec succès:");
-            System.out.println(updatedCart);
+            return "La réservation du créneau horaire a été effectuée avec succès :\n" + updatedCart;
         } else {
-            System.out.println("Impossible de réserver le créneau horaire.");
+            return "Impossible de réserver le créneau horaire.";
         }
     }
 
@@ -167,11 +170,13 @@ public class CustomerCommands {
     @ShellMethod("""
                 Remove an item from a customer's cart:
                 Usage: remove-item-from-cart --customerEmail <customerEmail> --itemId <itemId>
+
                 Parameters:
                     --customer-email/-e  The email of the customer whose cart will be updated.
                     --item-id/-i         The ID of the item to be removed from the cart.
+
                 Example:
-                    remove-item-from-cart --customerEmail "customer@example.com" --itemId 123
+                    remove-item-from-cart --customer-email "customer@example.com" --item-id 123
             """)
     public String removeItemFromCart(
             @ShellOption(value = {"-e", "--customer-email"}, defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail,
@@ -221,10 +226,12 @@ public class CustomerCommands {
     @ShellMethod(value = """
                     Pay a customer's cart:
                     Usage: pay-cart --customerEmail <customer-email>
+
                     Parameters:
                         --customer-email The email of the customer whose cart should be paid.
+
                     Example:
-                        pay-cart --customerEmail clement@armeedeterre.fr"
+                        pay-cart --customer-email clement@armeedeterre.fr"
             """, key = "pay-cart")
     public String payCart(@ShellOption(value = {"-e", "--customer-email"}, defaultValue = LOGGED_IN_ID_PLACEHOLDER) String customerEmail) {
         customerEmail = cliSession.tryInjectingCustomerEmail(customerEmail);

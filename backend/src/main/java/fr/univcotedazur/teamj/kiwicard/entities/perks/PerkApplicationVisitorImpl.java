@@ -8,8 +8,6 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.IHappyKids;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,8 +17,6 @@ import java.util.List;
 
 @Component
 public class PerkApplicationVisitorImpl implements PerkApplicationVisitor {
-
-    private static final Logger logger = LoggerFactory.getLogger(PerkApplicationVisitorImpl.class);
 
     private final IHappyKids happyKidsProxy;
 
@@ -39,12 +35,12 @@ public class PerkApplicationVisitorImpl implements PerkApplicationVisitor {
      * <p>If no items in the cart fall within the perk interval, the method returns {@code false}.
      * Otherwise, it returns {@code true}.
      *
-     * @param perk the perk that defines the discount rate and the interval during which the discount applies
+     * @param perk     the perk that defines the discount rate and the interval during which the discount applies
      * @param customer the customer whose cart items are being evaluated for discounts
      * @return {@code true} if at least one item in the cart was eligible for a discount, {@code false} otherwise
-     * @throws ClosedTimeException if the cart contains items with invalid booking times
+     * @throws ClosedTimeException                 if the cart contains items with invalid booking times
      * @throws UnreachableExternalServiceException if an external service, such as a discount provider, is unavailable
-     * @throws BookingTimeNotSetException if any of the cart items do not have a valid start time
+     * @throws BookingTimeNotSetException          if any of the cart items do not have a valid start time
      */
     @Override
     public boolean visit(VfpDiscountInPercentPerk perk, Customer customer)
@@ -63,12 +59,8 @@ public class PerkApplicationVisitorImpl implements PerkApplicationVisitor {
 
             // If any hours fall within the perk interval, apply the discount
             if (hoursInPerkInterval > 0) {
-                logger.info("ITEM GET PRICE: {}", item.getPrice());
-                logger.info("HOURS IN PERK INTERVAL: {}", hoursInPerkInterval);
-                logger.info("PERK DISCOUNT RATE: {}", perk.getDiscountRate());
                 HappyKidsDiscountDTO discountDTO = happyKidsProxy.computeDiscount(item.getItemPrice() * hoursInPerkInterval, perk.getDiscountRate());
                 if (discountDTO != null) {
-                    logger.info("DISCOUNT: {}", discountDTO.price());
                     item.setPrice(discountDTO.price());
                 }
             }

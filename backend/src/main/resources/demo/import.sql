@@ -212,19 +212,19 @@ INSERT INTO public.cart (cart_id, total_percentage_reduction, partner_partner_id
 INSERT INTO public.cart (cart_id, total_percentage_reduction, partner_partner_id) VALUES (6, 0, 1);
 INSERT INTO public.cart (cart_id, total_percentage_reduction, partner_partner_id) VALUES (7, 0, 2);
 INSERT INTO public.cart (cart_id, total_percentage_reduction, partner_partner_id) VALUES (8, 0, 3);
-INSERT INTO public.cart (cart_id, total_percentage_reduction, partner_partner_id) VALUES (9, 0, 4);
+INSERT INTO public.cart (cart_id, total_percentage_reduction, partner_partner_id) VALUES (9, 0, 2);
 INSERT INTO public.cart (cart_id, total_percentage_reduction, partner_partner_id) VALUES (10, 0, 5);
 INSERT INTO public.cart (cart_id, total_percentage_reduction, partner_partner_id) VALUES (11, 0, 6);
 INSERT INTO public.cart (cart_id, total_percentage_reduction, partner_partner_id) VALUES (12, 0, 3);
 INSERT INTO public.cart (cart_id, total_percentage_reduction, partner_partner_id) VALUES (13, 0, 1);
 INSERT INTO public.cart (cart_id, total_percentage_reduction, partner_partner_id) VALUES (14, 0, 1);
-INSERT INTO public.cart (cart_id, total_percentage_reduction, partner_partner_id) VALUES (15, 0, 2);
+INSERT INTO public.cart (cart_id, total_percentage_reduction, partner_partner_id) VALUES (15, 0, 2);--customerEmail "john.doe@example.com"
 INSERT INTO public.cart (cart_id, total_percentage_reduction, partner_partner_id) VALUES (16, 0, 6);
 
 --
 -- Data for Name: customer; Type: TABLE DATA; Schema: public; Owner: postgresuser
 --
-INSERT INTO public.customer (vfp, cart_id, address, card_number, email, first_name, surname) VALUES (false, 16, 'blabliblou', '1234567890', 'alice.bob@gmail.com', 'Alice', 'bob');
+INSERT INTO public.customer (vfp, cart_id, address, card_number, email, first_name, surname) VALUES (true, 16, 'blabliblou', '1234567890', 'alice.bob@gmail.com', 'Alice', 'bob');
 INSERT INTO public.customer (vfp, cart_id, address, card_number, email, first_name, surname) VALUES (false, 10, '2 avenue des militaires, Callas', '1234567891', 'clement@armeedeterre.fr', 'Clement', 'lfv');
 INSERT INTO public.customer (vfp, cart_id, address, card_number, email, first_name, surname) VALUES (false, 12, '3 rue des arcsitecte, Draguignan', '1234567892', 'antoine@fitnesspark.fr', 'Antoine', 'fadda');
 INSERT INTO public.customer (vfp, cart_id, address, card_number, email, first_name, surname) VALUES (false, 6, '4 rue des pectoraux, Nice', '1234567893', 'antoine@seancepull.fr', 'Antoine', 'maistre');
@@ -259,13 +259,14 @@ INSERT INTO public.item (price, item_id, partner_id, label) VALUES (1.8, 20, 5, 
 -- --
 -- -- Data for Name: abstract_perk; Type: TABLE DATA; Schema: public; Owner: postgresuser
 -- --
-INSERT INTO public.abstract_perk (partner_id, perk_id) VALUES (2, 1);
+INSERT INTO public.abstract_perk (partner_id, perk_id) VALUES (6, 1);
 INSERT INTO public.abstract_perk (partner_id, perk_id) VALUES (2, 2);
+INSERT INTO public.abstract_perk (partner_id, perk_id) VALUES (2, 3);
 -- Data for Name: timed_discount_in_percent_perk; Type: TABLE DATA; Schema: public; Owner: postgresuser
 INSERT INTO public.timed_discount_in_percent_perk (discount_rate, "time", perk_id) VALUES (20, '8:00:00', 2);
 -- Data for Name: vfp_discount_in_percent_perk; Type: TABLE DATA; Schema: public; Owner: postgresuser
-INSERT INTO public.vfp_discount_in_percent_perk (discount_rate, end_hour, start_hour, perk_id) VALUES (5, '12:00:00', '08:00:00', 1);
-
+INSERT INTO public.vfp_discount_in_percent_perk (discount_rate, end_hour, start_hour, perk_id) VALUES (5, '18:00:00', '08:00:00', 1);
+INSERT INTO public.npurchasedmgifted_perk (nb_gifted, nb_purchased, perk_id) VALUES (1, 2, 3);
 --
 -- Data for Name: cart_item; Type: TABLE DATA; Schema: public; Owner: postgresuser
 --
@@ -281,7 +282,7 @@ INSERT INTO public.cart_item (cart_item_id, consumed, price, quantity, cart_id, 
 INSERT INTO public.cart_item (cart_item_id, consumed, price, quantity, cart_id, item_item_id, start_time) VALUES (9, false, 1, 1, 14, 1, NULL);
 INSERT INTO public.cart_item (cart_item_id, consumed, price, quantity, cart_id, item_item_id, start_time) VALUES (10, false, 15, 1, 14, 3, NULL);
 INSERT INTO public.cart_item (cart_item_id, consumed, price, quantity, cart_id, item_item_id, start_time) VALUES (11, false, 2, 2, 15, 5, NULL);
-INSERT INTO public.cart_item (cart_item_id, consumed, price, quantity, cart_id, item_item_id, start_time) VALUES (12, false, 0, 1, 16, 21, '2025-06-01 10:00:00');
+-- INSERT INTO public.cart_item (cart_item_id, consumed, price, quantity, cart_id, item_item_id, start_time) VALUES (12, false, 0, 1, 16, 21, '2025-06-01 10:00:00');
 
 --
 -- Data for Name: payment; Type: TABLE DATA; Schema: public; Owner: postgresuser
