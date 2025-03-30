@@ -10,7 +10,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class CustomerConsultsItsHistorySteps {
+public class PartnerConsultsItsHistorySteps {
 
 
     @Autowired
@@ -18,12 +18,12 @@ public class CustomerConsultsItsHistorySteps {
 
     private final Map<String, String> historyOutputMap = new HashMap<>();
 
-    @When("the client {string} consults his purchase history")
+    @When("the partner {string} consults his purchase history")
     public void consultHistory(String email) {
-        historyOutputMap.put(email, monitoringCommands.customerHistory(email, ""));
+        historyOutputMap.put(email, monitoringCommands.partnerHistory(email, ""));
     }
 
-    @Then("the client {string} sees the following history")
+    @Then("the partner {string} sees the following history")
     public void seesPurchases(String email, String history) {
         // Prepare the expected and actual history strings
         String expectedHistory = history.replace("\\t", "\t")
