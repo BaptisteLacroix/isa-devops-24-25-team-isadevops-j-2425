@@ -70,9 +70,9 @@ public class PerksCatalog implements IPerkManager {
     @Transactional
     @Override
     public Map<String, Long> aggregatePartnerPerksUsageByType(long partnerId) throws UnknownPartnerIdException {
-        var entries = this.perksRepository
-                .countByTypeForPartner(partnerId);
-        return entries.stream()
+        return this.perksRepository
+                .countByTypeForPartner(partnerId)
+                .stream()
                 .collect(Collectors.toMap(
                         PerkCountDTO::perkType,
                         PerkCountDTO::count
