@@ -23,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static fr.univcotedazur.teamj.kiwicard.configurations.Constants.NUMBER_OF_PURCHASE_IN_A_WEEK_FOR_VFP_STATUS;
+
 
 @Service
 public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, ICustomerCartSaver, IVfpStatus {
@@ -31,13 +33,10 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
 
     CardEditorProxy cardEditorProxy;
 
-    private final int nbPurchaseRequired;
-
     @Autowired
-    public CustomerCatalog(ICustomerRepository customerRepository, CardEditorProxy cardEditorProxy, @Value("${kiwi-card.vfp-status.purchase-required}") int nbPurchaseRequired) {
+    public CustomerCatalog(ICustomerRepository customerRepository, CardEditorProxy cardEditorProxy) {
         this.customerRepository = customerRepository;
         this.cardEditorProxy = cardEditorProxy;
-        this.nbPurchaseRequired = nbPurchaseRequired;
     }
 
     /**
@@ -137,6 +136,6 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
     @Override
     @Transactional
     public void refreshVfpStatus() {
-        customerRepository.refreshVfpStatus(nbPurchaseRequired, LocalDateTime.now().minusDays(7), LocalDateTime.now());
+        customerRepository.refreshVfpStatus(NUMBER_OF_PURCHASE_IN_A_WEEK_FOR_VFP_STATUS, LocalDateTime.now().minusDays(7), LocalDateTime.now());
     }
 }
