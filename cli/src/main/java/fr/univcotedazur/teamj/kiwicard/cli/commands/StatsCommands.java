@@ -33,8 +33,34 @@ public class StatsCommands {
         this.webClient = webClient;
     }
 
-    @ShellMethod(key = "Aggregate Purchases", value = "aggregate-purchases")
-    public String aggregatePurchases(@ShellOption String partnerId, @ShellOption String day1, @ShellOption String day2, @ShellOption(defaultValue = "60") String duration) throws JsonProcessingException {
+    /**
+     * Aggregates the number of purchases for each hour of the day for two specific days for a specific partner.
+     * <p>
+     * Example usage:
+     * aggregate-purchases --partner-id <partnerId> --day-one <day1> --day-two <day2> --duration <duration>
+     *
+     * @param partnerId The ID of the partner whose purchases are to be aggregated.
+     * @param day1 The first day for which the purchases are to be aggregated.
+     * @param day2 The second day for which the purchases are to be aggregated.
+     * @param duration The duration in minutes for which the purchases are to be aggregated.
+     * @return A string representing the aggregated purchases for each hour of the day for the two specified days.
+     * @throws JsonProcessingException when the API returns a bad response.
+     */
+    @ShellMethod(value = """
+        Aggregate the number of purchases for each hour of the day for two specific days for a specific partner.
+        Usage: aggregate-purchases --partner-id <partnerId> --day-one <day1> --day-two <day2> --duration <duration>
+        Parameters:
+            --partner-id  The ID of the partner whose purchases you want to aggregate.
+            --day-one     The first day for which the purchases are to be aggregated.
+            --day-two     The second day for which the purchases are to be aggregated.
+            --duration    The duration in minutes for which the purchases are to be aggregated.
+        Example: aggregate-purchases --partner-id 12345 --day-one 2025-03-16 --day-two 2025-04-16 --duration 60
+        """, key = "aggregate-purchases")
+    public String aggregatePurchases(
+            @ShellOption(value = {"-p", "--partner-id"}) String partnerId,
+            @ShellOption(value = {"-d1", "--day-one"}) String day1,
+            @ShellOption(value = {"-d2", "--day-two"}) String day2,
+            @ShellOption(value = {"-d", "--duration"}, defaultValue = "60") String duration) throws JsonProcessingException {
         try {
             LocalDate.parse(day1, dateFormatter);
             LocalDate.parse(day2, dateFormatter);
@@ -77,8 +103,24 @@ public class StatsCommands {
                 .reduce((a, b)-> a + "\n" + b).orElseThrow();
     }
 
-    @ShellMethod(key = "Aggregate Perks", value = "aggregate-perks")
-    public String aggregatePerks(@ShellOption String partnerId) throws JsonProcessingException {
+    /**
+     * Aggregates the number of perks used in a purchase for each perk type for a specific partner.
+     * <p>
+     * Example usage:
+     * aggregate-perks --partner-id <partnerId>
+     *
+     * @param partnerId The ID of the partner whose perks usage is to be aggregated.
+     * @return A string representing the aggregated perks usage by type.
+     * @throws JsonProcessingException when the API returns a bad response.
+     */
+    @ShellMethod(value = """
+        Aggregate the number of perks used in a purchase for each perk type for a specific partner.
+        Usage: aggregate-perks --partner-id <partnerId>
+        Parameters:
+            --partner-id  The ID of the partner whose perks usage you want to aggregate.
+        Example: aggregate-perks --partner-id 12345
+        """, key = "aggregate-perks")
+    public String aggregatePerks(@ShellOption(value = {"-p", "--partner-id"}) String partnerId) throws JsonProcessingException {
         partnerId = cliSession.tryInjectingPartnerId(partnerId);
         if (partnerId == null) return "Erreur : ID de partenaire invalide.";
 
