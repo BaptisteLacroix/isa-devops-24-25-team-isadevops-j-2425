@@ -210,7 +210,7 @@ public class CartService implements ICartModifier, ICartFinder {
         Partner partner = partnerManager.findPartnerById(item.getPartner().getPartnerId());
         // Create the cart
         Cart cart = new Cart(partner, Set.of(cartItem), new HashSet<>());
-
+        customer.setCart(cart);
         // Filter only discount perks and add them to cart
         cart.getPartner().getPerkList().stream()
                 .filter(perk -> perk.isDiscountPerk() && perk.isConsumableFor(customer))

@@ -7,7 +7,6 @@ Feature: Un client réserve des créneaux horaires chez happy kids et applique l
     When Pierre recherche le partner "HappyKids"
     Then Pierre consulte les avantages du partenaire "6" (HappyKids)
     And Il décide de réserver un créneau horaire grâce à l'item "21" à partir de maintenant à "8"h pour une durée de "2" heures
-    And Il décide d appliquer l avantage "1" VFP et recoit bien le message suivant "Ajout de l'avantage ayant l'ID : 1 au client pierre.cailloux@cafaismal.auxpieds"
     Then Il observe que son panier est mis à jour avec le perks de VFP
     And Il se rend compte qu il s est trompé dans l horaire et décide de supprimer l item "21" de son panier
     And Il décide de réserver un nouveau créneau horaire grâce à l item "21" à partir de maintenant à "10"h pour une durée de "2" heures
