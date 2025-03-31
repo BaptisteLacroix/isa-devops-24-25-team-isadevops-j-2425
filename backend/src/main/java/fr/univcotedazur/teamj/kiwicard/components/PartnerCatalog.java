@@ -10,7 +10,6 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPartnerManager;
 import fr.univcotedazur.teamj.kiwicard.mappers.PerkMapper;
-import fr.univcotedazur.teamj.kiwicard.repositories.IItemRepository;
 import fr.univcotedazur.teamj.kiwicard.repositories.IPartnerRepository;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +23,10 @@ import java.util.List;
 public class PartnerCatalog implements IPartnerManager {
 
     private final IPartnerRepository partnerRepository;
-    private final IItemRepository itemRepository;
 
     @Autowired
-    public PartnerCatalog(IPartnerRepository partnerRepository, IItemRepository itemRepository) {
+    public PartnerCatalog(IPartnerRepository partnerRepository) {
         this.partnerRepository = partnerRepository;
-        this.itemRepository = itemRepository;
     }
 
     @Override
@@ -53,9 +50,7 @@ public class PartnerCatalog implements IPartnerManager {
     @Transactional
     public void addItemToPartnerCatalog(long partnerId, @NotNull ItemCreationDTO itemDTO) throws UnknownPartnerIdException {
         Partner partner = partnerRepository.findById(partnerId).orElseThrow(() -> new UnknownPartnerIdException(partnerId));
-
         Item item = new Item(itemDTO);
-        itemRepository.save(item);
         partner.addItem(item);
     }
 

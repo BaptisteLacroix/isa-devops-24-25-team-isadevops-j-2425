@@ -17,12 +17,10 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.EmptyCartException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.NoCartException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.IPayment;
 import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartModifier;
-import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPartnerManager;
 import fr.univcotedazur.teamj.kiwicard.repositories.IItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,14 +35,12 @@ import java.util.Optional;
 public class CartService implements ICartModifier, ICartFinder {
 
     private final IItemRepository itemRepository;
-    private final IPartnerManager partnerManager;
     private final IPayment payment;
     private final CustomerCatalog customerCatalog;
 
     @Autowired
-    public CartService(IItemRepository itemRepository, IPartnerManager partnerManager, IPayment payment, CustomerCatalog customerCatalog) {
+    public CartService(IItemRepository itemRepository, IPayment payment, CustomerCatalog customerCatalog) {
         this.itemRepository = itemRepository;
-        this.partnerManager = partnerManager;
         this.payment = payment;
         this.customerCatalog = customerCatalog;
     }
@@ -60,13 +56,12 @@ public class CartService implements ICartModifier, ICartFinder {
      * @param cartDTO       An existing CartDTO representing the customer's current cart. If null, a new cart is created.
      * @return A CartDTO representing the updated shopping cart after the item has been added.
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
-     * @throws UnknownPartnerIdException     If no partner is found for the item in the cart.
      * @throws UnknownItemIdException        If the item does not exist in the item repository.
      * @throws NoCartException               If the customer does not have a cart.
      */
     @Override
     @Transactional
-    public CartDTO addItemToCart(String customerEmail, CartItemAddDTO cartItemDTO, CartDTO cartDTO) throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException, NoCartException, AlreadyBookedTimeException {
+    public CartDTO addItemToCart(String customerEmail, CartItemAddDTO cartItemDTO, CartDTO cartDTO) throws UnknownCustomerEmailException, UnknownItemIdException, NoCartException, AlreadyBookedTimeException {
         // Found the customer in the bdd
         Customer customer = customerCatalog.findCustomerByEmail(customerEmail);
         Item item = itemRepository.findById(cartItemDTO.itemId()).orElseThrow(() -> new UnknownItemIdException(cartItemDTO.itemId()));
@@ -85,13 +80,12 @@ public class CartService implements ICartModifier, ICartFinder {
      * @param customer         The customer whose cart the item will be added to.
      * @param itemToAdd        The item to be added to the cart.
      * @return A CartDTO representing the updated shopping cart after the item has been added.
-     * @throws UnknownPartnerIdException     If no partner is found for the item in the cart.
      * @throws UnknownItemIdException        If the item is not valid for the partner's catalog.
      * @throws UnknownCustomerEmailException If the customer does not exist in the database.
      * @throws NoCartException               If the customer does not have a cart.
      */
     private CartDTO addItemToCart(CartItemAddDTO cartItemDTOToAdd, Customer customer, Item itemToAdd)
-            throws UnknownPartnerIdException, UnknownItemIdException, UnknownCustomerEmailException, NoCartException, AlreadyBookedTimeException {
+            throws UnknownItemIdException, UnknownCustomerEmailException, NoCartException, AlreadyBookedTimeException {
 
         Cart customerCart = verifyCartExists(customer);
 
@@ -180,12 +174,10 @@ public class CartService implements ICartModifier, ICartFinder {
      *
      * @param itemToAdd  l'item à ajouter
      * @param cartSeller le partenaire du panier
-     * @throws UnknownPartnerIdException si le partenaire n'existe pas
-     * @throws UnknownItemIdException    si l'item n'existe pas
+     * @throws UnknownItemIdException si l'item n'existe pas
      */
-    private void verifyItemIsSoldBySamePartnerThanCart(Item itemToAdd, Partner cartSeller) throws UnknownPartnerIdException, UnknownItemIdException {
-        List<Item> partnerItems = partnerManager.findAllPartnerItems(cartSeller.getPartnerId());
-        if (partnerItems.stream().noneMatch(partnerItem -> partnerItem.getItemId().equals(itemToAdd.getItemId()))) {
+    private void verifyItemIsSoldBySamePartnerThanCart(Item itemToAdd, Partner cartSeller) throws UnknownItemIdException {
+        if (!itemToAdd.getPartner().equals(cartSeller)) {
             throw new UnknownItemIdException(itemToAdd.getItemId());
         }
     }
@@ -199,13 +191,12 @@ public class CartService implements ICartModifier, ICartFinder {
      * @param customer    The customer whose cart the item will be added to.
      * @param item        The item to be added to the new cart.
      * @return A CartDTO representing the newly created cart.
-     * @throws UnknownPartnerIdException     If the partner for the item cannot be found.
      * @throws UnknownCustomerEmailException If the customer does not exist in the system.
      */
-    private CartDTO createCart(CartItemAddDTO cartItemDTO, Customer customer, Item item) throws UnknownPartnerIdException, UnknownCustomerEmailException {
+    private CartDTO createCart(CartItemAddDTO cartItemDTO, Customer customer, Item item) throws UnknownCustomerEmailException {
         // Create the list of CartItem
         CartItem cartItem = new CartItem(item, cartItemDTO);
-        Partner partner = partnerManager.findPartnerById(item.getPartner().getPartnerId());
+        Partner partner = item.getPartner();
         // Create the cart
         Cart cart = new Cart(partner, new HashSet<>(List.of(cartItem)), new HashSet<>());
         customer.setCart(cart);
