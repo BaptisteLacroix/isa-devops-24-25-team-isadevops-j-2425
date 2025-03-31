@@ -6,7 +6,15 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import fr.univcotedazur.teamj.kiwicard.mappers.PerkVisitor;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+
+import java.util.Objects;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -55,4 +63,17 @@ public abstract class AbstractPerk {
     public abstract boolean isConsumableFor(Customer customer);
 
     public abstract <T> T accept(PerkVisitor<T> visitor);
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AbstractPerk that = (AbstractPerk) o;
+        return Objects.equals(perkId, that.perkId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(perkId);
+    }
 }

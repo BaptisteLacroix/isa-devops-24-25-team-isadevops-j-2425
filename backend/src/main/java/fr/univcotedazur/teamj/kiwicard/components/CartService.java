@@ -29,11 +29,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class CartService implements ICartModifier, ICartFinder {
@@ -209,14 +207,13 @@ public class CartService implements ICartModifier, ICartFinder {
         CartItem cartItem = new CartItem(item, cartItemDTO);
         Partner partner = partnerManager.findPartnerById(item.getPartner().getPartnerId());
         // Create the cart
-        Cart cart = new Cart(partner, Set.of(cartItem), new HashSet<>());
+        Cart cart = new Cart(partner, new HashSet<>(List.of(cartItem)), new HashSet<>());
         customer.setCart(cart);
         // Filter only discount perks and add them to cart
         cart.getPartner().getPerkList().stream()
                 .filter(perk -> perk.isDiscountPerk() && perk.isConsumableFor(customer))
                 .toList()
                 .forEach(cart::addPerkToUse);
-
         // Update the customer's cart
         Customer updatedCustomer = customerCatalog.setCart(customer.getEmail(), cart);
         return new CartDTO(updatedCustomer.getCart());
