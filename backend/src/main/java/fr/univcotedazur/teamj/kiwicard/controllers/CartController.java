@@ -7,6 +7,8 @@ import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.*;
 import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartModifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +24,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @RequestMapping(path = CartController.CART_URI, produces = APPLICATION_JSON_VALUE)
 public class CartController {
-
+    private final Logger logger = LoggerFactory.getLogger(CartController.class);
     public static final String CART_URI = "/cart";
     private final ICartModifier modifier;
     private final ICartFinder finder;
@@ -55,6 +57,8 @@ public class CartController {
             @PathVariable String customerEmail,
             @RequestBody CartItemAddDTO cartItemDTO
     ) throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException, NoCartException, AlreadyBookedTimeException {
+        logger.info("Adding item to cart for customer {}", customerEmail);
+        logger.info("Item details: {} {} {}", cartItemDTO.itemId(), cartItemDTO.quantity(), cartItemDTO.startTime());
         CartDTO existingCart = finder.findCustomerCart(customerEmail).orElse(null);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
