@@ -5,6 +5,7 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.ForbiddenDurationException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPurchaseIdException;
+import fr.univcotedazur.teamj.kiwicard.interfaces.perks.IPerksFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseStats;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +28,13 @@ import java.util.Optional;
 public class MonitoringController {
     public final IPurchaseFinder purchaseFinder;
     public final IPurchaseStats statisticMaker;
+    public final IPerksFinder perkFinder;
 
     @Autowired
-    public MonitoringController(IPurchaseFinder purchaseFinder, IPurchaseStats statisticMaker) {
+    public MonitoringController(IPurchaseFinder purchaseFinder, IPurchaseStats statisticMaker, IPerksFinder perksFinder) {
         this.purchaseFinder = purchaseFinder;
         this.statisticMaker = statisticMaker;
+        this.perkFinder = perksFinder;
     }
 
     @GetMapping("/purchase/{purchaseId}")
@@ -77,5 +80,12 @@ public class MonitoringController {
         Map<LocalTime, Integer> day1Aggregation = this.statisticMaker.aggregatePurchasesByDayAndDuration(partnerId, day1, dur);
         Map<LocalTime, Integer> day2Aggregation = this.statisticMaker.aggregatePurchasesByDayAndDuration(partnerId, day2, dur);
         return ResponseEntity.ok(new TwoDaysAggregation(day1Aggregation, day2Aggregation));
+    }
+
+    @GetMapping("/stats/{partnerId}/nb-perks-by-type")
+    public ResponseEntity<Map<String, Long>> aggregatePartnerPerksUsageByType(
+            @PathVariable long partnerId
+    ) throws UnknownPartnerIdException {
+        return ResponseEntity.ok(this.perkFinder.aggregatePartnerPerksUsageByType(partnerId));
     }
 }

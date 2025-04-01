@@ -1,19 +1,28 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
+import fr.univcotedazur.teamj.kiwicard.dto.PerkCountDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPerkIdException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPerkManager;
 import fr.univcotedazur.teamj.kiwicard.mappers.PerkMapper;
+import fr.univcotedazur.teamj.kiwicard.repositories.IPartnerRepository;
 import fr.univcotedazur.teamj.kiwicard.repositories.IPerkRepository;
+import fr.univcotedazur.teamj.kiwicard.repositories.IPurchaseRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class PerksCatalog implements IPerkManager {
     public static final String NOT_IMPLEMENTED_YET = "Not implemented yet";
     private final IPerkRepository perksRepository;
+
     public PerksCatalog(IPerkRepository perksRepository) {
         this.perksRepository = perksRepository;
     }
@@ -55,5 +64,18 @@ public class PerksCatalog implements IPerkManager {
     @Override
     public void deletePerk(long perkId) {
         throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);
+    }
+
+
+    @Transactional
+    @Override
+    public Map<String, Long> aggregatePartnerPerksUsageByType(long partnerId) throws UnknownPartnerIdException {
+        return this.perksRepository
+                .countByTypeForPartner(partnerId)
+                .stream()
+                .collect(Collectors.toMap(
+                        PerkCountDTO::perkType,
+                        PerkCountDTO::count
+                ));
     }
 }

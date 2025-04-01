@@ -134,9 +134,33 @@ class StatsCommandsTest {
         assertEquals("/stats/4/comparePurchases", requestURL.encodedPath());
         assertEquals(commands.dateFormatter.format(day1), requestURL.queryParameter("day1"));
         assertEquals(commands.dateFormatter.format(day2), requestURL.queryParameter("day2"));
-        var splitted =  recordedRequest.getPath().split("/");
-        assertEquals("4", splitted[splitted.length-2]);
+        var splitted = recordedRequest.getPath().split("/");
+        assertEquals("4", splitted[splitted.length - 2]);
         assertEquals("60", requestURL.queryParameter("duration"));
+        assertEquals("GET", recordedRequest.getMethod());
+    }
+
+    @Test
+    void perkAggregationTest() throws Exception {
+        String body = """
+                {
+                     "NPurchasedMGiftedPerk" : 24,
+                     "VfpDiscountInPercentPerk" : 13,
+                     "TimedDiscountInPercentPerk" : 45
+                   }
+                """;
+        mockWebServer.enqueue(new MockResponse()
+                .setBody(body)
+                .addHeader("Content-Type", "application/json")
+                .setResponseCode(HttpStatus.OK.value()));
+
+        String result = commands.aggregatePerks("1");
+
+        // Verify the request was made to the correct endpoint
+        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+        HttpUrl requestURL = recordedRequest.getRequestUrl();
+        assertNotNull(requestURL);
+        assertEquals("/stats/1/nb-perks-by-type", requestURL.encodedPath());
         assertEquals("GET", recordedRequest.getMethod());
     }
 }
