@@ -5,7 +5,7 @@ import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPerkIdException;
-import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPerkManager;
+import fr.univcotedazur.teamj.kiwicard.interfaces.perks.IPerkManager;
 import fr.univcotedazur.teamj.kiwicard.mappers.PerkMapper;
 import fr.univcotedazur.teamj.kiwicard.repositories.IPerkRepository;
 import org.springframework.stereotype.Service;

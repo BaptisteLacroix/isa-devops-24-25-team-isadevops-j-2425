@@ -9,6 +9,7 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPartnerManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -37,7 +38,7 @@ public class PartnerController {
 
     @PostMapping
     public ResponseEntity<PartnerDTO> createPartner(@RequestBody PartnerCreationDTO partnerCreationDTO) {
-        return ResponseEntity.created(null)
+        return ResponseEntity.status(HttpStatus.CREATED)
                 .body(partnerManager.createPartner(partnerCreationDTO));
     }
 

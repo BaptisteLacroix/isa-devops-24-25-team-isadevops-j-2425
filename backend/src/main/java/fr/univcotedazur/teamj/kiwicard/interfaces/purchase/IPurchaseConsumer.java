@@ -1,7 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.interfaces.purchase;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 
