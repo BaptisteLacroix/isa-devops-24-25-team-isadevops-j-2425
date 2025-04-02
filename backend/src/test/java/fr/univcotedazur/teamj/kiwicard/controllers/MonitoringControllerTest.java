@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(MonitoringController.class)
-public class MonitoringControllerTest extends BaseUnitTest {
+class MonitoringControllerTest extends BaseUnitTest {
 
     private static final String BASE_URI = "/monitoring";
     @Autowired
@@ -44,7 +44,7 @@ public class MonitoringControllerTest extends BaseUnitTest {
 
     
     @BeforeEach
-    public void setup() {
+    void setup() {
         var mockPurchase = new PurchaseHistoryDTO(mock(CartInPurchaseDTO.class),mock(PaymentHistoryDTO.class));
         try {
             when(purchaseCatalog.findPurchasesByPartnerId(1L)).thenReturn(List.of(mockPurchase));
@@ -57,28 +57,28 @@ public class MonitoringControllerTest extends BaseUnitTest {
     }
 
     @Test
-    public void getPartnerHistoryIntegrationTest() throws Exception {
+    void getPartnerHistoryIntegrationTest() throws Exception {
         mockMvc.perform(get(BASE_URI + "/partner/" + 1L + "/history"))
                 .andExpect(status().isOk());
         verify(purchaseCatalog, times(1)).findPurchasesByPartnerId(1L);
     }
 
     @Test
-    public void getPurchaseTest() throws Exception {
+    void getPurchaseTest() throws Exception {
         mockMvc.perform(get(BASE_URI + "/purchase/" + 1L))
                 .andExpect(status().isOk());
         verify(purchaseCatalog, times(1)).findPurchaseById(1L);
     }
 
     @Test
-    public void customerHistoryTest() throws Exception {
+    void customerHistoryTest() throws Exception {
         mockMvc.perform(get(BASE_URI + "/customer/test@example.com/history"))
                 .andExpect(status().isOk());
         verify(purchaseCatalog, times(1)).findPurchasesByCustomerEmail("test@example.com");
     }
 
     @Test
-    public void getByCustomerAndPartnerTest() throws Exception {
+    void getByCustomerAndPartnerTest() throws Exception {
         mockMvc.perform(get(BASE_URI + "/purchase")
                 .param("customerEmail", "test@example.com")
                 .param("partnerId", "1"))

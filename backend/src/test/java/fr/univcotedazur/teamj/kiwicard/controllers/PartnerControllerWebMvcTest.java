@@ -93,11 +93,11 @@ class PartnerControllerWebMvcTest extends BaseUnitTest {
 
     @Test
     void getPartnerByIdOK() throws Exception {
-        Partner chezJohn = mock(Partner.class);
-        when(chezJohn.getPartnerId()).thenReturn(1L);
-        when(chezJohn.getName()).thenReturn("Chez John");
-        when(chezJohn.getAddress()).thenReturn("2 boulevard Wilson");
-        when(partnerManager.findPartnerById(1)).thenReturn(chezJohn);
+        Partner chezJohn1 = mock(Partner.class);
+        when(chezJohn1.getPartnerId()).thenReturn(1L);
+        when(chezJohn1.getName()).thenReturn("Chez John");
+        when(chezJohn1.getAddress()).thenReturn("2 boulevard Wilson");
+        when(partnerManager.findPartnerById(1)).thenReturn(chezJohn1);
         MvcResult result = mockMvc.perform(get(PartnerController.BASE_URI + "/1")
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
@@ -106,9 +106,9 @@ class PartnerControllerWebMvcTest extends BaseUnitTest {
                 .andReturn();
         String jsonResult = result.getResponse().getContentAsString();
         PartnerDTO partnerResult = OBJECT_MAPPER.readValue(jsonResult, PartnerDTO.class);
-        assertEquals(chezJohn.getPartnerId(), partnerResult.id());
-        assertEquals(chezJohn.getName(), partnerResult.name());
-        assertEquals(chezJohn.getAddress(), partnerResult.address());
+        assertEquals(chezJohn1.getPartnerId(), partnerResult.id());
+        assertEquals(chezJohn1.getName(), partnerResult.name());
+        assertEquals(chezJohn1.getAddress(), partnerResult.address());
 
     }
 

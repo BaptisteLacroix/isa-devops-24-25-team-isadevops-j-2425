@@ -15,6 +15,7 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceExce
 import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartModifier;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -99,7 +100,7 @@ public class CartController {
      */
     @PostMapping(path = "/{customerEmail}/validate", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<PurchaseDTO> validateCart(@PathVariable String customerEmail) throws UnknownCustomerEmailException, UnreachableExternalServiceException, EmptyCartException, NoCartException, ClosedTimeException, BookingTimeNotSetException {
-        return ResponseEntity.created(null)
+        return ResponseEntity.status(HttpStatus.CREATED)
                 .body(modifier.validateCart(customerEmail));
     }
 

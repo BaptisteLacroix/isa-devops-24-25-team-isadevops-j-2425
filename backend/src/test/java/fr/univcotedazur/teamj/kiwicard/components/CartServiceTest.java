@@ -216,7 +216,7 @@ class CartServiceTest extends BaseUnitTest {
     }
 
     @Test
-    void addItemToCart_shouldThrowIfHappyKidsItemWithSameDateAlreadyIsInCart() throws UnknownCustomerEmailException, UnknownPartnerIdException, NoCartException, AlreadyBookedTimeException, UnknownItemIdException {
+    void addItemToCart_shouldThrowIfHappyKidsItemWithSameDateAlreadyIsInCart() throws UnknownCustomerEmailException, UnknownPartnerIdException {
         Item happyKidsItem = mock(Item.class);
         when(happyKidsItem.getItemId()).thenReturn(2L);
         when(happyKidsItem.getLabel()).thenReturn(Constants.HAPPY_KIDS_ITEM_NAME);
@@ -242,7 +242,7 @@ class CartServiceTest extends BaseUnitTest {
     }
 
     @Test
-    void addItemToCart_shouldThrowIfHappyKidsItemWithJustEarlierDateAlreadyIsInCart() throws UnknownCustomerEmailException, UnknownPartnerIdException, NoCartException, AlreadyBookedTimeException, UnknownItemIdException {
+    void addItemToCart_shouldThrowIfHappyKidsItemWithJustEarlierDateAlreadyIsInCart() throws UnknownCustomerEmailException, UnknownPartnerIdException {
         Item happyKidsItem = mock(Item.class);
         when(happyKidsItem.getItemId()).thenReturn(2L);
         when(happyKidsItem.getLabel()).thenReturn(Constants.HAPPY_KIDS_ITEM_NAME);
@@ -268,7 +268,7 @@ class CartServiceTest extends BaseUnitTest {
     }
 
     @Test
-    void addItemToCart_shouldThrowIfHappyKidsItemWithJustLaterDateAlreadyIsInCart() throws UnknownCustomerEmailException, UnknownPartnerIdException, NoCartException, AlreadyBookedTimeException, UnknownItemIdException {
+    void addItemToCart_shouldThrowIfHappyKidsItemWithJustLaterDateAlreadyIsInCart() throws UnknownCustomerEmailException, UnknownPartnerIdException {
         Item happyKidsItem = mock(Item.class);
         when(happyKidsItem.getItemId()).thenReturn(2L);
         when(happyKidsItem.getLabel()).thenReturn(Constants.HAPPY_KIDS_ITEM_NAME);

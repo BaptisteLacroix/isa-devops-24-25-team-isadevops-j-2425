@@ -120,9 +120,10 @@ class PartnerCatalogTest extends BaseUnitTest {
     @Test
     @Transactional
     void addItemToPartnerCatalogWithNullDTOShouldThrow() {
-        when(partnerRepository.findById(mockPartner.getPartnerId())).thenReturn(Optional.of(mockPartner));
+        Long partnerId = mockPartner.getPartnerId();
+        when(partnerRepository.findById(partnerId)).thenReturn(Optional.of(mockPartner));
 
-        assertThrows(NullPointerException.class, () -> partnerManager.addItemToPartnerCatalog(mockPartner.getPartnerId(), null));
+        assertThrows(NullPointerException.class, () -> partnerManager.addItemToPartnerCatalog(partnerId, null));
     }
 
     @Test

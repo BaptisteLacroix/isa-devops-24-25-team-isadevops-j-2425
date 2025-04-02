@@ -70,7 +70,6 @@ public class Customer {
         this.vfp = customerDTO.vfp();
     }
 
-    // FIXME: Fait pour faire passer les tests, à refaire !!
     public Customer(String firstName, String email) {
         this.firstName = firstName;
         this.email = email;
