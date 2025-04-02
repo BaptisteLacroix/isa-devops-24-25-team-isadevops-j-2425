@@ -21,7 +21,7 @@ import java.util.Map;
 
 @ShellComponent
 public class StatsCommands {
-    private final String MONITORING_BASE_URI = "/monitoring";
+    static final String MONITORING_BASE_URI = "/monitoring";
     public final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final CliSession cliSession;
     private final WebClient webClient;
@@ -84,7 +84,7 @@ public class StatsCommands {
 
     private String makeAggregRequest(String day1, String day2, String duration, String finalPartnerId) {
         return webClient.get()
-                .uri(MONITORING_BASE_URI + "/stats/" + finalPartnerId + "/comparePurchases" +
+                .uri(MONITORING_BASE_URI + "/stats/" + finalPartnerId + "/compare-purchases" +
                         "?day1=" + day1 + "&day2=" + day2 + "&duration=" + duration)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(CliError.class)
@@ -97,7 +97,7 @@ public class StatsCommands {
     private String formatAggregation(Map<String, Integer> agg) {
         return agg.entrySet().stream()
                 .map(entry -> entry.getKey() + " : " + entry.getValue())
-                .reduce((a, b) -> a + "\n" + b).orElseThrow();
+                .reduce((a, b) -> a + "\n" + b).orElse("Aucun avantage pour ce partenaire n'a été utilisé.");
     }
 
     /**

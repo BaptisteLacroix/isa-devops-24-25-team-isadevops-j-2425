@@ -75,7 +75,7 @@ public class MonitoringControllerStatsIntegrationTest {
 
 
         // Perks
-        var item = new Item("unused", 0);
+        Item item = new Item("unused", 0);
         entityManager.persist(item);
         VfpDiscountInPercentPerk perk1 = new VfpDiscountInPercentPerk(5, LocalTime.of(8, 0), LocalTime.of(12, 0));
         TimedDiscountInPercentPerk perk2 = new TimedDiscountInPercentPerk(LocalTime.now(), 20);
@@ -115,12 +115,12 @@ public class MonitoringControllerStatsIntegrationTest {
     void testComparePurchasesValidRequest() throws Exception {
         LocalDate day1 = LocalDate.of(2025, 3, 16);
         LocalDate day2 = LocalDate.of(2025, 4, 16);
-        Duration duration = Duration.ofHours(1);
+        int duration = 60;
 
         String responseContent = mockMvc.perform(get("/monitoring/stats/{partnerId}/compare-purchases", partner.getPartnerId())
                         .param("day1", day1.format(dateFormatter))
                         .param("day2", day2.format(dateFormatter))
-                        .param("duration", duration.toString())
+                        .param("duration", String.valueOf(duration))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -139,12 +139,12 @@ public class MonitoringControllerStatsIntegrationTest {
     void testComparePurchasesValidRequestBadDay() throws Exception {
         LocalDate day1 = LocalDate.of(2025, 3, 17);
         LocalDate day2 = LocalDate.of(2025, 4, 17);
-        Duration duration = Duration.ofHours(1);
+        int duration = 60;
 
         String responseContent = mockMvc.perform(get("/monitoring/stats/{partnerId}/compare-purchases", partner.getPartnerId())
                         .param("day1", day1.format(dateFormatter))
                         .param("day2", day2.format(dateFormatter))
-                        .param("duration", duration.toString())
+                        .param("duration", String.valueOf(duration))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -161,15 +161,14 @@ public class MonitoringControllerStatsIntegrationTest {
     @Transactional
     @Test
     void testComparePurchasesBadDuration() throws Exception {
-        long partnerId = 4L; // partnerPoissonnerie id as an example
         LocalDate day1 = LocalDate.of(2025, 3, 16);
         LocalDate day2 = LocalDate.of(2025, 4, 16);
-        Duration duration = Duration.ofDays(2);
+        int duration = 2880;
 
         MvcResult result = mockMvc.perform(get("/monitoring/stats/{partnerId}/compare-purchases", partner.getPartnerId())
                         .param("day1", day1.format(dateFormatter))
                         .param("day2", day2.format(dateFormatter))
-                        .param("duration", duration.toString())
+                        .param("duration", String.valueOf(duration))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden())
                 .andExpect(content().contentType(APPLICATION_JSON))
@@ -177,7 +176,7 @@ public class MonitoringControllerStatsIntegrationTest {
 
         String jsonResult = result.getResponse().getContentAsString();
         ErrorDTO errorDTOResult = OBJECT_MAPPER.readValue(jsonResult, ErrorDTO.class);
-        assertEquals("Duration is expected to be less than a day, got " + duration, errorDTOResult.errorMessage());
+        assertEquals("Duration is expected to be less than a day, got " + Duration.ofMinutes(duration), errorDTOResult.errorMessage());
     }
 
     @Transactional
@@ -186,12 +185,12 @@ public class MonitoringControllerStatsIntegrationTest {
         long partnerId = partner.getPartnerId() +154; // bad id
         LocalDate day1 = LocalDate.of(2025, 3, 16);
         LocalDate day2 = LocalDate.of(2025, 4, 16);
-        Duration duration = Duration.ofHours(1);
+        int duration = 60;
 
         MvcResult result = mockMvc.perform(get("/monitoring/stats/{partnerId}/compare-purchases", partnerId)
                         .param("day1", day1.format(dateFormatter))
                         .param("day2", day2.format(dateFormatter))
-                        .param("duration", duration.toString())
+                        .param("duration", String.valueOf(duration))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(APPLICATION_JSON))

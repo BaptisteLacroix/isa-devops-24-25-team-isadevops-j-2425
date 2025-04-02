@@ -94,8 +94,8 @@ public interface IPurchaseRepository extends JpaRepository<Purchase, Long> {
     ,nativeQuery = true)
     List<Purchase> findAllByPartnerAndDay(
             @Param("partnerId") long partnerId,
-            @Param("startOfDay") String startOfDay,
-            @Param("endOfDay") String endOfDay
+            @Param("startOfDay") LocalDateTime startOfDay,
+            @Param("endOfDay") LocalDateTime endOfDay
     );
 }
 

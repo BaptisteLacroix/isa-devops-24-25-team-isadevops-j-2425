@@ -105,13 +105,13 @@ public class MonitoringController {
     public record TwoDaysAggregation(Map<LocalTime, Integer> day1Aggregation, Map<LocalTime, Integer> day2Aggregation) {
     }
 
-    @GetMapping("/stats/{partnerId}/comparePurchases")
-    public ResponseEntity<TwoDaysAggregation> comparePurchases(@PathVariable long partnerId, @RequestParam LocalDate day1, @RequestParam LocalDate day2, @RequestParam Optional<Integer> duration) throws UnknownPartnerIdException, ForbiddenDurationException {
-        Duration dur = Duration.ofHours(duration.orElse(1));
+    @GetMapping("/stats/{partnerId}/compare-purchases")
+    public ResponseEntity<TwoDaysAggregation> comparePurchases(@PathVariable long partnerId, @RequestParam String day1, @RequestParam String day2, @RequestParam Optional<Integer> duration) throws UnknownPartnerIdException, ForbiddenDurationException {
+        Duration dur = Duration.ofMinutes(duration.orElse(60));
         if (dur.compareTo(Duration.ofDays(1)) > 0)
             throw new ForbiddenDurationException(dur);
-        Map<LocalTime, Integer> day1Aggregation = this.statisticMaker.aggregatePurchasesByDayAndDuration(partnerId, day1, dur);
-        Map<LocalTime, Integer> day2Aggregation = this.statisticMaker.aggregatePurchasesByDayAndDuration(partnerId, day2, dur);
+        Map<LocalTime, Integer> day1Aggregation = this.statisticMaker.aggregatePurchasesByDayAndDuration(partnerId, LocalDate.parse(day1), dur);
+        Map<LocalTime, Integer> day2Aggregation = this.statisticMaker.aggregatePurchasesByDayAndDuration(partnerId, LocalDate.parse(day2), dur);
         return ResponseEntity.ok(new TwoDaysAggregation(day1Aggregation, day2Aggregation));
     }
 

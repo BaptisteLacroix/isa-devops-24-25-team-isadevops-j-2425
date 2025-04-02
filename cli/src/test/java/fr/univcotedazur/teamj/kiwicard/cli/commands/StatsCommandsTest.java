@@ -1,10 +1,7 @@
 package fr.univcotedazur.teamj.kiwicard.cli.commands;
 
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.univcotedazur.teamj.kiwicard.cli.CliSession;
-import fr.univcotedazur.teamj.kiwicard.cli.model.CliTwoDaysAggregation;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -18,12 +15,11 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.format.DateTimeFormatter;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static fr.univcotedazur.teamj.kiwicard.cli.commands.StatsCommands.MONITORING_BASE_URI;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 class StatsCommandsTest {
@@ -31,7 +27,6 @@ class StatsCommandsTest {
     private StatsCommands commands;
     private static MockWebServer mockWebServer;
     private static CliSession cliSession;
-    private ObjectMapper objectMapper = new ObjectMapper();
 
 
     @BeforeAll
@@ -119,8 +114,8 @@ class StatsCommandsTest {
                 .setResponseCode(HttpStatus.OK.value()));
 
 
-        var formatter = commands.dateFormatter;
-        String result = commands.aggregatePurchases(
+        DateTimeFormatter formatter = commands.dateFormatter;
+        commands.aggregatePurchases(
                 "4",
                 formatter.format(day1),
                 formatter.format(day2),
@@ -131,7 +126,7 @@ class StatsCommandsTest {
         RecordedRequest recordedRequest = mockWebServer.takeRequest();
         HttpUrl requestURL = recordedRequest.getRequestUrl();
         assertNotNull(requestURL);
-        assertEquals("/stats/4/comparePurchases", requestURL.encodedPath());
+        assertEquals(MONITORING_BASE_URI + "/stats/4/compare-purchases", requestURL.encodedPath());
         assertEquals(commands.dateFormatter.format(day1), requestURL.queryParameter("day1"));
         assertEquals(commands.dateFormatter.format(day2), requestURL.queryParameter("day2"));
         var splitted = recordedRequest.getPath().split("/");
@@ -154,13 +149,13 @@ class StatsCommandsTest {
                 .addHeader("Content-Type", "application/json")
                 .setResponseCode(HttpStatus.OK.value()));
 
-        String result = commands.aggregatePerks("1");
+        commands.aggregatePerks("1");
 
         // Verify the request was made to the correct endpoint
         RecordedRequest recordedRequest = mockWebServer.takeRequest();
         HttpUrl requestURL = recordedRequest.getRequestUrl();
         assertNotNull(requestURL);
-        assertEquals("/stats/1/nb-perks-by-type", requestURL.encodedPath());
+        assertEquals(MONITORING_BASE_URI + "/stats/1/nb-perks-by-type", requestURL.encodedPath());
         assertEquals("GET", recordedRequest.getMethod());
     }
 }

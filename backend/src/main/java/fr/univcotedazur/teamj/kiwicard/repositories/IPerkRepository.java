@@ -17,7 +17,7 @@ public interface IPerkRepository extends JpaRepository<AbstractPerk, Long> {
     select new fr.univcotedazur.teamj.kiwicard.dto.PerkCountDTO(type(perk), count(perk))
     from Purchase p
       join p.cart c
-      join c.perksToUse perk
+      join c.perksUsed perk
     where p.partner.partnerId = :partnerId
     group by type(perk)
     """)

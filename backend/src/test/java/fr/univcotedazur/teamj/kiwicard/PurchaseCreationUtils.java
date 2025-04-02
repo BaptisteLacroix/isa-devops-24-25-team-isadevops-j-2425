@@ -54,8 +54,8 @@ public class PurchaseCreationUtils {
         Map<LocalTime, Integer> aggregMap = new LinkedHashMap<>();
         timestamps.forEach(t -> aggregMap.put(t.toLocalTime(), 0));
         perksToApply = new HashMap<>(perksToApply); // copy list to avoid modifying reference
-        for (var entry : intervalToNb.entrySet()) {
-            var interval = entry.getKey();
+        for (Map.Entry<AbstractMap.SimpleEntry<LocalTime, LocalTime>, Integer> entry : intervalToNb.entrySet()) {
+            AbstractMap.SimpleEntry<LocalTime, LocalTime> interval = entry.getKey();
             int nb = entry.getValue();
             Duration intervalDuration = Duration.between(interval.getKey(), interval.getValue());
             Duration purchaseStep = intervalDuration.dividedBy(nb);
@@ -79,7 +79,7 @@ public class PurchaseCreationUtils {
 
             if (nextPerk != null) {
                 partner.addPerk(nextPerk);
-                purchaseCart.addPerkToUse(nextPerk);
+                purchaseCart.addPerkUsed(nextPerk);
             }
 
             for (int i1 = 0; i1 < 3; i1++) {
