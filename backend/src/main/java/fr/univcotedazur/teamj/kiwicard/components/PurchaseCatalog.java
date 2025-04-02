@@ -84,11 +84,13 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
     }
 
     @Override
+    @Transactional
     public PurchaseHistoryDTO findPurchaseById(long purchaseId) throws UnknownPurchaseIdException {
         return this.purchaseRepository.findById(purchaseId).map(PurchaseHistoryDTO::new).orElseThrow(()->new UnknownPurchaseIdException(purchaseId));
     }
 
     @Override
+    @Transactional
     public List<PurchaseHistoryDTO> findPurchasesByCustomerAndPartner(String customerEmail, long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException {
         this.customerCatalog.findCustomerByEmail(customerEmail);
         this.partnerManager.findPartnerById(partnerId);
@@ -133,14 +135,14 @@ public class PurchaseCatalog implements IPurchaseConsumer, IPurchaseCreator, IPu
      * @throws UnknownPartnerIdException when the partner id is unknown
      */
     @Override
+    @Transactional
     public Map<LocalTime, Integer> aggregatePurchasesByDayAndDuration(long partnerId, LocalDate day, Duration separation) throws UnknownPartnerIdException {
         this.partnerManager.findPartnerById(partnerId);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
         LocalDateTime day1 = day.atStartOfDay();
         List<Purchase> purchasesOfTheDay = this.purchaseRepository.findAllByPartnerAndDay(
                 partnerId,
-                formatter.format(day1),
-                formatter.format(day1.plusDays(1))
+                day1,
+                day1.plusDays(1)
         );
         List<LocalDateTime> timestamps = getLocalDateTimes(day, separation);
         Map<LocalTime, Integer> result = new LinkedHashMap<>();

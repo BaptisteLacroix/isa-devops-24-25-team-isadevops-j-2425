@@ -212,7 +212,7 @@ INSERT INTO public.cart (cart_id, total_percentage_reduction, partner_partner_id
 INSERT INTO public.cart (cart_id, total_percentage_reduction, partner_partner_id) VALUES (6, 0, 1);
 INSERT INTO public.cart (cart_id, total_percentage_reduction, partner_partner_id) VALUES (7, 0, 2);
 INSERT INTO public.cart (cart_id, total_percentage_reduction, partner_partner_id) VALUES (8, 0, 3);
-INSERT INTO public.cart (cart_id, total_percentage_reduction, partner_partner_id) VALUES (9, 0, 4);
+INSERT INTO public.cart (cart_id, total_percentage_reduction, partner_partner_id) VALUES (9, 0, 2);
 INSERT INTO public.cart (cart_id, total_percentage_reduction, partner_partner_id) VALUES (10, 0, 5);
 INSERT INTO public.cart (cart_id, total_percentage_reduction, partner_partner_id) VALUES (11, 0, 6);
 INSERT INTO public.cart (cart_id, total_percentage_reduction, partner_partner_id) VALUES (12, 0, 3);
@@ -261,13 +261,13 @@ INSERT INTO public.item (price, item_id, partner_id, label) VALUES (1.8, 20, 5, 
 -- --
 INSERT INTO public.abstract_perk (partner_id, perk_id) VALUES (6, 1);
 INSERT INTO public.abstract_perk (partner_id, perk_id) VALUES (2, 2);
-INSERT INTO public.abstract_perk (partner_id, perk_id) VALUES (3, 3);
+INSERT INTO public.abstract_perk (partner_id, perk_id) VALUES (2, 3);
 -- Data for Name: timed_discount_in_percent_perk; Type: TABLE DATA; Schema: public; Owner: postgresuser
 INSERT INTO public.timed_discount_in_percent_perk (discount_rate, "time", perk_id) VALUES (20, '8:00:00', 2);
 -- Data for Name: vfp_discount_in_percent_perk; Type: TABLE DATA; Schema: public; Owner: postgresuser
-INSERT INTO public.vfp_discount_in_percent_perk (discount_rate, end_hour, start_hour, perk_id) VALUES (5, '12:00:00', '08:00:00', 1);
+INSERT INTO public.vfp_discount_in_percent_perk (discount_rate, end_hour, start_hour, perk_id) VALUES (50, '18:00:00', '08:00:00', 1);
 -- Data for Name: npurchasedmgifted_perk; Type: TABLE DATA; Schema: public; Owner: postgresuser
-INSERT INTO public.npurchasedmgifted_perk (nb_gifted, nb_purchased, item_item_id, perk_id) VALUES (1, 5, 10, 3);
+INSERT INTO public.npurchasedmgifted_perk (nb_gifted, nb_purchased, item_item_id, perk_id) VALUES (1, 2, 5, 3);
 --
 -- Data for Name: cart_item; Type: TABLE DATA; Schema: public; Owner: postgresuser
 --
@@ -283,15 +283,13 @@ INSERT INTO public.cart_item (cart_item_id, consumed, price, quantity, cart_id, 
 INSERT INTO public.cart_item (cart_item_id, consumed, price, quantity, cart_id, item_item_id, start_time) VALUES (9, false, 1, 1, 14, 1, NULL);
 INSERT INTO public.cart_item (cart_item_id, consumed, price, quantity, cart_id, item_item_id, start_time) VALUES (10, false, 15, 1, 14, 3, NULL);
 INSERT INTO public.cart_item (cart_item_id, consumed, price, quantity, cart_id, item_item_id, start_time) VALUES (11, false, 2, 2, 15, 5, NULL);
-INSERT INTO public.cart_item (cart_item_id, consumed, price, quantity, cart_id, item_item_id, start_time) VALUES (12, false, 0, 1, 16, 21, '2025-06-01 10:00:00');
 
 --
 -- Data for Name: payment; Type: TABLE DATA; Schema: public; Owner: postgresuser
 --
-INSERT INTO public.payment (amount, payment_id, "timestamp") VALUES (3, 1, '2025-03-19 14:00:00');
-INSERT INTO public.payment (amount, payment_id, "timestamp") VALUES (2.5, 2, '2025-03-18 10:00:00');
-INSERT INTO public.payment (amount, payment_id, "timestamp") VALUES (2, 3, '2025-03-18 10:00:00');
-
+INSERT INTO public.payment (amount, payment_id, "timestamp") VALUES (3, 1, NOW() - INTERVAL '1 day');
+INSERT INTO public.payment (amount, payment_id, "timestamp") VALUES (2.5, 2, NOW() - INTERVAL '2 days');
+INSERT INTO public.payment (amount, payment_id, "timestamp") VALUES (2, 3, NOW() - INTERVAL '3 days');
 --
 -- Data for Name: purchase; Type: TABLE DATA; Schema: public; Owner: postgresuser
 --

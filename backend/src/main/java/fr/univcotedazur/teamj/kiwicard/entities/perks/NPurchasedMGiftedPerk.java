@@ -12,6 +12,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.Objects;
+
 @Entity
 public class NPurchasedMGiftedPerk extends AbstractPerk {
 
@@ -92,6 +94,19 @@ public class NPurchasedMGiftedPerk extends AbstractPerk {
 
     @Override
     public String toString() {
-        return "Acheter " + nbPurchased + " " + item.getLabel() + " pour en avoir " + nbGifted + " offert(s)";
+        return "Achetez " + nbPurchased + " " + item.getLabel() + " et obtenez " + nbGifted + " gratuitement";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        NPurchasedMGiftedPerk that = (NPurchasedMGiftedPerk) o;
+        return Objects.equals(this.getPerkId(), that.getPerkId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getPerkId());
     }
 }

@@ -6,7 +6,13 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import fr.univcotedazur.teamj.kiwicard.mappers.PerkVisitor;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -33,6 +39,14 @@ public abstract class AbstractPerk {
 
     public void setPartner(Partner partner) {
         this.partner = partner;
+    }
+
+    /**
+     * Indicates whether this perk is a discount perk.
+     * Subclasses should override this method if they represent a discount perk.
+     */
+    public boolean isDiscountPerk() {
+        return false;
     }
 
     /**

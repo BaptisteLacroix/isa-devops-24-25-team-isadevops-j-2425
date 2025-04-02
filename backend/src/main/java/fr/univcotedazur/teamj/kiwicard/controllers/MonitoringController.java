@@ -37,11 +37,27 @@ public class MonitoringController {
         this.perkFinder = perksFinder;
     }
 
+    /**
+     * Found a purchase by its id
+     *
+     * @param purchaseId purchase id
+     * @return purchase
+     * @throws UnknownPartnerIdException if partner id is unknown
+     * @throws UnknownPurchaseIdException if purchase id is unknown
+     */
     @GetMapping("/purchase/{purchaseId}")
     public ResponseEntity<PurchaseHistoryDTO> getPurchase(@PathVariable long purchaseId) throws UnknownPartnerIdException, UnknownPurchaseIdException {
         return ResponseEntity.ok().body(purchaseFinder.findPurchaseById(purchaseId));
     }
 
+    /**
+     * Found all purchases of a customer
+     *
+     * @param customerEmail customer email
+     * @param limit         limit of purchases
+     * @return list of purchases
+     * @throws UnknownCustomerEmailException if customer email is unknown
+     */
     @GetMapping("/customer/{customerEmail}/history")
     public ResponseEntity<List<PurchaseHistoryDTO>> customerHistory(@PathVariable String customerEmail, @RequestParam Optional<Integer> limit) throws UnknownCustomerEmailException {
         List<PurchaseHistoryDTO> purchases;
@@ -53,6 +69,14 @@ public class MonitoringController {
         return ResponseEntity.ok().body(purchases);
     }
 
+    /**
+     * Found all purchases of a partner
+     *
+     * @param partnerId partner id
+     * @param limit     limit of purchases
+     * @return list of purchases
+     * @throws UnknownPartnerIdException if partner id is unknown
+     */
     @GetMapping("/partner/{partnerId}/history")
     public ResponseEntity<List<PurchaseHistoryDTO>> partnerHistory(@PathVariable long partnerId, @RequestParam Optional<Integer> limit) throws UnknownPartnerIdException {
         List<PurchaseHistoryDTO> purchases;
@@ -64,6 +88,15 @@ public class MonitoringController {
         return ResponseEntity.ok().body(purchases);
     }
 
+    /**
+     * Found all purchases of a customer for a partner
+     *
+     * @param customerEmail customer email
+     * @param partnerId     partner id
+     * @return list of purchases
+     * @throws UnknownCustomerEmailException if customer email is unknown
+     * @throws UnknownPartnerIdException     if partner id is unknown
+     */
     @GetMapping("/purchase")
     public ResponseEntity<List<PurchaseHistoryDTO>> getByCustomerAndPartner(@RequestParam String customerEmail, @RequestParam long partnerId) throws UnknownCustomerEmailException, UnknownPartnerIdException {
         return ResponseEntity.ok().body(purchaseFinder.findPurchasesByCustomerAndPartner(customerEmail, partnerId));
@@ -73,12 +106,12 @@ public class MonitoringController {
     }
 
     @GetMapping("/stats/{partnerId}/compare-purchases")
-    public ResponseEntity<TwoDaysAggregation> comparePurchases(@PathVariable long partnerId, @RequestParam LocalDate day1, @RequestParam LocalDate day2, @RequestParam Optional<Duration> duration) throws UnknownPartnerIdException, ForbiddenDurationException {
-        Duration dur = duration.orElse(Duration.ofHours(1));
+    public ResponseEntity<TwoDaysAggregation> comparePurchases(@PathVariable long partnerId, @RequestParam String day1, @RequestParam String day2, @RequestParam Optional<Integer> duration) throws UnknownPartnerIdException, ForbiddenDurationException {
+        Duration dur = Duration.ofMinutes(duration.orElse(60));
         if (dur.compareTo(Duration.ofDays(1)) > 0)
             throw new ForbiddenDurationException(dur);
-        Map<LocalTime, Integer> day1Aggregation = this.statisticMaker.aggregatePurchasesByDayAndDuration(partnerId, day1, dur);
-        Map<LocalTime, Integer> day2Aggregation = this.statisticMaker.aggregatePurchasesByDayAndDuration(partnerId, day2, dur);
+        Map<LocalTime, Integer> day1Aggregation = this.statisticMaker.aggregatePurchasesByDayAndDuration(partnerId, LocalDate.parse(day1), dur);
+        Map<LocalTime, Integer> day2Aggregation = this.statisticMaker.aggregatePurchasesByDayAndDuration(partnerId, LocalDate.parse(day2), dur);
         return ResponseEntity.ok(new TwoDaysAggregation(day1Aggregation, day2Aggregation));
     }
 
@@ -86,6 +119,7 @@ public class MonitoringController {
     public ResponseEntity<Map<String, Long>> aggregatePartnerPerksUsageByType(
             @PathVariable long partnerId
     ) throws UnknownPartnerIdException {
-        return ResponseEntity.ok(this.perkFinder.aggregatePartnerPerksUsageByType(partnerId));
+        Map<String, Long> map = this.perkFinder.aggregatePartnerPerksUsageByType(partnerId);
+        return ResponseEntity.ok(map);
     }
 }

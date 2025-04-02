@@ -10,6 +10,7 @@ import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import fr.univcotedazur.teamj.kiwicard.entities.Partner;
+import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyBookedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
@@ -17,7 +18,6 @@ import fr.univcotedazur.teamj.kiwicard.exceptions.EmptyCartException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.NoCartException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.IPayment;
 import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartFinder;
@@ -28,9 +28,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class CartService implements ICartModifier, ICartFinder {
@@ -97,6 +98,9 @@ public class CartService implements ICartModifier, ICartFinder {
         } else {
             doAddItemToCart(cartItemDTOToAdd, itemToAdd, customerCart);
         }
+
+        // Filter only discount perks and add them to cart
+        addDiscountPerksToCart(customer, customerCart);
 
         // Update the customer's cart
         Customer updatedCustomer = customerCatalog.setCart(customer.getEmail(), customerCart);
@@ -169,7 +173,7 @@ public class CartService implements ICartModifier, ICartFinder {
      *
      * @param itemToAdd  l'item à ajouter
      * @param cartSeller le partenaire du panier
-     * @throws UnknownItemIdException    si l'item n'existe pas
+     * @throws UnknownItemIdException si l'item n'existe pas
      */
     private void verifyItemIsSoldBySamePartnerThanCart(Item itemToAdd, Partner cartSeller) throws UnknownItemIdException {
         if (!itemToAdd.getPartner().equals(cartSeller)) {
@@ -193,9 +197,21 @@ public class CartService implements ICartModifier, ICartFinder {
         CartItem cartItem = new CartItem(item, cartItemDTO);
         Partner partner = item.getPartner();
         // Create the cart
-        Cart cart = new Cart(partner, Set.of(cartItem), new ArrayList<>());
-        customer = customerCatalog.setCart(customer.getEmail(), cart);
-        return new CartDTO(customer.getCart());
+        Cart cart = new Cart(partner, new HashSet<>(List.of(cartItem)), new HashSet<>());
+        customer.setCart(cart);
+        // Filter only discount perks and add them to cart
+        addDiscountPerksToCart(customer, cart);
+
+        // Update the customer's cart
+        Customer updatedCustomer = customerCatalog.setCart(customer.getEmail(), cart);
+        return new CartDTO(updatedCustomer.getCart());
+    }
+
+    private static void addDiscountPerksToCart(Customer customer, Cart cart) {
+        cart.getPartner().getPerkSet().stream()
+                .filter(perk -> perk.isDiscountPerk() && perk.isConsumableFor(customer))
+                .toList()
+                .forEach(cart::addPerkToUse);
     }
 
 
@@ -244,10 +260,21 @@ public class CartService implements ICartModifier, ICartFinder {
         if (cart.getItems().isEmpty()) {
             customerCatalog.resetCart(cartOwnerEmail);
             return null;
-        }else{
+        } else {
+            removeInapplicablePerks(cart, customer);
             Customer updatedCustomer = customerCatalog.setCart(cartOwnerEmail, cart);
             return new CartDTO(updatedCustomer.getCart());
         }
+    }
+
+    /**
+     * Removes inapplicable perks from the cart's perks list.
+     *
+     * @param cart The cart from which inapplicable perks will be removed.
+     * @param customer The customer whose cart is being checked.
+     */
+    private void removeInapplicablePerks(Cart cart, Customer customer) {
+        cart.getPerksToUse().removeIf(perk -> !perk.isConsumableFor(customer));
     }
 
     /**

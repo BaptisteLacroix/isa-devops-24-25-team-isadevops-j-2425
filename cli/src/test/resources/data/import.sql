@@ -65,6 +65,8 @@ INSERT INTO public.customer (vfp, cart_id, address, card_number, email, first_na
 VALUES (false, 9, '5 rue des anonymes, St Laurent du Var', '1234567894', 'baptiste@tabarnak.fr', 'Baptiste', 'xxx');
 INSERT INTO public.customer (vfp, cart_id, address, card_number, email, first_name, surname)
 VALUES (false, 7, 'Place du capitole, Toulouse', '1234567895', 'roxane@princesse.fr', 'Roxane', 'Roxx');
+INSERT INTO public.customer (vfp, cart_id, address, card_number, email, first_name, surname)
+VALUES (true, 11, '6 rue des orthopésistes parce que Pierre nous fait mal aux Pieds avec ses cailloux, Gallet', '1234567896', 'pierre.cailloux@cafaismal.auxpieds', 'Pierre', 'Cailloux');
 
 --
 -- Data for Name: item; Type: TABLE DATA; Schema: public; Owner: postgresuser
@@ -120,12 +122,19 @@ VALUES (6, 1);
 INSERT INTO public.abstract_perk (partner_id, perk_id)
 VALUES (2, 2);
 INSERT INTO public.abstract_perk (partner_id, perk_id)
+VALUES (2, 6);
+INSERT INTO public.abstract_perk (partner_id, perk_id)
 VALUES (1, 3);
+INSERT INTO public.abstract_perk (partner_id, perk_id)
+VALUES (1, 5);
 INSERT INTO public.abstract_perk (partner_id, perk_id)
 VALUES (3, 4);
 -- Data for Name: timed_discount_in_percent_perk; Type: TABLE DATA; Schema: public; Owner: postgresuser
 INSERT INTO public.timed_discount_in_percent_perk (discount_rate, "time", perk_id)
 VALUES (20, now() - interval '1 hours', 2);
+-- Data for Name: timed_discount_in_percent_perk; Type: TABLE DATA; Schema: public; Owner: postgresuser
+INSERT INTO public.timed_discount_in_percent_perk (discount_rate, "time", perk_id)
+VALUES (20, now() - interval '1 hours', 5);
 -- Data for Name: timed_discount_in_percent_perk; Type: TABLE DATA; Schema: public; Owner: postgresuser
 INSERT INTO public.timed_discount_in_percent_perk (discount_rate, "time", perk_id)
 VALUES (10, now() - interval '1 hours', 3);
@@ -134,7 +143,9 @@ INSERT INTO public.vfp_discount_in_percent_perk (discount_rate, end_hour, start_
 VALUES (5, '12:00:00', '08:00:00', 1);
 -- Data for Name: npurchasedmgifted_perk; Type: TABLE DATA; Schema: public; Owner: postgresuser
 INSERT INTO public.npurchasedmgifted_perk (nb_gifted, nb_purchased, item_item_id, perk_id)
-VALUES (1, 5, 10, 4);
+VALUES (1, 5, 10, 4);-- Data for Name: npurchasedmgifted_perk; Type: TABLE DATA; Schema: public; Owner: postgresuser
+INSERT INTO public.npurchasedmgifted_perk (nb_gifted, nb_purchased, item_item_id, perk_id)
+VALUES (1, 1, 5, 6);
 --
 -- Data for Name: cart_item; Type: TABLE DATA; Schema: public; Owner: postgresuser
 --

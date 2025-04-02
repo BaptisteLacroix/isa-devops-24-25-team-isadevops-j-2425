@@ -62,7 +62,9 @@ public class PartnerCommands {
     @ShellMethod(value = """
             Show all partners
             Usage: partners
-            Example: partners
+            
+            Example:
+                partners
             """, key = "partners")
     public String partners() {
         return webClient.get()
@@ -82,10 +84,13 @@ public class PartnerCommands {
      */
     @ShellMethod(value = """
             Show items for a partner
-            Usage: partner-items --partnerId <partnerId>
+            Usage: partner-items --partner-id <partner-id>
+            
             Parameters:
                 --partnerId  The ID of the partner whose items you want to display.
-            Example: partner-items --partnerId 12345
+           
+            Example:
+                partner-items --partner-id 12345
             """, key = "partner-items")
     public String partnerItems(@ShellOption(value = {"-p", "--partner-id"}, defaultValue = LOGGED_IN_ID_PLACEHOLDER) String partnerId) {
         partnerId = cliSession.tryInjectingPartnerId(partnerId);

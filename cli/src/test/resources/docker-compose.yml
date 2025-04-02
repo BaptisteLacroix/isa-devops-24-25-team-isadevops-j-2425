@@ -8,6 +8,7 @@ services:
       - CARD_WITH_PORT=172.17.0.1:9091
       - HAPPYKIDS_WITH_PORT=172.17.0.1:9092
       - POSTGRES_HOST=postgres:5432
+      - TZ=Europe/Paris
     entrypoint: "java -jar /opt/app/app.jar --bank.host.baseurl=http://$${BANK_WITH_PORT} --cardeditor.host.baseurl=http://$${CARD_WITH_PORT} --happykids.host.baseurl=http://$${HAPPYKIDS_WITH_PORT}"
     restart: always
     depends_on:

@@ -250,7 +250,6 @@ class PartnerControllerIT extends BaseUnitTest {
 
     @Test
     void listAllItemsFromPartnerNotFound() throws Exception {
-//        when(partnerManager.findAllPartnerItems(2)).thenThrow(new UnknownPartnerIdException(2));
         mockMvc.perform(get(PartnerController.BASE_URI + "/2/items")
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
@@ -259,18 +258,21 @@ class PartnerControllerIT extends BaseUnitTest {
     }
 
     @Test
+    @Transactional
     void listAllPerksFromPartnerOK() throws Exception {
         Partner partner = new Partner(chezJohnCreationDTO);
         VfpDiscountInPercentPerk perk1 = new VfpDiscountInPercentPerk(10, LocalTime.of(10, 0, 0), LocalTime.of(12, 0, 0));
         VfpDiscountInPercentPerk perk2 = new VfpDiscountInPercentPerk(20, LocalTime.of(10, 0, 0), LocalTime.of(12, 0, 0));
         partner.addPerk(perk1);
+        partnerRepository.save(partner);
+        partner = partnerRepository.findById(partner.getPartnerId()).orElseThrow();
         partner.addPerk(perk2);
         partnerRepository.save(partner);
+        partner = partnerRepository.findById(partner.getPartnerId()).orElseThrow();
         long partnerId = partner.getPartnerId();
 
-
-        AbstractPerk firstPerk = perk1.getPerkId() < perk2.getPerkId() ? perk1 : perk2;
-        AbstractPerk secondPerk = perk1.getPerkId() > perk2.getPerkId() ? perk1 : perk2;
+        AbstractPerk firstPerk = partner.getPerkSet().stream().findFirst().get();
+        AbstractPerk secondPerk = partner.getPerkSet().stream().skip(1).findFirst().get();
 
 
         mockMvc.perform(get(PartnerController.BASE_URI + "/" + partnerId + "/perks")
