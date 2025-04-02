@@ -100,7 +100,9 @@ public class VfpDiscountInPercentPerk extends AbstractPerk {
             if (!startHour.isAfter(endHour)) { // same-day interval
                 return !bookingTime.isBefore(startHour) && bookingTime.isBefore(endHour);
             }
-            return !bookingTime.isBefore(startHour) || bookingTime.isBefore(endHour);
+            if (!bookingTime.isBefore(startHour) || bookingTime.isBefore(endHour)) {
+                return true;
+            }
         }
         return false;
     }

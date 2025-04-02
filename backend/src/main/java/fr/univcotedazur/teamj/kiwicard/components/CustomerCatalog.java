@@ -16,7 +16,6 @@ import fr.univcotedazur.teamj.kiwicard.interfaces.customer.ICustomerRegistration
 import fr.univcotedazur.teamj.kiwicard.interfaces.customer.IVfpStatus;
 import fr.univcotedazur.teamj.kiwicard.repositories.ICustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -1,6 +1,5 @@
 package fr.univcotedazur.teamj.kiwicard.interfaces;
 
-import fr.univcotedazur.teamj.kiwicard.dto.CardCreationDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CardDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 

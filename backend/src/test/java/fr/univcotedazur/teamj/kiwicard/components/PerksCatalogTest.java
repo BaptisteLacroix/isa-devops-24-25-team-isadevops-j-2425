@@ -1,14 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.when;
-
 import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
@@ -25,6 +17,14 @@ import org.mockito.MockedStatic;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 class PerksCatalogTest {
 

@@ -1,7 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.interfaces;
 
 import fr.univcotedazur.teamj.kiwicard.dto.HappyKidsDiscountDTO;
-import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 

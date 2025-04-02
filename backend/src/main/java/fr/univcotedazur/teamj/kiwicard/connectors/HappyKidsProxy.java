@@ -2,8 +2,6 @@ package fr.univcotedazur.teamj.kiwicard.connectors;
 
 import fr.univcotedazur.teamj.kiwicard.dto.HappyKidsDiscountDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.HappyKidsRequestDTO;
-import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
-import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.IHappyKids;
 import org.springframework.beans.factory.annotation.Autowired;

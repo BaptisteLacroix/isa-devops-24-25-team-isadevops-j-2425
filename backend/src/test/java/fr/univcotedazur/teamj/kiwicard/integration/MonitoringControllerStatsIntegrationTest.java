@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import fr.univcotedazur.teamj.kiwicard.PurchaseCreationUtils;
-import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import fr.univcotedazur.teamj.kiwicard.dto.ErrorDTO;
+import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import fr.univcotedazur.teamj.kiwicard.entities.Partner;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.NPurchasedMGiftedPerk;
@@ -41,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-public class MonitoringControllerStatsIntegrationTest {
+class MonitoringControllerStatsIntegrationTest {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -61,7 +61,7 @@ public class MonitoringControllerStatsIntegrationTest {
 
     @Transactional
     @BeforeEach
-    public void setup() {
+    void setup() {
         partner = new Partner(
                 "Poissonnerie",
                 "11 rue des poissons, Saint-Tropez"
