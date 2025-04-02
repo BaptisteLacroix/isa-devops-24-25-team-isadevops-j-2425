@@ -2,7 +2,6 @@ package fr.univcotedazur.teamj.kiwicard.interfaces.cart;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CartItemAddDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.CartItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyBookedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;

@@ -2,7 +2,11 @@ package fr.univcotedazur.teamj.kiwicard.components;
 
 import fr.univcotedazur.teamj.kiwicard.PurchaseCreationUtils;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
-import fr.univcotedazur.teamj.kiwicard.entities.*;
+import fr.univcotedazur.teamj.kiwicard.entities.Cart;
+import fr.univcotedazur.teamj.kiwicard.entities.Customer;
+import fr.univcotedazur.teamj.kiwicard.entities.Partner;
+import fr.univcotedazur.teamj.kiwicard.entities.Payment;
+import fr.univcotedazur.teamj.kiwicard.entities.Purchase;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseStats;
 import fr.univcotedazur.teamj.kiwicard.repositories.IPurchaseRepository;
@@ -12,18 +16,19 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import static fr.univcotedazur.teamj.kiwicard.DateUtils.getLocalDateTimes;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
+import static fr.univcotedazur.teamj.kiwicard.DateUtils.getLocalDateTimes;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
-public class PurchaseStatsTest {
+class PurchaseStatsTest {
     @Autowired
     EntityManager entityManager;
 
