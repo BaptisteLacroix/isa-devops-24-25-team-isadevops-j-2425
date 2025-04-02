@@ -32,6 +32,7 @@ public class Purchase {
     public Purchase(Payment payment, Cart cart) {
         this.payment = payment;
         this.cart = cart;
+        this.partner = this.cart.getPartner();
         this.alreadyConsumedInAPerk = false;
     }
 
@@ -53,5 +54,17 @@ public class Purchase {
 
     public void setPartner(Partner partner) {
         this.partner = partner;
+    }
+
+    public boolean isAlreadyConsumedInAPerk() {
+        return alreadyConsumedInAPerk;
+    }
+
+    public void setAlreadyConsumedInAPerk(boolean alreadyConsumedInAPerk) {
+        this.alreadyConsumedInAPerk = alreadyConsumedInAPerk;
+    }
+
+    public Long getPurchaseId() {
+        return purchaseId;
     }
 }

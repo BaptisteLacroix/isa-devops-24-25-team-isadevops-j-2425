@@ -3,6 +3,7 @@ package fr.univcotedazur.teamj.kiwicard.entities.perks;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.VfpDiscountInPercentPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
+import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import fr.univcotedazur.teamj.kiwicard.mappers.PerkVisitor;
@@ -12,6 +13,10 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Objects;
+
+import static fr.univcotedazur.teamj.kiwicard.configurations.Constants.MAX_DISCOUNT_RATE_OF_A_PERK;
+import static fr.univcotedazur.teamj.kiwicard.configurations.Constants.MIN_DISCOUNT_RATE_OF_A_PERK;
 
 @Entity
 public class VfpDiscountInPercentPerk extends AbstractPerk {
@@ -32,8 +37,8 @@ public class VfpDiscountInPercentPerk extends AbstractPerk {
     }
 
     public VfpDiscountInPercentPerk(double discountRate, LocalTime startHour, LocalTime endHour) {
-        while (discountRate > 1) {
-            discountRate = discountRate / 100;
+        if (discountRate > MAX_DISCOUNT_RATE_OF_A_PERK || discountRate < MIN_DISCOUNT_RATE_OF_A_PERK) {
+            throw new IllegalArgumentException("Discount rate must be between 0 and 100");
         }
         this.discountRate = discountRate;
         this.startHour = startHour;
@@ -45,33 +50,26 @@ public class VfpDiscountInPercentPerk extends AbstractPerk {
         this.setPerkId(dto.perkId());
     }
 
-    public double getDiscountRate() {
-        return discountRate;
+    @Override
+    public boolean isDiscountPerk() {
+        return true;
     }
 
-    public void setDiscountRate(double percentage) {
-        this.discountRate = percentage;
+    public double getDiscountRate() {
+        return discountRate;
     }
 
     public LocalTime getStartHour() {
         return startHour;
     }
 
-    public void setStartHour(LocalTime startHour) {
-        this.startHour = startHour;
-    }
-
     public LocalTime getEndHour() {
         return endHour;
     }
 
-    public void setEndHour(LocalTime endHour) {
-        this.endHour = endHour;
-    }
-
     @Override
     public String toString() {
-        return discountRate + "% discount for all VFPs when booking between " + startHour + "h and " + endHour + "h";
+        return discountRate + "% de réduction pour tous les VFP lors de la réservation entre " + startHour + "h et " + endHour + "h";
     }
 
     @Override
@@ -80,8 +78,8 @@ public class VfpDiscountInPercentPerk extends AbstractPerk {
     }
 
     @Override
-    public boolean apply(PerkApplicationVisitor visitor) throws ClosedTimeException, UnreachableExternalServiceException {
-        return visitor.visit(this);
+    public boolean apply(PerkApplicationVisitor visitor, Customer customer) throws ClosedTimeException, UnreachableExternalServiceException, BookingTimeNotSetException {
+        return visitor.visit(this, customer);
     }
 
     @Override
@@ -89,17 +87,34 @@ public class VfpDiscountInPercentPerk extends AbstractPerk {
         if (customer.getCart() == null) {
             return false;
         }
-        List<CartItem> hkItems = customer.getCart().getHKItems(null);
+        if (!customer.isVfp()) {
+            return false;
+        }
+        List<CartItem> hkItems = customer.getCart().getHKItems();
 
         for (CartItem item : hkItems) {
             if (item.getStartTime() == null) {
                 return false;
             }
-            int bookingHour = item.getStartTime().getHour();
-            if (customer.isVfp() && bookingHour >= startHour.getHour() && bookingHour < endHour.getHour()) {
-                return true;
+            LocalTime bookingTime = item.getStartTime().toLocalTime();
+            if (!startHour.isAfter(endHour)) { // same-day interval
+                return !bookingTime.isBefore(startHour) && bookingTime.isBefore(endHour);
             }
+            return !bookingTime.isBefore(startHour) || bookingTime.isBefore(endHour);
         }
         return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        VfpDiscountInPercentPerk that = (VfpDiscountInPercentPerk) o;
+        return Objects.equals(this.getPerkId(), that.getPerkId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getPerkId());
     }
 }

@@ -1,38 +1,48 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.CartItemAddItemToCartDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.CartItemDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.CartInPurchaseDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.CartItemAddDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PaymentDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
-import fr.univcotedazur.teamj.kiwicard.entities.*;
-import fr.univcotedazur.teamj.kiwicard.exceptions.*;
+import fr.univcotedazur.teamj.kiwicard.entities.Cart;
+import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
+import fr.univcotedazur.teamj.kiwicard.entities.Customer;
+import fr.univcotedazur.teamj.kiwicard.entities.Item;
+import fr.univcotedazur.teamj.kiwicard.entities.Partner;
+import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
+import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyBookedTimeException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.EmptyCartException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.NoCartException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.IPayment;
 import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartModifier;
-import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPartnerManager;
 import fr.univcotedazur.teamj.kiwicard.repositories.IItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class CartService implements ICartModifier, ICartFinder {
 
     private final IItemRepository itemRepository;
-    private final IPartnerManager partnerManager;
     private final IPayment payment;
     private final CustomerCatalog customerCatalog;
 
     @Autowired
-    public CartService(IItemRepository itemRepository, IPartnerManager partnerManager, IPayment payment, CustomerCatalog customerCatalog) {
+    public CartService(IItemRepository itemRepository, IPayment payment, CustomerCatalog customerCatalog) {
         this.itemRepository = itemRepository;
-        this.partnerManager = partnerManager;
         this.payment = payment;
         this.customerCatalog = customerCatalog;
     }
@@ -48,13 +58,12 @@ public class CartService implements ICartModifier, ICartFinder {
      * @param cartDTO       An existing CartDTO representing the customer's current cart. If null, a new cart is created.
      * @return A CartDTO representing the updated shopping cart after the item has been added.
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
-     * @throws UnknownPartnerIdException     If no partner is found for the item in the cart.
      * @throws UnknownItemIdException        If the item does not exist in the item repository.
      * @throws NoCartException               If the customer does not have a cart.
      */
     @Override
     @Transactional
-    public CartDTO addItemToCart(String customerEmail, CartItemAddItemToCartDTO cartItemDTO, CartDTO cartDTO) throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException, NoCartException {
+    public CartDTO addItemToCart(String customerEmail, CartItemAddDTO cartItemDTO, CartDTO cartDTO) throws UnknownCustomerEmailException, UnknownItemIdException, NoCartException, AlreadyBookedTimeException {
         // Found the customer in the bdd
         Customer customer = customerCatalog.findCustomerByEmail(customerEmail);
         Item item = itemRepository.findById(cartItemDTO.itemId()).orElseThrow(() -> new UnknownItemIdException(cartItemDTO.itemId()));
@@ -69,52 +78,107 @@ public class CartService implements ICartModifier, ICartFinder {
      * Adds the item to the customer's existing cart. It checks if the item belongs to the partner's catalog
      * and adds the item to the cart if it is valid.
      *
-     * @param cartItemDTO A CartItemDTO containing the details of the item to be added.
-     * @param customer    The customer whose cart the item will be added to.
-     * @param item        The item to be added to the cart.
+     * @param cartItemDTOToAdd A CartItemDTO containing the details of the item to be added.
+     * @param customer         The customer whose cart the item will be added to.
+     * @param itemToAdd        The item to be added to the cart.
      * @return A CartDTO representing the updated shopping cart after the item has been added.
-     * @throws UnknownPartnerIdException     If no partner is found for the item in the cart.
      * @throws UnknownItemIdException        If the item is not valid for the partner's catalog.
      * @throws UnknownCustomerEmailException If the customer does not exist in the database.
      * @throws NoCartException               If the customer does not have a cart.
      */
-    private CartDTO addItemToCart(CartItemAddItemToCartDTO cartItemDTO, Customer customer, Item item)
-            throws UnknownPartnerIdException, UnknownItemIdException, UnknownCustomerEmailException, NoCartException {
+    private CartDTO addItemToCart(CartItemAddDTO cartItemDTOToAdd, Customer customer, Item itemToAdd)
+            throws UnknownItemIdException, UnknownCustomerEmailException, NoCartException, AlreadyBookedTimeException {
 
-        Cart customerCart = customer.getCart();
-        if (customerCart == null) {
-            throw new NoCartException(customer.getEmail());
+        Cart customerCart = verifyCartExists(customer);
+
+        verifyItemIsSoldBySamePartnerThanCart(itemToAdd, customerCart.getPartner());
+
+        if (customerCart.alreadyContains(itemToAdd)) {
+            updateItemQuantity(cartItemDTOToAdd, itemToAdd, customerCart);
+        } else {
+            doAddItemToCart(cartItemDTOToAdd, itemToAdd, customerCart);
         }
 
-        // Check that the item belongs to the partner's catalog
-        Partner partner = customerCart.getPartner();
-        List<Item> partnerItems = partnerManager.findAllPartnerItems(partner.getPartnerId());
-        if (partnerItems.stream().noneMatch(partnerItem -> partnerItem.getItemId().equals(item.getItemId()))) {
-            throw new UnknownItemIdException(item.getItemId());
-        }
-
-        // Check if the item already exists in the cart
-        boolean itemExists = false;
-        for (CartItem existingCartItem : customerCart.getItemList()) {
-            if (existingCartItem.getItem().getItemId().equals(item.getItemId())) {
-                // If the item exists, update the quantity
-                existingCartItem.setQuantity(existingCartItem.getQuantity() + cartItemDTO.quantity());
-                existingCartItem.setStartTime(cartItemDTO.startTime());
-                existingCartItem.setEndTime(cartItemDTO.endTime());
-                itemExists = true;
-                break;
-            }
-        }
-
-        // If the item doesn't exist, add a new item to the cart
-        if (!itemExists) {
-            CartItem newCartItem = new CartItem(item, cartItemDTO.quantity(), cartItemDTO.startTime(), cartItemDTO.endTime());
-            customerCart.getItemList().add(newCartItem);
-        }
+        // Filter only discount perks and add them to cart
+        addDiscountPerksToCart(customer, customerCart);
 
         // Update the customer's cart
         Customer updatedCustomer = customerCatalog.setCart(customer.getEmail(), customerCart);
         return new CartDTO(updatedCustomer.getCart());
+
+    }
+
+    /**
+     * Gestion de la mise à jour de la quantité d'un item dans le panier
+     *
+     * @param cartItemDTOToAdd le DTO de l'item à ajouter
+     * @param itemToAdd        l'item à ajouter
+     * @param customerCart     le panier du client
+     * @throws AlreadyBookedTimeException si le créneau est déjà réservé dans le cas d'une réservation
+     */
+    private static void updateItemQuantity(CartItemAddDTO cartItemDTOToAdd, Item itemToAdd, Cart customerCart) throws AlreadyBookedTimeException {
+        CartItem existingCartItem = customerCart.getItemById(itemToAdd.getItemId());
+        if (!cartItemDTOToAdd.isABooking()) {
+            existingCartItem.setQuantity(existingCartItem.getQuantity() + cartItemDTOToAdd.quantity());
+            existingCartItem.setStartTime(null);
+        } else if (timeIsAlreadyBooked(cartItemDTOToAdd, existingCartItem)) {
+            LocalDateTime alreadyBookedTime = existingCartItem.getStartTime();
+            throw new AlreadyBookedTimeException(itemToAdd.getLabel(), alreadyBookedTime, existingCartItem.getQuantity());
+        } else {
+            doAddItemToCart(cartItemDTOToAdd, itemToAdd, customerCart);
+        }
+    }
+
+    private static void doAddItemToCart(CartItemAddDTO cartItemDTOToAdd, Item itemToAdd, Cart customerCart) {
+        CartItem newCartItem = new CartItem(itemToAdd, cartItemDTOToAdd);
+        customerCart.getItems().add(newCartItem);
+    }
+
+    /**
+     * Vérifie si le panier du client existe
+     *
+     * @param customer le client
+     * @return le panier du client
+     * @throws NoCartException si le panier n'existe pas
+     */
+    private static Cart verifyCartExists(Customer customer) throws NoCartException {
+        Cart customerCart = customer.getCart();
+        if (customerCart == null) {
+            throw new NoCartException(customer.getEmail());
+        }
+        return customerCart;
+    }
+
+    /**
+     * Check if the time to book is already booked
+     *
+     * @param itemToBookDTO    the item to book
+     * @param existingCartItem the existing item in the cart
+     * @return true if the time is already booked, false otherwise
+     */
+    private static boolean timeIsAlreadyBooked(CartItemAddDTO itemToBookDTO, CartItem existingCartItem) {
+        LocalDateTime startTimeToBook = itemToBookDTO.startTime();
+        LocalDateTime endTimeToBook = itemToBookDTO.startTime().plusHours(itemToBookDTO.quantity());
+        LocalDateTime startTimeBooked = existingCartItem.getStartTime();
+        LocalDateTime endTimeBooked = existingCartItem.getStartTime().plusHours(existingCartItem.getQuantity());
+        return startTimeToBook.isEqual(startTimeBooked) || endTimeToBook.isEqual(endTimeBooked) ||
+                (startTimeToBook.isAfter(startTimeBooked) && startTimeToBook.isBefore(endTimeBooked)) ||
+                (endTimeToBook.isAfter(startTimeBooked) && endTimeToBook.isBefore(endTimeBooked));
+
+
+    }
+
+    /**
+     * Vérifie si l'item à ajouter est vendu par le même partenaire que celui des items déjà dans le panier
+     *
+     * @param itemToAdd  l'item à ajouter
+     * @param cartSeller le partenaire du panier
+     * @throws UnknownItemIdException si l'item n'existe pas
+     */
+    private void verifyItemIsSoldBySamePartnerThanCart(Item itemToAdd, Partner cartSeller) throws UnknownItemIdException {
+        if (!itemToAdd.getPartner().equals(cartSeller)) {
+            throw new UnknownItemIdException(itemToAdd.getItemId());
+        }
     }
 
 
@@ -126,17 +190,28 @@ public class CartService implements ICartModifier, ICartFinder {
      * @param customer    The customer whose cart the item will be added to.
      * @param item        The item to be added to the new cart.
      * @return A CartDTO representing the newly created cart.
-     * @throws UnknownPartnerIdException     If the partner for the item cannot be found.
      * @throws UnknownCustomerEmailException If the customer does not exist in the system.
      */
-    private CartDTO createCart(CartItemAddItemToCartDTO cartItemDTO, Customer customer, Item item) throws UnknownPartnerIdException, UnknownCustomerEmailException {
+    private CartDTO createCart(CartItemAddDTO cartItemDTO, Customer customer, Item item) throws UnknownCustomerEmailException {
         // Create the list of CartItem
-        CartItem cartItem = new CartItem(item, cartItemDTO.quantity(), cartItemDTO.startTime(), cartItemDTO.endTime());
-        Partner partner = partnerManager.findPartnerById(item.getPartner().getPartnerId());
+        CartItem cartItem = new CartItem(item, cartItemDTO);
+        Partner partner = item.getPartner();
         // Create the cart
-        Cart cart = new Cart(partner, Set.of(cartItem), new ArrayList<>());
-        customer = customerCatalog.setCart(customer.getEmail(), cart);
-        return new CartDTO(customer.getCart());
+        Cart cart = new Cart(partner, new HashSet<>(List.of(cartItem)), new HashSet<>());
+        customer.setCart(cart);
+        // Filter only discount perks and add them to cart
+        addDiscountPerksToCart(customer, cart);
+
+        // Update the customer's cart
+        Customer updatedCustomer = customerCatalog.setCart(customer.getEmail(), cart);
+        return new CartDTO(updatedCustomer.getCart());
+    }
+
+    private static void addDiscountPerksToCart(Customer customer, Cart cart) {
+        cart.getPartner().getPerkSet().stream()
+                .filter(perk -> perk.isDiscountPerk() && perk.isConsumableFor(customer))
+                .toList()
+                .forEach(cart::addPerkToUse);
     }
 
 
@@ -165,7 +240,7 @@ public class CartService implements ICartModifier, ICartFinder {
      * then removes the item from the customer's cart if it exists. If the customer is not found, an exception is thrown.
      *
      * @param cartOwnerEmail The email address of the customer whose cart the item will be removed from.
-     * @param cartItemDTO    A CartItemDTO representing the item to be removed, including the item ID.
+     * @param itemId         The item ID of the item to be removed from the cart.
      * @return A CartDTO representing the updated shopping cart after the item has been removed.
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
      * @throws NoCartException               If the customer does not have a cart.
@@ -173,14 +248,33 @@ public class CartService implements ICartModifier, ICartFinder {
      */
     @Override
     @Transactional
-    public CartDTO removeItemFromCart(String cartOwnerEmail, CartItemDTO cartItemDTO) throws UnknownCustomerEmailException, EmptyCartException, NoCartException {
+    public CartDTO removeItemFromCart(String cartOwnerEmail, Long itemId) throws UnknownCustomerEmailException, EmptyCartException, NoCartException, UnknownItemIdException {
         // Check that the customer exists
         Customer customer = customerCatalog.findCustomerByEmail(cartOwnerEmail);
         Cart cart = verifyCart(customer);
         // Remove the item from the cart
-        cart.getItemList().removeIf(cartItem -> cartItem.getItem().getItemId().equals(cartItemDTO.item().itemId()));
-        Customer updatedCustomer = customerCatalog.setCart(cartOwnerEmail, cart);
-        return new CartDTO(updatedCustomer.getCart());
+        boolean removed = cart.getItems().removeIf(cartItem -> cartItem.getItem().getItemId().equals(itemId));
+        if (!removed) {
+            throw new UnknownItemIdException(itemId);
+        }
+        if (cart.getItems().isEmpty()) {
+            customerCatalog.resetCart(cartOwnerEmail);
+            return null;
+        } else {
+            removeInapplicablePerks(cart, customer);
+            Customer updatedCustomer = customerCatalog.setCart(cartOwnerEmail, cart);
+            return new CartDTO(updatedCustomer.getCart());
+        }
+    }
+
+    /**
+     * Removes inapplicable perks from the cart's perks list.
+     *
+     * @param cart The cart from which inapplicable perks will be removed.
+     * @param customer The customer whose cart is being checked.
+     */
+    private void removeInapplicablePerks(Cart cart, Customer customer) {
+        cart.getPerksToUse().removeIf(perk -> !perk.isConsumableFor(customer));
     }
 
     /**
@@ -200,14 +294,14 @@ public class CartService implements ICartModifier, ICartFinder {
      */
     @Override
     @Transactional
-    public PurchaseDTO validateCart(String cartOwnerEmail) throws UnknownCustomerEmailException, UnreachableExternalServiceException, EmptyCartException, NoCartException, ClosedTimeException {
+    public PurchaseDTO validateCart(String cartOwnerEmail) throws UnknownCustomerEmailException, UnreachableExternalServiceException, EmptyCartException, NoCartException, ClosedTimeException, BookingTimeNotSetException {
         // Check that the customer exists
         Customer customer = customerCatalog.findCustomerByEmail(cartOwnerEmail);
         Cart cart = verifyCart(customer);
         // Create the purchase
         PaymentDTO paymentDTO = payment.makePay(customer);
-        PurchaseDTO purchaseDTO = new PurchaseDTO(cartOwnerEmail, new CartDTO(cart), paymentDTO);
-        customerCatalog.emptyCart(cartOwnerEmail);
+        PurchaseDTO purchaseDTO = new PurchaseDTO(cartOwnerEmail, new CartInPurchaseDTO(cart), paymentDTO);
+        customerCatalog.resetCart(cartOwnerEmail);
         return purchaseDTO;
     }
 
@@ -221,11 +315,8 @@ public class CartService implements ICartModifier, ICartFinder {
      * @throws EmptyCartException If the customer's cart is empty.
      */
     private static Cart verifyCart(Customer customer) throws NoCartException, EmptyCartException {
-        Cart cart = customer.getCart();
-        if (cart == null) {
-            throw new NoCartException(customer.getEmail());
-        }
-        if (cart.getItemList().isEmpty()) {
+        Cart cart = verifyCartExists(customer);
+        if (cart.getItems().isEmpty()) {
             throw new EmptyCartException(cart.getCartId());
         }
         return cart;

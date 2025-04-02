@@ -12,6 +12,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.Objects;
+
 @Entity
 public class NPurchasedMGiftedPerk extends AbstractPerk {
 
@@ -40,6 +42,7 @@ public class NPurchasedMGiftedPerk extends AbstractPerk {
         this.nbPurchased = perkDTO.nbPurchased();
         this.nbGifted = perkDTO.nbGifted();
         this.item = new Item(perkDTO.item());
+
     }
 
     @NotNull
@@ -69,12 +72,12 @@ public class NPurchasedMGiftedPerk extends AbstractPerk {
     }
 
     private boolean isEligibleForGift(CartItem cartItem) {
-        return cartItem.getQuantity() >= nbPurchased;
+        return cartItem != null && cartItem.getQuantity() >= nbPurchased;
     }
 
     @Override
-    public boolean apply(PerkApplicationVisitor visitor) {
-        return visitor.visit(this);
+    public boolean apply(PerkApplicationVisitor visitor, Customer customer) {
+        return visitor.visit(this, customer);
     }
 
     @Override
@@ -91,6 +94,19 @@ public class NPurchasedMGiftedPerk extends AbstractPerk {
 
     @Override
     public String toString() {
-        return "Buy " + nbPurchased + " " + item.getLabel() + " and get " + nbGifted + " for free";
+        return "Achetez " + nbPurchased + " " + item.getLabel() + " et obtenez " + nbGifted + " gratuitement";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        NPurchasedMGiftedPerk that = (NPurchasedMGiftedPerk) o;
+        return Objects.equals(this.getPerkId(), that.getPerkId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getPerkId());
     }
 }

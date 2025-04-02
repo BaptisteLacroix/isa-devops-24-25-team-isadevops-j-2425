@@ -25,8 +25,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -171,25 +171,25 @@ class CustomerCatalogTest extends BaseUnitTest {
     }
 
     @Test
-    void emptyCart() throws Exception {
+    void resetCart() throws Exception {
         Customer customer = new Customer("test@example.com", "Roxane", "Roxx", "2 passage Marie Antoinette", false);
         customer.setCart(new Cart());
         when(customerRepository.findByEmail("test@example.com"))
                 .thenReturn(Optional.of(customer));
 
-        customerCatalog.emptyCart("test@example.com");
+        customerCatalog.resetCart("test@example.com");
 
-        assertTrue(customer.getCart().isEmpty());
+        assertNull(customer.getCart());
         verify(customerRepository, times(1)).findByEmail("test@example.com");
         verify(customerRepository, times(1)).save(customer);
     }
 
     @Test
-    void emptyCartCustomerNotFound() {
+    void resetCartCustomerNotFound() {
         when(customerRepository.findByEmail("inconnu@example.com"))
                 .thenReturn(Optional.empty());
         assertThrows(UnknownCustomerEmailException.class, () ->
-                customerCatalog.emptyCart("inconnu@example.com"));
+                customerCatalog.resetCart("inconnu@example.com"));
         verify(customerRepository, times(1)).findByEmail("inconnu@example.com");
         verify(customerRepository, times(0)).save(any());
     }

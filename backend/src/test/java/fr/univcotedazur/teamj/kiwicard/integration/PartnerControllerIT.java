@@ -4,11 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.univcotedazur.teamj.kiwicard.BaseUnitTest;
 import fr.univcotedazur.teamj.kiwicard.controllers.PartnerController;
 import fr.univcotedazur.teamj.kiwicard.dto.ErrorDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.ItemCreationDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerCreationDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import fr.univcotedazur.teamj.kiwicard.entities.Partner;
+import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.VfpDiscountInPercentPerk;
 import fr.univcotedazur.teamj.kiwicard.repositories.IPartnerRepository;
 import fr.univcotedazur.teamj.kiwicard.repositories.IPerkRepository;
@@ -17,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -38,6 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class PartnerControllerIT extends BaseUnitTest {
 
     public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -54,6 +58,8 @@ class PartnerControllerIT extends BaseUnitTest {
     private PartnerCreationDTO chezPaulCreationDTO;
     private ItemDTO croissantDTO;
     private ItemDTO painAuChocolatDTO;
+    private ItemCreationDTO croissantCreationDTO;
+    private ItemCreationDTO painAuChocolatCreationDTO;
 
     @BeforeEach
     void setUp() {
@@ -61,8 +67,8 @@ class PartnerControllerIT extends BaseUnitTest {
         chezPaulCreationDTO = new PartnerCreationDTO("Chez Paul", "3 rue de la Paix");
         croissantDTO = new ItemDTO(1, "Croissant", 1.2);
         painAuChocolatDTO = new ItemDTO(2, "Pain au chocolat", 1.8);
-
-        partnerRepository.deleteAll();
+        croissantCreationDTO = new ItemCreationDTO("Croissant", 1.2);
+        painAuChocolatCreationDTO = new ItemCreationDTO("Pain au chocolat", 1.8);
     }
 
     @Test
@@ -105,7 +111,6 @@ class PartnerControllerIT extends BaseUnitTest {
 
     @Test
     void getPartnerByIdNotFound() throws Exception {
-//        when(partnerManager.findPartnerById(2)).thenThrow(new UnknownPartnerIdException(2));
         mockMvc.perform(get(PartnerController.BASE_URI + "/2")
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
@@ -139,7 +144,7 @@ class PartnerControllerIT extends BaseUnitTest {
 
         mockMvc.perform(patch(PartnerController.BASE_URI + "/" + partnerId + "/add-item")
                         .contentType(APPLICATION_JSON)
-                        .content(OBJECT_MAPPER.writeValueAsString(painAuChocolatDTO)))
+                        .content(OBJECT_MAPPER.writeValueAsString(painAuChocolatCreationDTO)))
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
@@ -169,7 +174,7 @@ class PartnerControllerIT extends BaseUnitTest {
     @Transactional
     void removeItemFromPartnerCatalogOK() throws Exception {
         Partner partner = new Partner(chezJohnCreationDTO);
-        Item item = new Item(croissantDTO);
+        Item item = new Item(croissantCreationDTO);
         partner.addItem(item);
         partnerRepository.save(partner);
         long partnerId = partner.getPartnerId();
@@ -201,7 +206,7 @@ class PartnerControllerIT extends BaseUnitTest {
     @Test
     void removeItemFromPartnerCatalogItemNotRemoved() throws Exception {
         Partner partner = new Partner(chezJohnCreationDTO);
-        Item item = new Item(croissantDTO);
+        Item item = new Item(croissantCreationDTO);
         partner.addItem(item);
         partnerRepository.save(partner);
         long partnerId = partner.getPartnerId();
@@ -222,9 +227,9 @@ class PartnerControllerIT extends BaseUnitTest {
     @Test
     void listAllItemsFromPartnerOK() throws Exception {
         Partner partner = new Partner(chezJohnCreationDTO);
-        Item croissant = new Item(croissantDTO);
+        Item croissant = new Item(croissantCreationDTO);
         partner.addItem(croissant);
-        Item chocolatine = new Item(painAuChocolatDTO);
+        Item chocolatine = new Item(painAuChocolatCreationDTO);
         partner.addItem(chocolatine);
         partnerRepository.save(partner);
         long partnerId = partner.getPartnerId();
@@ -245,7 +250,6 @@ class PartnerControllerIT extends BaseUnitTest {
 
     @Test
     void listAllItemsFromPartnerNotFound() throws Exception {
-//        when(partnerManager.findAllPartnerItems(2)).thenThrow(new UnknownPartnerIdException(2));
         mockMvc.perform(get(PartnerController.BASE_URI + "/2/items")
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
@@ -254,14 +258,22 @@ class PartnerControllerIT extends BaseUnitTest {
     }
 
     @Test
+    @Transactional
     void listAllPerksFromPartnerOK() throws Exception {
         Partner partner = new Partner(chezJohnCreationDTO);
-        VfpDiscountInPercentPerk perk1 = new VfpDiscountInPercentPerk(0.1, LocalTime.of(10, 0, 0), LocalTime.of(12, 0, 0));
-        VfpDiscountInPercentPerk perk2 = new VfpDiscountInPercentPerk(0.2, LocalTime.of(10, 0, 0), LocalTime.of(12, 0, 0));
+        VfpDiscountInPercentPerk perk1 = new VfpDiscountInPercentPerk(10, LocalTime.of(10, 0, 0), LocalTime.of(12, 0, 0));
+        VfpDiscountInPercentPerk perk2 = new VfpDiscountInPercentPerk(20, LocalTime.of(10, 0, 0), LocalTime.of(12, 0, 0));
         partner.addPerk(perk1);
+        partnerRepository.save(partner);
+        partner = partnerRepository.findById(partner.getPartnerId()).orElseThrow();
         partner.addPerk(perk2);
         partnerRepository.save(partner);
+        partner = partnerRepository.findById(partner.getPartnerId()).orElseThrow();
         long partnerId = partner.getPartnerId();
+
+        AbstractPerk firstPerk = partner.getPerkSet().stream().findFirst().get();
+        AbstractPerk secondPerk = partner.getPerkSet().stream().skip(1).findFirst().get();
+
 
         mockMvc.perform(get(PartnerController.BASE_URI + "/" + partnerId + "/perks")
                         .contentType(APPLICATION_JSON))
@@ -269,10 +281,10 @@ class PartnerControllerIT extends BaseUnitTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].perkId").value(perk1.getPerkId()))
-                .andExpect(jsonPath("$[0].description").value(perk1.toString()))
-                .andExpect(jsonPath("$[1].perkId").value(perk2.getPerkId()))
-                .andExpect(jsonPath("$[1].description").value(perk2.toString()));
+                .andExpect(jsonPath("$[0].perkId").value(firstPerk.getPerkId()))
+                .andExpect(jsonPath("$[0].description").value(firstPerk.toString()))
+                .andExpect(jsonPath("$[1].perkId").value(secondPerk.getPerkId()))
+                .andExpect(jsonPath("$[1].description").value(secondPerk.toString()));
     }
 
     @Test

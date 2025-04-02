@@ -4,18 +4,20 @@ import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
 
 import java.time.LocalDateTime;
 
-public record CartItemAddItemToCartDTO(
+public record CartItemAddDTO(
         int quantity,
         LocalDateTime startTime,
-        LocalDateTime endTime,
         long itemId
 ) {
-    public CartItemAddItemToCartDTO(CartItem entity) {
+    public CartItemAddDTO(CartItem entity) {
         this(
                 entity.getQuantity(),
                 entity.getStartTime(),
-                entity.getEndTime(),
                 entity.getItem().getItemId()
         );
+    }
+
+    public boolean isABooking(){
+        return this.startTime != null;
     }
 }

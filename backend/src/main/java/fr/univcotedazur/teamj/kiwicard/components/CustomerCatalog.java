@@ -23,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static fr.univcotedazur.teamj.kiwicard.configurations.Constants.NUMBER_OF_PURCHASE_IN_A_WEEK_FOR_VFP_STATUS;
+
 
 @Service
 public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, ICustomerCartSaver, IVfpStatus {
@@ -31,13 +33,10 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
 
     CardEditorProxy cardEditorProxy;
 
-    private final int nbPurchaseRequired;
-
     @Autowired
-    public CustomerCatalog(ICustomerRepository customerRepository, CardEditorProxy cardEditorProxy, @Value("${kiwi-card.vfp-status.purchase-required}") int nbPurchaseRequired) {
+    public CustomerCatalog(ICustomerRepository customerRepository, CardEditorProxy cardEditorProxy) {
         this.customerRepository = customerRepository;
         this.cardEditorProxy = cardEditorProxy;
-        this.nbPurchaseRequired = nbPurchaseRequired;
     }
 
     /**
@@ -52,7 +51,7 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
     @Transactional
     public CustomerDTO register(CustomerSubscribeDTO customerSubscribeDTO) throws AlreadyUsedEmailException, UnreachableExternalServiceException {
         if (customerRepository.findByEmail(customerSubscribeDTO.email()).isPresent()) {
-            throw new AlreadyUsedEmailException();
+            throw new AlreadyUsedEmailException(customerSubscribeDTO.email());
         }
         CardDTO cardDto = cardEditorProxy.orderACard(customerSubscribeDTO.email(), customerSubscribeDTO.address());
         Customer customer = new Customer(customerSubscribeDTO, cardDto.cardNumber());
@@ -61,6 +60,7 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
     }
 
     @Override
+    @Transactional
     public Customer findCustomerByEmail(String customerEmail) throws UnknownCustomerEmailException {
         Customer customer = customerRepository.findByEmail(customerEmail).orElse(null);
         if (customer == null) {
@@ -70,15 +70,23 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
     }
 
     @Override
+    @Transactional
+    public CustomerDTO findCustomerDTOByEmail(String customerEmail) throws UnknownCustomerEmailException {
+        return new CustomerDTO(findCustomerByEmail(customerEmail));
+    }
+
+    @Override
+    @Transactional
     public CustomerDTO findCustomerByCardNum(String cardNumber) throws UnknownCardNumberException {
         Customer customer = customerRepository.findByCardNumber(cardNumber).orElse(null);
         if (customer == null) {
-            throw new UnknownCardNumberException();
+            throw new UnknownCardNumberException(cardNumber);
         }
         return new CustomerDTO(customer);
     }
 
     @Override
+    @Transactional
     public List<CustomerDTO> findAll() {
         return customerRepository.findAll()
                 .stream()
@@ -95,6 +103,7 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
      * @throws UnknownCustomerEmailException si l'adresse email n'est pas reconnue
      */
     @Override
+    @Transactional
     public Customer setCart(String customerEmail, Cart cart) throws UnknownCustomerEmailException {
         Customer customer = customerRepository.findByEmail(customerEmail).orElse(null);
         if (customer == null) {
@@ -111,12 +120,13 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
      * @throws UnknownCustomerEmailException si l'adresse email n'est pas reconnue
      */
     @Override
-    public Customer emptyCart(String customerEmail) throws UnknownCustomerEmailException {
+    @Transactional
+    public Customer resetCart(String customerEmail) throws UnknownCustomerEmailException {
         Customer customer = customerRepository.findByEmail(customerEmail).orElse(null);
         if (customer == null) {
             throw new UnknownCustomerEmailException(customerEmail);
         }
-        customer.getCart().empty();
+        customer.setCart(null);
         return customerRepository.save(customer);
     }
 
@@ -124,7 +134,8 @@ public class CustomerCatalog implements ICustomerRegistration, ICustomerFinder, 
      * Rafraîchit le statut VFP des clients en fonction du nombre d'achats requis
      */
     @Override
+    @Transactional
     public void refreshVfpStatus() {
-        customerRepository.refreshVfpStatus(nbPurchaseRequired, LocalDateTime.now().minusDays(7), LocalDateTime.now());
+        customerRepository.refreshVfpStatus(NUMBER_OF_PURCHASE_IN_A_WEEK_FOR_VFP_STATUS, LocalDateTime.now().minusDays(7), LocalDateTime.now());
     }
 }

@@ -1,16 +1,30 @@
 package fr.univcotedazur.teamj.kiwicard.controllers;
 
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.CartItemAddItemToCartDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.CartItemDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.CartItemAddDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PurchaseDTO;
-import fr.univcotedazur.teamj.kiwicard.exceptions.*;
+import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyBookedTimeException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.EmptyCartException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.NoCartException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnreachableExternalServiceException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.cart.ICartModifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -22,7 +36,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @RequestMapping(path = CartController.CART_URI, produces = APPLICATION_JSON_VALUE)
 public class CartController {
-
     public static final String CART_URI = "/cart";
     private final ICartModifier modifier;
     private final ICartFinder finder;
@@ -53,8 +66,8 @@ public class CartController {
     @PutMapping(path = "/{customerEmail}", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<CartDTO> createOrAddItemToCart(
             @PathVariable String customerEmail,
-            @RequestBody CartItemAddItemToCartDTO cartItemDTO
-    ) throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException, NoCartException {
+            @RequestBody CartItemAddDTO cartItemDTO
+    ) throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException, NoCartException, AlreadyBookedTimeException {
         CartDTO existingCart = finder.findCustomerCart(customerEmail).orElse(null);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -65,14 +78,16 @@ public class CartController {
      * Removes an item from a customer's shopping cart.
      *
      * @param customerEmail The email address of the customer whose cart will be updated.
-     * @param cartItemDTO   The CartItemDTO containing the item details to be removed.
+     * @param itemId        The ID of the item to be removed from the cart.
      * @return A ResponseEntity containing the updated CartDTO with HTTP status 201 (Created).
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
      */
-    @DeleteMapping(path = "/{customerEmail}", consumes = APPLICATION_JSON_VALUE)
-    public ResponseEntity<CartDTO> removeItemFromCart(@PathVariable String customerEmail, @RequestBody CartItemDTO cartItemDTO) throws UnknownCustomerEmailException, NoCartException, EmptyCartException {
-        return ResponseEntity.created(null)
-                .body(modifier.removeItemFromCart(customerEmail, cartItemDTO));
+    @DeleteMapping(path = "/{customerEmail}/item/{itemId}")
+    public ResponseEntity<CartDTO> removeItemFromCart(@PathVariable String customerEmail, @PathVariable Long itemId) throws UnknownCustomerEmailException, NoCartException, EmptyCartException, UnknownItemIdException {
+        if (itemId == null) {
+            throw new UnknownItemIdException(null);
+        }
+        return ResponseEntity.ok(modifier.removeItemFromCart(customerEmail, itemId));
     }
 
     /**
@@ -83,7 +98,7 @@ public class CartController {
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
      */
     @PostMapping(path = "/{customerEmail}/validate", consumes = APPLICATION_JSON_VALUE)
-    public ResponseEntity<PurchaseDTO> validateCart(@PathVariable String customerEmail) throws UnknownCustomerEmailException, UnreachableExternalServiceException, EmptyCartException, NoCartException, ClosedTimeException {
+    public ResponseEntity<PurchaseDTO> validateCart(@PathVariable String customerEmail) throws UnknownCustomerEmailException, UnreachableExternalServiceException, EmptyCartException, NoCartException, ClosedTimeException, BookingTimeNotSetException {
         return ResponseEntity.created(null)
                 .body(modifier.validateCart(customerEmail));
     }
@@ -95,10 +110,10 @@ public class CartController {
      * @return A ResponseEntity containing the CartDTO representing the customer's cart, with HTTP status 200 (OK).
      * @throws UnknownCustomerEmailException If no customer is found with the given email.
      */
-    @GetMapping(path = "/{customerEmail}", consumes = APPLICATION_JSON_VALUE)
-    public ResponseEntity<CartDTO> getCart(@PathVariable String customerEmail) throws UnknownCustomerEmailException {
+    @GetMapping(path = "/{customerEmail}")
+    public ResponseEntity<CartDTO> getCart(@PathVariable String customerEmail) throws UnknownCustomerEmailException, NoCartException {
         return ResponseEntity.ok()
-                .body(finder.findCustomerCart(customerEmail).orElseThrow());
+                .body(finder.findCustomerCart(customerEmail).orElseThrow(() -> new NoCartException(customerEmail)));
     }
 }
 

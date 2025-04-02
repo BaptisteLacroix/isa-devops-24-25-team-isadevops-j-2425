@@ -1,16 +1,16 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
-import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.ItemCreationDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerCreationDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import fr.univcotedazur.teamj.kiwicard.entities.Partner;
+import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownItemIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPartnerManager;
 import fr.univcotedazur.teamj.kiwicard.mappers.PerkMapper;
-import fr.univcotedazur.teamj.kiwicard.repositories.IItemRepository;
 import fr.univcotedazur.teamj.kiwicard.repositories.IPartnerRepository;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,18 +18,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
 public class PartnerCatalog implements IPartnerManager {
 
     private final IPartnerRepository partnerRepository;
-    private final IItemRepository itemRepository;
 
     @Autowired
-    public PartnerCatalog(IPartnerRepository partnerRepository, IItemRepository itemRepository) {
+    public PartnerCatalog(IPartnerRepository partnerRepository) {
         this.partnerRepository = partnerRepository;
-        this.itemRepository = itemRepository;
     }
 
     @Override
@@ -51,11 +51,9 @@ public class PartnerCatalog implements IPartnerManager {
 
     @Override
     @Transactional
-    public void addItemToPartnerCatalog(long partnerId, @NotNull ItemDTO itemDTO) throws UnknownPartnerIdException {
+    public void addItemToPartnerCatalog(long partnerId, @NotNull ItemCreationDTO itemDTO) throws UnknownPartnerIdException {
         Partner partner = partnerRepository.findById(partnerId).orElseThrow(() -> new UnknownPartnerIdException(partnerId));
-
         Item item = new Item(itemDTO);
-        itemRepository.save(item);
         partner.addItem(item);
     }
 
@@ -84,10 +82,11 @@ public class PartnerCatalog implements IPartnerManager {
     @Transactional
     public List<IPerkDTO> findAllPartnerPerks(long partnerId) throws UnknownPartnerIdException {
         return partnerRepository.findById(partnerId)
-                .map(Partner::getPerkList)
-                .map(perks -> perks.stream().map(PerkMapper::toDTO).toList())
+                .map(Partner::getPerkSet)
+                .map(perks -> new ArrayList<>(perks)
+                        .stream().sorted(Comparator.comparing(AbstractPerk::getPerkId))
+                        .map(PerkMapper::toDTO).toList())
                 .orElseThrow(() -> new UnknownPartnerIdException(partnerId));
     }
-
 }
 

@@ -1,8 +1,9 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
 import fr.univcotedazur.teamj.kiwicard.BaseUnitTest;
+import fr.univcotedazur.teamj.kiwicard.configurations.Constants;
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.CartItemAddItemToCartDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.CartItemAddDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CartItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
@@ -14,6 +15,9 @@ import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import fr.univcotedazur.teamj.kiwicard.entities.Partner;
+import fr.univcotedazur.teamj.kiwicard.entities.perks.TimedDiscountInPercentPerk;
+import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyBookedTimeException;
+import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.EmptyCartException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.NoCartException;
@@ -30,6 +34,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -37,12 +43,15 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class CartServiceTest extends BaseUnitTest {
@@ -68,14 +77,16 @@ class CartServiceTest extends BaseUnitTest {
     @Mock
     private Item item;
     private CartItemDTO cartItemDTO;
-    private CartItemAddItemToCartDTO cartItemAddItemToCartDTO;
+    private CartItemAddDTO cartItemAddDTO;
     @Mock
-    private CartDTO cartDTO;
+    private CartDTO existingCartDTO;
     @Mock
     private CustomerDTO customerDTO;
     private PartnerDTO partnerDTO;
     @Mock
     private CartItem cartItem;
+    @Mock
+    private Cart cart;
 
     @BeforeEach
     void setUp() {
@@ -87,8 +98,8 @@ class CartServiceTest extends BaseUnitTest {
         when(item.getLabel()).thenReturn("Item");
         when(item.getPrice()).thenReturn(10.0);
         when(item.getPartner()).thenReturn(partner);
-        cartItemDTO = new CartItemDTO(2, null, null, new ItemDTO(item));
-        cartItemAddItemToCartDTO = new CartItemAddItemToCartDTO(2, null, null, item.getItemId());
+        cartItemDTO = new CartItemDTO(2, null, new ItemDTO(item));
+        cartItemAddDTO = new CartItemAddDTO(2, null, item.getItemId());
 
         cartItem = mock(CartItem.class);
         when(cartItem.getCartItemId()).thenReturn(1L);
@@ -97,16 +108,15 @@ class CartServiceTest extends BaseUnitTest {
         when(cartItem.getPrice()).thenReturn(20.0);
 
         // Mocking the Cart entity, including cartId
-        Cart cart = mock(Cart.class);
+        cart = mock(Cart.class);
         when(cart.getCartId()).thenReturn(1L);
         when(cart.getPartner()).thenReturn(partner);
-        when(cart.getItemList()).thenReturn(new HashSet<>(List.of(cartItem)));
-        when(cart.getPerksToUse()).thenReturn(new ArrayList<>());
+        when(cart.getItems()).thenReturn(new HashSet<>(List.of(cartItem)));
+        when(cart.getPerksToUse()).thenReturn(new HashSet<>());
 
         when(customer.getEmail()).thenReturn("customer@email.com");
         when(customer.getFirstName()).thenReturn("John");
         when(customer.getSurname()).thenReturn("Doe");
-        when(customer.getCart()).thenReturn(cart);
         when(customer.isVfp()).thenReturn(false);
         when(customer.getCardNumber()).thenReturn("1234567890");
         when(customer.getAddress()).thenReturn("Address");
@@ -118,12 +128,12 @@ class CartServiceTest extends BaseUnitTest {
 
         partnerDTO = new PartnerDTO(partner);
 
-        when(cartDTO.cartId()).thenReturn(1L);
-        when(cartDTO.partner()).thenReturn(partnerDTO);
-        when(cartDTO.items()).thenReturn(new HashSet<>(List.of(cartItemDTO)));
-        when(cartDTO.perksList()).thenReturn(new ArrayList<>());
+        when(existingCartDTO.cartId()).thenReturn(1L);
+        when(existingCartDTO.partner()).thenReturn(partnerDTO);
+        when(existingCartDTO.items()).thenReturn(new HashSet<>(List.of(cartItemDTO)));
+        when(existingCartDTO.perksList()).thenReturn(new ArrayList<>());
 
-        when(customerDTO.cartDTO()).thenReturn(cartDTO);
+        when(customerDTO.cart()).thenReturn(existingCartDTO);
         when(customerDTO.vfp()).thenReturn(false);
         when(customerDTO.creditCard()).thenReturn("1234567890");
         when(customerDTO.email()).thenReturn("customer@email.com");
@@ -137,7 +147,7 @@ class CartServiceTest extends BaseUnitTest {
         when(customerCatalog.findCustomerByEmail(anyString())).thenThrow(UnknownCustomerEmailException.class);
 
         // When & Then
-        assertThrows(UnknownCustomerEmailException.class, () -> cartService.addItemToCart("nonexistent@example.com", cartItemAddItemToCartDTO, null));
+        assertThrows(UnknownCustomerEmailException.class, () -> cartService.addItemToCart("nonexistent@example.com", cartItemAddDTO, null));
     }
 
     @Test
@@ -148,11 +158,11 @@ class CartServiceTest extends BaseUnitTest {
         when(itemRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         // When & Then
-        assertThrows(UnknownItemIdException.class, () -> cartService.addItemToCart("customer@example.com", cartItemAddItemToCartDTO, null));
+        assertThrows(UnknownItemIdException.class, () -> cartService.addItemToCart("customer@example.com", cartItemAddDTO, null));
     }
 
     @Test
-    void createCart_shouldCreateCartSuccessfully() throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException, NoCartException {
+    void createCart_shouldCreateCartSuccessfully() throws UnknownCustomerEmailException, UnknownPartnerIdException, UnknownItemIdException, NoCartException, AlreadyBookedTimeException {
         // Given
         when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
         when(partnerManager.findAllPartnerItems(anyLong())).thenReturn(List.of(item));
@@ -161,7 +171,7 @@ class CartServiceTest extends BaseUnitTest {
         when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
 
         // When
-        CartDTO result = cartService.addItemToCart("customer@example.com", cartItemAddItemToCartDTO, null);
+        CartDTO result = cartService.addItemToCart("customer@example.com", cartItemAddDTO, null);
 
         // Then
         assertNotNull(result);
@@ -169,7 +179,7 @@ class CartServiceTest extends BaseUnitTest {
     }
 
     @Test
-    void addItemToCart_shouldAddItemSuccessfully() throws UnknownCustomerEmailException, UnknownItemIdException, UnknownPartnerIdException, NoCartException {
+    void addItemToCart_shouldAddClassicItemSuccessfully() throws UnknownCustomerEmailException, UnknownItemIdException, UnknownPartnerIdException, NoCartException, AlreadyBookedTimeException {
         // Given
         when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
         when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
@@ -177,11 +187,143 @@ class CartServiceTest extends BaseUnitTest {
         when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
 
         // When
-        CartDTO result = cartService.addItemToCart("customer@example.com", cartItemAddItemToCartDTO, cartDTO);
+        CartDTO result = cartService.addItemToCart("customer@example.com", cartItemAddDTO, existingCartDTO);
 
         // Then
         assertNotNull(result);
         assertTrue(result.items().contains(cartItemDTO));
+    }
+
+    @Test
+    void addItemToCart_shouldAddHappyKidsItemSuccessfully() throws UnknownCustomerEmailException, UnknownPartnerIdException, NoCartException, AlreadyBookedTimeException, UnknownItemIdException {
+        // Given
+        Item happyKidsItem = mock(Item.class);
+        when(happyKidsItem.getItemId()).thenReturn(2L);
+        when(happyKidsItem.getLabel()).thenReturn(Constants.HAPPY_KIDS_ITEM_NAME);
+        when(happyKidsItem.getPrice()).thenReturn(10.0);
+        when(happyKidsItem.getPartner()).thenReturn(partner);
+        CartItemAddDTO cartItemHKDTO = new CartItemAddDTO(1, LocalDateTime.of(2025, 3, 15, 10, 0), happyKidsItem.getItemId());
+        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(happyKidsItem));
+        when(partnerManager.findAllPartnerItems(anyLong())).thenReturn(List.of(happyKidsItem));
+        when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
+
+        // When
+        CartDTO result = cartService.addItemToCart("customer@example.com", cartItemHKDTO, existingCartDTO);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(2, result.items().size());
+        assertTrue(result.items().contains(new CartItemDTO(1, LocalDateTime.of(2025, 3, 15, 10, 0), new ItemDTO(happyKidsItem))));
+    }
+
+    @Test
+    void addItemToCart_shouldThrowIfHappyKidsItemWithSameDateAlreadyIsInCart() throws UnknownCustomerEmailException, UnknownPartnerIdException, NoCartException, AlreadyBookedTimeException, UnknownItemIdException {
+        Item happyKidsItem = mock(Item.class);
+        when(happyKidsItem.getItemId()).thenReturn(2L);
+        when(happyKidsItem.getLabel()).thenReturn(Constants.HAPPY_KIDS_ITEM_NAME);
+        when(happyKidsItem.getPrice()).thenReturn(10.0);
+        when(happyKidsItem.getPartner()).thenReturn(partner);
+        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(happyKidsItem));
+        when(partnerManager.findAllPartnerItems(anyLong())).thenReturn(List.of(happyKidsItem));
+        when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
+        CartItem hkCartItem = mock(CartItem.class);
+        when(hkCartItem.getCartItemId()).thenReturn(2L);
+        when(hkCartItem.getQuantity()).thenReturn(1);
+        when(hkCartItem.getStartTime()).thenReturn(LocalDateTime.of(2025, 3, 15, 10, 0));
+        when(hkCartItem.getItem()).thenReturn(happyKidsItem);
+        when(hkCartItem.getPrice()).thenReturn(10.0);
+        Cart cartHKCartItem = spy(new Cart(partner, new HashSet<>(List.of(hkCartItem)), new HashSet<>()));
+        when(cartHKCartItem.getCartId()).thenReturn(2L);
+        when(customer.getCart()).thenReturn(cartHKCartItem);
+
+        // When & Then
+        CartItemAddDTO cartItemHKDTO = new CartItemAddDTO(1, LocalDateTime.of(2025, 3, 15, 10, 0), happyKidsItem.getItemId());
+        assertThrows(AlreadyBookedTimeException.class, () -> cartService.addItemToCart("customer@example.com", cartItemHKDTO, existingCartDTO));
+    }
+
+    @Test
+    void addItemToCart_shouldThrowIfHappyKidsItemWithJustEarlierDateAlreadyIsInCart() throws UnknownCustomerEmailException, UnknownPartnerIdException, NoCartException, AlreadyBookedTimeException, UnknownItemIdException {
+        Item happyKidsItem = mock(Item.class);
+        when(happyKidsItem.getItemId()).thenReturn(2L);
+        when(happyKidsItem.getLabel()).thenReturn(Constants.HAPPY_KIDS_ITEM_NAME);
+        when(happyKidsItem.getPrice()).thenReturn(10.0);
+        when(happyKidsItem.getPartner()).thenReturn(partner);
+        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(happyKidsItem));
+        when(partnerManager.findAllPartnerItems(anyLong())).thenReturn(List.of(happyKidsItem));
+        when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
+        CartItem hkCartItem = mock(CartItem.class);
+        when(hkCartItem.getCartItemId()).thenReturn(2L);
+        when(hkCartItem.getQuantity()).thenReturn(2);
+        when(hkCartItem.getStartTime()).thenReturn(LocalDateTime.of(2025, 3, 15, 10, 0));
+        when(hkCartItem.getItem()).thenReturn(happyKidsItem);
+        when(hkCartItem.getPrice()).thenReturn(10.0);
+        Cart cartHKCartItem = spy(new Cart(partner, new HashSet<>(List.of(hkCartItem)), new HashSet<>()));
+        when(cartHKCartItem.getCartId()).thenReturn(2L);
+        when(customer.getCart()).thenReturn(cartHKCartItem);
+
+        // When & Then
+        CartItemAddDTO cartItemHKDTO = new CartItemAddDTO(1, LocalDateTime.of(2025, 3, 15, 11, 0), happyKidsItem.getItemId());
+        assertThrows(AlreadyBookedTimeException.class, () -> cartService.addItemToCart("customer@example.com", cartItemHKDTO, existingCartDTO));
+    }
+
+    @Test
+    void addItemToCart_shouldThrowIfHappyKidsItemWithJustLaterDateAlreadyIsInCart() throws UnknownCustomerEmailException, UnknownPartnerIdException, NoCartException, AlreadyBookedTimeException, UnknownItemIdException {
+        Item happyKidsItem = mock(Item.class);
+        when(happyKidsItem.getItemId()).thenReturn(2L);
+        when(happyKidsItem.getLabel()).thenReturn(Constants.HAPPY_KIDS_ITEM_NAME);
+        when(happyKidsItem.getPrice()).thenReturn(10.0);
+        when(happyKidsItem.getPartner()).thenReturn(partner);
+        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(happyKidsItem));
+        when(partnerManager.findAllPartnerItems(anyLong())).thenReturn(List.of(happyKidsItem));
+        when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
+        CartItem hkCartItem = mock(CartItem.class);
+        when(hkCartItem.getCartItemId()).thenReturn(2L);
+        when(hkCartItem.getQuantity()).thenReturn(2);
+        when(hkCartItem.getStartTime()).thenReturn(LocalDateTime.of(2025, 3, 15, 10, 0));
+        when(hkCartItem.getItem()).thenReturn(happyKidsItem);
+        when(hkCartItem.getPrice()).thenReturn(10.0);
+        Cart cartHKCartItem = spy(new Cart(partner, new HashSet<>(List.of(hkCartItem)), new HashSet<>()));
+        when(cartHKCartItem.getCartId()).thenReturn(2L);
+        when(customer.getCart()).thenReturn(cartHKCartItem);
+
+        // When & Then
+        CartItemAddDTO cartItemHKDTO = new CartItemAddDTO(2, LocalDateTime.of(2025, 3, 15, 9, 0), happyKidsItem.getItemId());
+        assertThrows(AlreadyBookedTimeException.class, () -> cartService.addItemToCart("customer@example.com", cartItemHKDTO, existingCartDTO));
+    }
+
+    @Test
+    void addItemToCart_shouldAddHappyKidsItemWithDifferentDateAlreadyIsInCart() throws UnknownCustomerEmailException, UnknownPartnerIdException, NoCartException, AlreadyBookedTimeException, UnknownItemIdException {
+        Item happyKidsItem = mock(Item.class);
+        when(happyKidsItem.getItemId()).thenReturn(2L);
+        when(happyKidsItem.getLabel()).thenReturn(Constants.HAPPY_KIDS_ITEM_NAME);
+        when(happyKidsItem.getPrice()).thenReturn(10.0);
+        when(happyKidsItem.getPartner()).thenReturn(partner);
+        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
+        when(itemRepository.findById(happyKidsItem.getItemId())).thenReturn(Optional.of(happyKidsItem));
+        when(partnerManager.findAllPartnerItems(anyLong())).thenReturn(List.of(happyKidsItem));
+        when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
+        CartItem hkCartItem = mock(CartItem.class);
+        when(hkCartItem.getCartItemId()).thenReturn(2L);
+        when(hkCartItem.getQuantity()).thenReturn(1);
+        when(hkCartItem.getStartTime()).thenReturn(LocalDateTime.of(2025, 3, 15, 10, 0));
+        when(hkCartItem.getItem()).thenReturn(happyKidsItem);
+        when(hkCartItem.getPrice()).thenReturn(10.0);
+        Cart cartHKCartItem = spy(new Cart(partner, new HashSet<>(List.of(hkCartItem)), new HashSet<>()));
+        when(cartHKCartItem.getCartId()).thenReturn(2L);
+        when(customer.getCart()).thenReturn(cartHKCartItem);
+
+        // When
+        CartItemAddDTO cartItemHKDTO = new CartItemAddDTO(1, LocalDateTime.of(2025, 3, 15, 11, 0), happyKidsItem.getItemId());
+        CartDTO result = cartService.addItemToCart("customer@example.com", cartItemHKDTO, existingCartDTO);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(2, result.items().size());
+        assertTrue(result.items().contains(new CartItemDTO(1, LocalDateTime.of(2025, 3, 15, 10, 0), new ItemDTO(happyKidsItem))));
     }
 
     @Test
@@ -190,21 +332,69 @@ class CartServiceTest extends BaseUnitTest {
         when(customerCatalog.findCustomerByEmail(anyString())).thenThrow(UnknownCustomerEmailException.class);
 
         // When & Then
-        assertThrows(UnknownCustomerEmailException.class, () -> cartService.removeItemFromCart("nonexistent@example.com", cartItemDTO));
+        assertThrows(UnknownCustomerEmailException.class, () -> cartService.removeItemFromCart("nonexistent@example.com", 1L));
     }
 
     @Test
-    void removeItemFromCart_shouldRemoveItemSuccessfully() throws UnknownCustomerEmailException, EmptyCartException, NoCartException {
+    void removeItemFromCart_shouldThrowUnknownItemIdException_whenItemNotFoundInCart() throws UnknownCustomerEmailException {
+        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
+        when(customer.getCart()).thenReturn(cart);
+
+        assertThrows(UnknownItemIdException.class, () -> cartService.removeItemFromCart("nonexistent@example.com", 2L));
+    }
+
+    @Test
+    void removeItemFromCart_shouldRemoveItemSuccessfully() throws UnknownCustomerEmailException, EmptyCartException, NoCartException, UnknownItemIdException {
         // Given
+        Item item2 = mock(Item.class);
+        when(item2.getItemId()).thenReturn(2L);
+        when(item2.getLabel()).thenReturn("Item 2");
+        when(item2.getPrice()).thenReturn(15.0);
+        when(item2.getPartner()).thenReturn(partner);
+
+        CartItem cartItem2 = mock(CartItem.class);
+        when(cartItem2.getCartItemId()).thenReturn(2L);
+        when(cartItem2.getQuantity()).thenReturn(1);
+        when(cartItem2.getItem()).thenReturn(item2);
+        when(cartItem2.getPrice()).thenReturn(15.0);
+
+        // Mocking the Cart entity, including cartId
+        cart = mock(Cart.class);
+        when(cart.getCartId()).thenReturn(1L);
+        when(cart.getPartner()).thenReturn(partner);
+        when(cart.getItems()).thenReturn(new HashSet<>(List.of(cartItem, cartItem2)));
+        when(cart.getPerksToUse()).thenReturn(new HashSet<>());
+
+        when(customer.getCart()).thenReturn(cart);
+
         when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
         when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
 
         // When
-        CartDTO result = cartService.removeItemFromCart("customer@example.com", cartItemDTO);
+        CartDTO result = cartService.removeItemFromCart("customer@email.com", 1L);
 
         // Then
+
         assertNotNull(result);
-        assertTrue(result.items().isEmpty());
+        assertEquals(1, result.items().size());
+        assertTrue(result.items().stream().anyMatch(ci -> ci.item().itemId() == 2L));
+    }
+
+    @Test
+    void removeItemFromCart_shouldRemoveItemAndResetCartSuccessfully() throws UnknownCustomerEmailException, EmptyCartException, NoCartException, UnknownItemIdException {
+        // Given
+        Customer noCartCustomer = customer;
+        when(noCartCustomer.getCart()).thenReturn(cart).thenReturn(null);
+
+        when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
+        when(customerCatalog.setCart(anyString(), any())).thenReturn(customer);
+        when(customerCatalog.resetCart(customer.getEmail())).thenReturn(noCartCustomer);
+        // When
+        CartDTO result = cartService.removeItemFromCart("customer@email.com", 1L);
+
+        // Then
+        assertNull(result);
+        verify(customerCatalog).resetCart(customer.getEmail());
     }
 
     @Test
@@ -217,7 +407,7 @@ class CartServiceTest extends BaseUnitTest {
     }
 
     @Test
-    void validateCart_shouldThrowUnreachableExternalServiceException_whenPaymentServiceFails() throws UnknownCustomerEmailException, UnreachableExternalServiceException, ClosedTimeException {
+    void validateCart_shouldThrowUnreachableExternalServiceException_whenPaymentServiceFails() throws UnknownCustomerEmailException, UnreachableExternalServiceException, ClosedTimeException, BookingTimeNotSetException {
         // Given
         when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
         when(payment.makePay(any(Customer.class))).thenThrow(UnreachableExternalServiceException.class);
@@ -227,7 +417,7 @@ class CartServiceTest extends BaseUnitTest {
     }
 
     @Test
-    void validateCart_shouldReturnPurchaseDTO_whenCartIsValid() throws UnknownCustomerEmailException, UnreachableExternalServiceException, EmptyCartException, NoCartException, ClosedTimeException {
+    void validateCart_shouldReturnPurchaseDTO_whenCartIsValid() throws UnknownCustomerEmailException, UnreachableExternalServiceException, EmptyCartException, NoCartException, ClosedTimeException, BookingTimeNotSetException {
         // Given
         PaymentDTO paymentDTO = mock(PaymentDTO.class);
         when(customerCatalog.findCustomerByEmail(anyString())).thenReturn(customer);
@@ -238,7 +428,7 @@ class CartServiceTest extends BaseUnitTest {
 
         // Then
         assertNotNull(result);
-        assertEquals("customer@email.com", result.cartOwnerEmail());
+        assertEquals("customer@email.com", result.email());
         assertNotNull(result.cartDTO());
         assertNotNull(result.paymentDTO());
     }

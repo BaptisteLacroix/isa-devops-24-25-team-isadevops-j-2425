@@ -35,7 +35,14 @@ public class SessionService {
      * @param partnerId     L'identifiant du partenaire
      * @return Message de confirmation ou message d'erreur
      */
-    @ShellMethod(value = "login")
+    @ShellMethod(value = """
+            Log in as a customer or a partner:
+            Usage: login -c <customer-email> | -p <partner-id>
+            Parameters:
+                -c, --customer The email address of the customer.
+                -p, --partner  The ID of the partner.
+            Example:
+                login -c clement@armeedeterre.fr""")
     public String login(@ShellOption(value = {"-c", "--customer"}, defaultValue = "") String customerEmail,
                         @ShellOption(value = {"-p", "--partner"}, defaultValue = "-1") Long partnerId) {
         if (!Objects.equals(customerEmail, "") && partnerId == -1) {

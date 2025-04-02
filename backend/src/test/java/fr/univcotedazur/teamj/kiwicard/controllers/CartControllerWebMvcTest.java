@@ -3,7 +3,8 @@ package fr.univcotedazur.teamj.kiwicard.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.univcotedazur.teamj.kiwicard.BaseUnitTest;
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
-import fr.univcotedazur.teamj.kiwicard.dto.CartItemAddItemToCartDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.CartInPurchaseDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.CartItemAddDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CartItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
@@ -61,9 +62,11 @@ class CartControllerWebMvcTest extends BaseUnitTest {
 
     private CartDTO cartDTO;
     private CartItemDTO cartItemDTO;
-    private CartItemAddItemToCartDTO cartItemAddItemToCartDTO;
+    private CartItemAddDTO cartItemAddDTO;
     private String customerEmail = "test@customer.com";
     private Long partnerId = 1L;
+    private PartnerDTO partnerDTO;
+
 
     @BeforeEach
     void setUp() {
@@ -72,21 +75,21 @@ class CartControllerWebMvcTest extends BaseUnitTest {
         when(item.getLabel()).thenReturn("Item Label");
         when(item.getPrice()).thenReturn(10.0);
         // Updated CartItemDTO initialization
-        cartItemDTO = new CartItemDTO(2, null, null, new ItemDTO(item));
-        cartItemAddItemToCartDTO = new CartItemAddItemToCartDTO(2, null, null, item.getItemId());
+        cartItemDTO = new CartItemDTO(2, null, new ItemDTO(item));
+        cartItemAddDTO = new CartItemAddDTO(2, null, item.getItemId());
 
         // Updated CartDTO initialization with PartnerDTO and IPerkDTO List
-        PartnerDTO partnerDTO = new PartnerDTO(partnerId, "Partner Name", "Partner Address");
+        partnerDTO = new PartnerDTO(partnerId, "Partner Name", "Partner Address");
         cartDTO = new CartDTO(100L, partnerDTO, Set.of(cartItemDTO), List.of());
     }
 
     @Test
     void addItemCreateCart() throws Exception {
-        when(modifier.addItemToCart(customerEmail, cartItemAddItemToCartDTO, null)).thenReturn(cartDTO);
+        when(modifier.addItemToCart(customerEmail, cartItemAddDTO, null)).thenReturn(cartDTO);
 
         MvcResult result = mockMvc.perform(put(CartController.CART_URI + "/" + customerEmail)
                         .contentType(APPLICATION_JSON)
-                        .content(OBJECT_MAPPER.writeValueAsString(cartItemAddItemToCartDTO)))
+                        .content(OBJECT_MAPPER.writeValueAsString(cartItemAddDTO)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_JSON))
                 .andReturn();
@@ -99,12 +102,12 @@ class CartControllerWebMvcTest extends BaseUnitTest {
 
     @Test
     void addItemToCart() throws Exception {
-        when(modifier.addItemToCart(customerEmail, cartItemAddItemToCartDTO, cartDTO)).thenReturn(cartDTO);
+        when(modifier.addItemToCart(customerEmail, cartItemAddDTO, cartDTO)).thenReturn(cartDTO);
         when(finder.findCustomerCart(customerEmail)).thenReturn(Optional.of(cartDTO));
 
         MvcResult result = mockMvc.perform(put(CartController.CART_URI + "/" + customerEmail)
                         .contentType(APPLICATION_JSON)
-                        .content(OBJECT_MAPPER.writeValueAsString(cartItemAddItemToCartDTO)))
+                        .content(OBJECT_MAPPER.writeValueAsString(cartItemAddDTO)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_JSON))
                 .andReturn();
@@ -119,22 +122,22 @@ class CartControllerWebMvcTest extends BaseUnitTest {
 
     @Test
     void addItemCreateCartUnknownCustomer() throws Exception {
-        when(modifier.addItemToCart(customerEmail, cartItemAddItemToCartDTO, null)).thenThrow(new UnknownCustomerEmailException(customerEmail));
+        when(modifier.addItemToCart(customerEmail, cartItemAddDTO, null)).thenThrow(new UnknownCustomerEmailException(customerEmail));
 
         mockMvc.perform(put(CartController.CART_URI + "/" + customerEmail)
                         .contentType(APPLICATION_JSON)
-                        .content(OBJECT_MAPPER.writeValueAsString(cartItemAddItemToCartDTO)))
+                        .content(OBJECT_MAPPER.writeValueAsString(cartItemAddDTO)))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(APPLICATION_JSON));
     }
 
     @Test
     void addItemToCartUnknownItem() throws Exception {
-        when(modifier.addItemToCart(customerEmail, cartItemAddItemToCartDTO, cartDTO)).thenThrow(new UnknownItemIdException(cartItemDTO.item().itemId()));
+        when(modifier.addItemToCart(customerEmail, cartItemAddDTO, cartDTO)).thenThrow(new UnknownItemIdException(cartItemDTO.item().itemId()));
         when(finder.findCustomerCart(customerEmail)).thenReturn(Optional.of(cartDTO));
         mockMvc.perform(put(CartController.CART_URI + "/" + customerEmail)
                         .contentType(APPLICATION_JSON)
-                        .content(OBJECT_MAPPER.writeValueAsString(cartItemAddItemToCartDTO)))
+                        .content(OBJECT_MAPPER.writeValueAsString(cartItemAddDTO)))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(APPLICATION_JSON));
     }
@@ -146,11 +149,9 @@ class CartControllerWebMvcTest extends BaseUnitTest {
         cartItemDTOS.remove(cartItemDTO);
         // Modified CartDTO with the updated set of items
         CartDTO modifiedCartDTO = new CartDTO(cartDTO.cartId(), cartDTO.partner(), cartItemDTOS, cartDTO.perksList());
-        when(modifier.removeItemFromCart(customerEmail, cartItemDTO)).thenReturn(modifiedCartDTO);
-        MvcResult result = mockMvc.perform(delete(CartController.CART_URI + "/" + customerEmail)
-                        .contentType(APPLICATION_JSON)
-                        .content(OBJECT_MAPPER.writeValueAsString(cartItemDTO)))
-                .andExpect(status().isCreated())
+        when(modifier.removeItemFromCart(customerEmail, 1L)).thenReturn(modifiedCartDTO);
+        MvcResult result = mockMvc.perform(delete(CartController.CART_URI + "/" + customerEmail + "/item/" + cartItemDTO.item().itemId()))
+                .andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_JSON))
                 .andReturn();
 
@@ -163,8 +164,9 @@ class CartControllerWebMvcTest extends BaseUnitTest {
 
     @Test
     void validateCart_shouldReturnCreated_whenCartIsValid() throws Exception {
+        CartInPurchaseDTO cartInPurchaseDTO = new CartInPurchaseDTO(100L, partnerDTO, Set.of(cartItemDTO), List.of());
         // Given
-        PurchaseDTO purchaseDTO = new PurchaseDTO(customerEmail, cartDTO, new PaymentDTO(
+        PurchaseDTO purchaseDTO = new PurchaseDTO(customerEmail, cartInPurchaseDTO, new PaymentDTO(
                 "1234-5678-9012-3456",
                 23.0,
                 true
@@ -182,7 +184,7 @@ class CartControllerWebMvcTest extends BaseUnitTest {
         String jsonResult = result.getResponse().getContentAsString();
         PurchaseDTO responsePurchase = OBJECT_MAPPER.readValue(jsonResult, PurchaseDTO.class);
         Assertions.assertNotNull(responsePurchase);
-        Assertions.assertEquals(purchaseDTO.cartOwnerEmail(), responsePurchase.cartOwnerEmail());
+        Assertions.assertEquals(purchaseDTO.email(), responsePurchase.email());
         Assertions.assertEquals(purchaseDTO.cartDTO(), responsePurchase.cartDTO());
         Assertions.assertEquals(purchaseDTO.paymentDTO(), responsePurchase.paymentDTO());
     }
@@ -229,11 +231,9 @@ class CartControllerWebMvcTest extends BaseUnitTest {
 
     @Test
     void removeItemFromCartUnknownCustomer() throws Exception {
-        when(modifier.removeItemFromCart(customerEmail, cartItemDTO)).thenThrow(new UnknownCustomerEmailException(customerEmail));
+        when(modifier.removeItemFromCart(customerEmail, 1L)).thenThrow(new UnknownCustomerEmailException(customerEmail));
 
-        mockMvc.perform(delete(CartController.CART_URI + "/" + customerEmail)
-                        .contentType(APPLICATION_JSON)
-                        .content(OBJECT_MAPPER.writeValueAsString(cartItemDTO)))
+        mockMvc.perform(delete(CartController.CART_URI + "/" + customerEmail + "/item/" + cartItemDTO.item().itemId()))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(APPLICATION_JSON));
     }

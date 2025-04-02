@@ -31,6 +31,13 @@ public class Payment {
         this.timestamp = timestamp;
     }
 
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
 }
 
 

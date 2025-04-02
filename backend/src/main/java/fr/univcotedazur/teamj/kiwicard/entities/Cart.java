@@ -1,5 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.entities;
 
+import fr.univcotedazur.teamj.kiwicard.configurations.Constants;
 import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import jakarta.persistence.CascadeType;
@@ -13,13 +14,11 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 
 @Entity
 public class Cart {
@@ -40,7 +39,7 @@ public class Cart {
      */
     @ManyToMany
     @Column
-    private List<AbstractPerk> perksToUse = new ArrayList<>();
+    private Set<AbstractPerk> perksToUse = new HashSet<>();
 
     /**
      * The list of perks that have been applied to the cart
@@ -60,7 +59,7 @@ public class Cart {
         this.cartId = cartDTO.cartId();
     }
 
-    public Cart(Partner partner, Set<CartItem> itemList, List<AbstractPerk> perks) {
+    public Cart(Partner partner, Set<CartItem> itemList, Set<AbstractPerk> perks) {
         this.partner = partner;
         this.itemList = itemList;
         this.perksToUse = perks;
@@ -82,9 +81,9 @@ public class Cart {
         this.itemList.add(item);
     }
 
-    public List<CartItem> getHKItems(@Value("${happykids.item.name}") String itemName) {
+    public List<CartItem> getHKItems() {
         return this.itemList.stream()
-                .filter(item -> item.getItem().getLabel().contains(itemName))
+                .filter(item -> item.getItem().getLabel().contains(Constants.HAPPY_KIDS_ITEM_NAME))
                 .toList();
 
     }
@@ -102,7 +101,7 @@ public class Cart {
         return partner;
     }
 
-    public Set<CartItem> getItemList() {
+    public Set<CartItem> getItems() {
         return itemList;
     }
 
@@ -110,12 +109,12 @@ public class Cart {
         return this.itemList.isEmpty();
     }
 
-    public void empty() {
-        this.itemList.clear();
+    public Set<AbstractPerk> getPerksToUse() {
+        return perksToUse;
     }
 
-    public List<AbstractPerk> getPerksToUse() {
-        return perksToUse;
+    public List<AbstractPerk> getPerksUsed() {
+        return perksUsed;
     }
 
     public double getTotalPercentageReduction() {
@@ -127,12 +126,15 @@ public class Cart {
         return this.totalPercentageReduction;
     }
 
-    public double resetTotalPercentageReduction() {
-        this.totalPercentageReduction = 0;
-        return this.totalPercentageReduction;
+    public double getTotalPrice() {
+        return this.getItems().stream().mapToDouble(CartItem::getPrice).sum();
     }
 
-    public double getTotalPrice() {
-        return getItemList().stream().mapToDouble(CartItem::getPrice).sum();
+    public boolean alreadyContains(Item item) {
+        return this.getItems().stream().map(CartItem::getItem).anyMatch(itm -> itm.equals(item));
+    }
+
+    public void addPerkUsed(AbstractPerk perk) {
+        this.perksUsed.add(perk);
     }
 }

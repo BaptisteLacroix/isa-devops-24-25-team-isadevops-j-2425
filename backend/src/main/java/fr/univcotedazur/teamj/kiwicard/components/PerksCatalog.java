@@ -1,19 +1,25 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
+import fr.univcotedazur.teamj.kiwicard.dto.PerkCountDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
+import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPerkIdException;
 import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPerkManager;
 import fr.univcotedazur.teamj.kiwicard.mappers.PerkMapper;
 import fr.univcotedazur.teamj.kiwicard.repositories.IPerkRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class PerksCatalog implements IPerkManager {
     public static final String NOT_IMPLEMENTED_YET = "Not implemented yet";
     private final IPerkRepository perksRepository;
+
     public PerksCatalog(IPerkRepository perksRepository) {
         this.perksRepository = perksRepository;
     }
@@ -31,7 +37,7 @@ public class PerksCatalog implements IPerkManager {
 
     @Override
     public IPerkDTO findPerkById(long perkId) throws UnknownPerkIdException {
-        AbstractPerk perk= perksRepository.findById(perkId).orElseThrow(() -> new UnknownPerkIdException(perkId));
+        AbstractPerk perk = perksRepository.findById(perkId).orElseThrow(() -> new UnknownPerkIdException(perkId));
         return PerkMapper.toDTO(perk);
     }
 
@@ -55,5 +61,18 @@ public class PerksCatalog implements IPerkManager {
     @Override
     public void deletePerk(long perkId) {
         throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);
+    }
+
+
+    @Transactional
+    @Override
+    public Map<String, Long> aggregatePartnerPerksUsageByType(long partnerId) throws UnknownPartnerIdException {
+        return this.perksRepository
+                .countByTypeForPartner(partnerId)
+                .stream()
+                .collect(Collectors.toMap(
+                        PerkCountDTO::perkType,
+                        PerkCountDTO::count
+                ));
     }
 }

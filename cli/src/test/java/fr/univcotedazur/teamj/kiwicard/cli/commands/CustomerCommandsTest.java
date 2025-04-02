@@ -11,7 +11,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class CustomerCommandsTest {
 
@@ -102,5 +105,143 @@ class CustomerCommandsTest {
         assertEquals("POST", recordedRequest.getMethod());
 
         assertNotNull(result);
+    }
+
+    @Test
+    void getCartTest() throws InterruptedException {
+        mockWebServer.enqueue(new MockResponse()
+                .setBody("""
+                        {
+                          "cartId": 12,
+                          "partner": {
+                            "id": 2,
+                            "name": "Fleuriste",
+                            "address": "13 rue des roses, Lorgues"
+                          },
+                          "items": [
+                            {
+                              "quantity": 2,
+                              "startTime": null,
+                              "endTime": null,
+                              "item": {
+                                "itemId": 5,
+                                "label": "rose",
+                                "price": 1.0
+                              }
+                            }
+                          ],
+                          "perksList": []
+                        }
+                        
+                        """).addHeader("Content-Type", "application/json"));
+
+        String result = customerCommands.getCart("doesnotmatter@yahoo.fr");
+
+        // Verify the request made to the correct endpoint
+        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+        assertEquals("/cart/doesnotmatter@yahoo.fr", recordedRequest.getPath());
+        assertEquals("GET", recordedRequest.getMethod());
+
+        assertNotNull(result);
+    }
+
+    @Test
+    void addItemToCartTest() throws InterruptedException {
+        mockWebServer.enqueue(new MockResponse()
+                .setBody("""
+                        {
+                            "cartId": 11,
+                            "partner": {
+                              "id": 1,
+                              "name": "Boulange",
+                              "address": "14 rue du paindemie, Draguignan"
+                            },
+                            "items": [
+                              {
+                                "quantity": 9,
+                                "item": {
+                                  "itemId": 1,
+                                  "label": "croissant",
+                                  "price": 1.0
+                                }
+                              }
+                            ],
+                            "perksList": []
+                          }
+                        """)
+                .addHeader("Content-Type", "application/json"));
+
+        String customerEmail = "customer@example.com";
+
+        customerCommands.addItemToCart(customerEmail, 1L, 2);
+
+        // Verify that the request was made to the correct endpoint
+        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+        assertEquals("/cart/" + customerEmail, recordedRequest.getPath());
+        assertEquals("PUT", recordedRequest.getMethod());
+    }
+
+    @Test
+    void addReservationToCartTest() throws InterruptedException {
+        mockWebServer.enqueue(new MockResponse()
+                .setBody("""
+                        {
+                            "cartId": 1,
+                            "partner": {
+                              "id": 6,
+                              "name": "HappyKids",
+                              "address": "1 rue des enfants, Nice"
+                            },
+                            "items": [
+                              {
+                                "quantity": 1,
+                                "item": {
+                                  "itemId": 21,
+                                  "label": "Heure de garde HappyKids",
+                                  "price": 1.0
+                                }
+                              }
+                            ],
+                            "perksList": []
+                          }
+                        """)
+                .addHeader("Content-Type", "application/json"));
+
+        String customerEmail = "customer@example.com";
+
+        customerCommands.reserveTimeSlot(customerEmail, 1L,
+                LocalDateTime.now(), 1);
+
+        // Verify that the request was made to the correct endpoint
+        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+        assertEquals("/cart/" + customerEmail, recordedRequest.getPath());
+        assertEquals("PUT", recordedRequest.getMethod());
+    }
+
+    @Test
+    void removeItemFromCart() throws InterruptedException {
+        mockWebServer.enqueue(new MockResponse()
+                .setBody("""
+                        {
+                            "cartId": 11,
+                            "partner": {
+                              "id": 1,
+                              "name": "Boulange",
+                              "address": "14 rue du paindemie, Draguignan"
+                            },
+                            "items": [],
+                            "perksList": []
+                          }
+                        """)
+                .addHeader("Content-Type", "application/json"));
+
+        String customerEmail = "customer@example.com";
+
+        customerCommands.removeItemFromCart(customerEmail, 21L);
+
+        // Verify that the request was made to the correct endpoint
+        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+        assertEquals("/cart/" + customerEmail + "/item/21", recordedRequest.getPath());
+        assertEquals("DELETE", recordedRequest.getMethod());
     }
 }

@@ -1,8 +1,10 @@
 package fr.univcotedazur.teamj.kiwicard.entities;
 
+import fr.univcotedazur.teamj.kiwicard.dto.CartItemAddDTO;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 public class CartItem {
@@ -10,6 +12,13 @@ public class CartItem {
     @Id
     @GeneratedValue
     private Long cartItemId;
+
+    @Column
+    private boolean consumed = false;
+
+    public void setConsumed(boolean consumed) {
+        this.consumed = consumed;
+    }
 
     @Column
     private int quantity;
@@ -23,9 +32,6 @@ public class CartItem {
 
     private double price;
 
-    @Column
-    private LocalDateTime endTime;
-
     @ManyToOne
     @JoinColumn(name = "cart_id", insertable = false, updatable = false)
     private Cart cart;
@@ -35,16 +41,10 @@ public class CartItem {
     public CartItem() {
     }
 
-    public CartItem(Item item, int quantity, LocalDateTime startTime, LocalDateTime endTime) {
+    public CartItem(Item item, CartItemAddDTO cartItemAddDTO) {
         this.item = item;
-        this.quantity = quantity;
-        this.startTime = startTime;
-        this.endTime = endTime;
-    }
-
-    public CartItem(Item item, int quantity){
-        this.item = item;
-        this.quantity = quantity;
+        this.quantity = cartItemAddDTO.quantity();
+        this.startTime = cartItemAddDTO.startTime();
         this.price = item.getPrice() * quantity;
     }
 
@@ -56,17 +56,17 @@ public class CartItem {
         return cartItemId;
     }
 
-
     public int getQuantity() {
         return quantity;
     }
 
-    public void increaseQuantity(int quantity) {
+    public void addFreeItem(int quantity) {
         this.quantity += quantity;
     }
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+        this.price = item.getPrice() * this.quantity;
     }
 
     public LocalDateTime getStartTime() {
@@ -77,20 +77,18 @@ public class CartItem {
         this.startTime = startTime;
     }
 
-    public LocalDateTime getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(LocalDateTime endTime) {
-        this.endTime = endTime;
-    }
-
     public Item getItem() {
         return item;
     }
 
+    public boolean isConsumed() {return this.consumed;}
+
     public double getPrice() {
         return price;
+    }
+
+    public double getItemPrice() {
+        return item.getPrice();
     }
 
     @Override
@@ -99,10 +97,22 @@ public class CartItem {
                 "cartItemId=" + cartItemId +
                 ", quantity=" + quantity +
                 ", startTime=" + startTime +
-                ", endTime=" + endTime +
                 ", item=" + item +
                 '}';
     }
 
+    @Override
+    public final boolean equals(Object o) {
+        if (!(o instanceof CartItem cartItem)) return false;
+
+        return Objects.equals(getStartTime(), cartItem.getStartTime()) && Objects.equals(getItem(), cartItem.getItem());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hashCode(getStartTime());
+        result = 31 * result + Objects.hashCode(getItem());
+        return result;
+    }
 }
 

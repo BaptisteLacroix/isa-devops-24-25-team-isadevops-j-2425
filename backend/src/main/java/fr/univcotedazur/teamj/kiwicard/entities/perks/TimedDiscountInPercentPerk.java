@@ -8,6 +8,10 @@ import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalTime;
+import java.util.Objects;
+
+import static fr.univcotedazur.teamj.kiwicard.configurations.Constants.MAX_DISCOUNT_RATE_OF_A_PERK;
+import static fr.univcotedazur.teamj.kiwicard.configurations.Constants.MIN_DISCOUNT_RATE_OF_A_PERK;
 
 @Entity
 public class TimedDiscountInPercentPerk extends AbstractPerk{
@@ -28,6 +32,9 @@ public class TimedDiscountInPercentPerk extends AbstractPerk{
 
     public TimedDiscountInPercentPerk(LocalTime time, double discountRate) {
         this.time = time;
+        if(discountRate > MAX_DISCOUNT_RATE_OF_A_PERK || discountRate < MIN_DISCOUNT_RATE_OF_A_PERK) {
+            throw new IllegalArgumentException("Discount rate must be between 0 and 100");
+        }
         this.discountRate = discountRate;
     }
 
@@ -35,6 +42,11 @@ public class TimedDiscountInPercentPerk extends AbstractPerk{
         this.setPerkId(dto.perkId());
         this.time = dto.time();
         this.discountRate = dto.discountRate();
+    }
+
+    @Override
+    public boolean isDiscountPerk() {
+        return true;
     }
 
     public @NotNull LocalTime getTime() {
@@ -50,18 +62,14 @@ public class TimedDiscountInPercentPerk extends AbstractPerk{
         return discountRate;
     }
 
-    public void setDiscountRate(@NotNull double quantity) {
-        this.discountRate = quantity;
-    }
-
     @Override
     public String toString() {
-        return "Discount of " + discountRate + "% after " + time + " on all items";
+        return "Remise de " + discountRate + "% après " + time + " sur tous les articles";
     }
 
     @Override
-    public boolean apply(PerkApplicationVisitor visitor) {
-        return visitor.visit(this);
+    public boolean apply(PerkApplicationVisitor visitor, Customer customer) {
+        return visitor.visit(this, customer);
     }
 
     @Override
@@ -72,5 +80,18 @@ public class TimedDiscountInPercentPerk extends AbstractPerk{
     @Override
     public <T> T accept(PerkVisitor<T> visitor) {
         return visitor.toDTO(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TimedDiscountInPercentPerk that = (TimedDiscountInPercentPerk) o;
+        return Objects.equals(this.getPerkId(), that.getPerkId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getPerkId());
     }
 }

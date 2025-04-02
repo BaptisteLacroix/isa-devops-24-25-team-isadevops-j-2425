@@ -1,10 +1,12 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
+import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Cart;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.entities.Partner;
 import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
+import fr.univcotedazur.teamj.kiwicard.exceptions.InapplicablePerkException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.NoCartException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPerkIdException;
@@ -38,7 +40,7 @@ public class PerksService implements IPerksConsumer {
      */
     @Override
     @Transactional
-    public boolean applyPerk(long perkId, String cartOwnerEmail) throws UnknownPerkIdException, UnknownCustomerEmailException, NoCartException {
+    public CartDTO addPerkToApply(long perkId, String cartOwnerEmail) throws UnknownPerkIdException, UnknownCustomerEmailException, NoCartException, InapplicablePerkException {
         AbstractPerk perk = PerkMapper.fromDTO(perksFinder.findPerkById(perkId));
         Customer customer = customerFinder.findCustomerByEmail(cartOwnerEmail);
 
@@ -46,14 +48,14 @@ public class PerksService implements IPerksConsumer {
         if (cart == null) {
             throw new NoCartException(customer.getEmail());
         }
-        if (cart.getPartner().getPerkList().stream().map(AbstractPerk::getPerkId).noneMatch(id -> id.equals(perkId))) {
+        if (cart.getPartner().getPerkSet().stream().map(AbstractPerk::getPerkId).noneMatch(id -> id.equals(perkId))) {
             throw new UnknownPerkIdException(perkId);
         }
-        if (perk.isConsumableFor(customer)) {
-            cart.addPerkToUse(perk);
-            return true;
+        if (!perk.isConsumableFor(customer)) {
+            throw new InapplicablePerkException(PerkMapper.toDTO(perk));
         }
-        return false;
+        cart.addPerkToUse(perk);
+        return new CartDTO(cart);
     }
 
     /**
@@ -64,8 +66,8 @@ public class PerksService implements IPerksConsumer {
      * @throws UnknownCustomerEmailException si le client n'existe pas
      * @throws NoCartException               si le client n'a pas de panier
      */
-    @Transactional
     @Override
+    @Transactional
     public List<IPerkDTO> findConsumablePerksForConsumerAtPartner(String consumerEmail) throws UnknownCustomerEmailException, NoCartException {
         Customer customer = customerFinder.findCustomerByEmail(consumerEmail);
         Cart cart = customer.getCart();
@@ -73,10 +75,11 @@ public class PerksService implements IPerksConsumer {
             throw new NoCartException(customer.getEmail());
         }
         Partner partner = cart.getPartner();
-        return partner.getPerkList()
+        return partner.getPerkSet()
                 .stream()
                 .filter(perk -> perk.isConsumableFor(customer))
                 .map(PerkMapper::toDTO)
                 .toList();
     }
 }
+

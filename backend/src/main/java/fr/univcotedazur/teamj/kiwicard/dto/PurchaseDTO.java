@@ -1,3 +1,4 @@
 package fr.univcotedazur.teamj.kiwicard.dto;
 
-public record PurchaseDTO(String cartOwnerEmail, CartDTO cartDTO, PaymentDTO paymentDTO) { }
+public record PurchaseDTO(String email, CartInPurchaseDTO cartDTO, PaymentDTO paymentDTO) {
+}

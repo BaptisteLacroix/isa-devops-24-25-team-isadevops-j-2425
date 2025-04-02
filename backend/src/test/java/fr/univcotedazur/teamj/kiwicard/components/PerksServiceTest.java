@@ -1,6 +1,10 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
+import fr.univcotedazur.teamj.kiwicard.dto.CartItemAddDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.CartDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.CartItemDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.ItemDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.PartnerDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.IPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.perks.NPurchasedMGiftedPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.Cart;
@@ -25,21 +29,17 @@ import org.mockito.MockedConstruction;
 import org.mockito.MockitoAnnotations;
 
 import java.time.LocalTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyDouble;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockConstruction;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class PerksServiceTest {
@@ -59,59 +59,67 @@ class PerksServiceTest {
     }
 
     @Test
-    void testApplyPerkIntermediateSuccess() throws Exception {
+    void testAddPerkToApplyIntermediateSuccess() throws Exception {
         long perkId = 1L;
         String email = "client@example.com";
         Item item = spy(new Item("Chocolatine", 1.5));
         when(item.getItemId()).thenReturn(1L);
-        CartItem cartItem = spy(new CartItem(item, 3));
+        CartItemAddDTO cartItemAddDTO = new CartItemAddDTO(3, null, 3);
+        CartItem cartItem = spy(new CartItem(item, cartItemAddDTO));
 
-        ItemDTO itemDTO= mock(ItemDTO.class);
-        when(itemDTO.itemId()).thenReturn(1L);
-        when(itemDTO.label()).thenReturn("Chocolatine");
-        when(itemDTO.price()).thenReturn(1.5);
+        ItemDTO itemDTO= new ItemDTO(1L, "Chocolatine", 1.5);
 
         NPurchasedMGiftedPerkDTO dummyPerkDTO = new NPurchasedMGiftedPerkDTO(perkId, 3, itemDTO,  1);
         when(perksFinder.findPerkById(perkId)).thenReturn(dummyPerkDTO);
 
-        AbstractPerk dummyPerk = spy(new NPurchasedMGiftedPerk(dummyPerkDTO));
-        when(perksFinder.findPerkById(perkId)).thenReturn(dummyPerkDTO);
+        NPurchasedMGiftedPerk dummyPerk = spy(new NPurchasedMGiftedPerk(dummyPerkDTO));
+        when(dummyPerk.getItem()).thenReturn(item);
 
-        Customer customer = spy(new Customer(email, "John", "tester", "3 passe", true));
-        when(customerFinder.findCustomerByEmail(email)).thenReturn(customer);
         Cart cart = spy(new Cart());
         cart.addItem(cartItem);
+        when(cart.getCartId()).thenReturn(3L);
+
+        Customer customer = spy(new Customer(email, "John", "tester", "3 passe", true));
+        when(customer.getCart()).thenReturn(cart);
+        when(customerFinder.findCustomerByEmail(email)).thenReturn(customer);
 
         Partner partner = mock(Partner.class);
         when(partner.getPartnerId()).thenReturn(1L);
-        when(partner.getPerkList()).thenReturn(List.of(dummyPerk));
+        when(partner.getPerkSet()).thenReturn(Set.of(dummyPerk));
+        when(partner.getName()).thenReturn("PerkStore");
+        when(partner.getAddress()).thenReturn("20 place de l'avantage");
         when(partnerRepository.findById(anyLong())).thenReturn(Optional.of(partner));
 
         when(cart.getPartner()).thenReturn(partner);
 
-        when(customer.getCart()).thenReturn(cart);
         MockedConstruction<Item> itemMockedConstruction = mockConstruction(Item.class, (mock, context) -> {
             when(mock.getItemId()).thenReturn(1L);
+            when(mock.getLabel()).thenReturn("Chocolatine");
+            when(mock.getPrice()).thenReturn(1.5);
         });
 
-        boolean result = perksService.applyPerk(perkId, email);
+        CartDTO result = perksService.addPerkToApply(perkId, email);
         // Test avec assertEquals car le contains avec le perk implique un equals sur le perk et l'item, ce qui n'est pas possible avec un mock
-        assertEquals(1L, ((NPurchasedMGiftedPerk) cart.getPerksToUse().getFirst()).getItem().getItemId());
-        assertTrue(result);
+        assertEquals(1L, ((NPurchasedMGiftedPerk) cart.getPerksToUse().iterator().next()).getItem().getItemId());
+        assertEquals(new CartDTO(3L,
+                    new PartnerDTO(1L,"PerkStore", "20 place de l'avantage"),
+                    Set.of(new CartItemDTO(3,cartItem.getStartTime() ,new ItemDTO(1L, "Chocolatine", 1.5))),
+                    List.of(new NPurchasedMGiftedPerkDTO(1L, 3, new ItemDTO(1L, "Chocolatine", 1.5), 1))),
+                result);
         itemMockedConstruction.close();
     }
 
 
     @Test
-    void testApplyPerkUnknownPerk() throws Exception {
+    void testAddPerkUnknownPerkToApply() throws Exception {
         long perkId = 999L;
         String email = "client@example.com";
         when(perksFinder.findPerkById(perkId)).thenThrow(new UnknownPerkIdException(perkId));
-        assertThrows(UnknownPerkIdException.class, () -> perksService.applyPerk(perkId, email));
+        assertThrows(UnknownPerkIdException.class, () -> perksService.addPerkToApply(perkId, email));
     }
 
     @Test
-    void testApplyPerkUnknownCustomer() throws Exception {
+    void testAddPerkToApplyUnknownCustomer() throws Exception {
         long perkId = 1L;
         String email = "unknown@example.com";
 
@@ -119,7 +127,7 @@ class PerksServiceTest {
         when(perksFinder.findPerkById(perkId)).thenReturn(dummyPerk.accept(new PerkToDTOVisitor()));
 
         when(customerFinder.findCustomerByEmail(email)).thenThrow(new UnknownCustomerEmailException(email));
-        assertThrows(UnknownCustomerEmailException.class, () -> perksService.applyPerk(perkId, email));
+        assertThrows(UnknownCustomerEmailException.class, () -> perksService.addPerkToApply(perkId, email));
     }
 
 
@@ -140,7 +148,7 @@ class PerksServiceTest {
 
         AbstractPerk dummyPerk = new TimedDiscountInPercentPerk(LocalTime.now().minusMinutes(10), 20);
         AbstractPerk dummyPerk1 = new TimedDiscountInPercentPerk(LocalTime.now().plusMinutes(10), 20);
-        when(partner.getPerkList()).thenReturn(List.of(dummyPerk, dummyPerk1));
+        when(partner.getPerkSet()).thenReturn(new HashSet<>(List.of(dummyPerk, dummyPerk1)));
         List<IPerkDTO> result =
                 perksService.findConsumablePerksForConsumerAtPartner(email);
         assertEquals(1, result.size());
