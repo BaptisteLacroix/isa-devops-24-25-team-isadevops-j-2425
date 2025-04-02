@@ -9,6 +9,7 @@ services:
       - CARD_WITH_PORT=wiremock-card:9091
       - HAPPYKIDS_WITH_PORT=wiremock-happykids:9092
       - POSTGRES_HOST=postgres:5432
+      - TZ=Europe/Paris
     entrypoint: "java -jar /opt/app/app.jar --bank.host.baseurl=http://$${BANK_WITH_PORT} --cardeditor.host.baseurl=http://$${CARD_WITH_PORT} --happykids.host.baseurl=http://$${HAPPYKIDS_WITH_PORT}"
     restart: always
     depends_on:
@@ -60,34 +61,22 @@ services:
       retries: 3
       start_period: 5s
   wiremock-bank:
-    image: wiremock/wiremock:3.12.0
+    image: roxaane/wiremock-bank:latest
     container_name: wiremock-bank
     ports:
       - "9090:8080"
-    volumes:
-      - ./external/bank/mappings:/home/wiremock/mappings
-      - ./external/bank/__files:/home/wiremock/__files
-    command: "--verbose --global-response-templating"
     restart: always
 
   wiremock-card:
-    image: wiremock/wiremock:3.12.0
+    image: roxaane/wiremock-card:latest
     container_name: wiremock-card
     ports:
       - "9091:8080"
-    volumes:
-      - ./external/card/mappings:/home/wiremock/mappings
-      - ./external/card/__files:/home/wiremock/__files
-    command: "--verbose --global-response-templating"
     restart: always
 
   wiremock-happykids:
-    image: wiremock/wiremock:3.12.0
+    image: roxaane/wiremock-happykids:latest
     container_name: wiremock-happykids
     ports:
       - "9092:8080"
-    volumes:
-      - ./external/happykids/mappings:/home/wiremock/mappings
-      - ./external/happykids/__files:/home/wiremock/__files
-    command: "--verbose --global-response-templating"
     restart: always
