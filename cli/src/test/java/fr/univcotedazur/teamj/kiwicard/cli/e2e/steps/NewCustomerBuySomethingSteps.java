@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NewCustomerBuySomethingSteps {
@@ -100,6 +101,20 @@ public class NewCustomerBuySomethingSteps {
             }
         }
         assertTrue(itemFound, "L'article avec l'ID " + itemIdExpected + " et la quantité " + quantityExpected + " n'a pas été trouvé dans le panier");
+    }
+
+    @And("the cart contains the perk")
+    public void theCartContainsThePerkWithTheId(String perkMessage) {
+        response = customerCommands.getCart(cliSession.getLoggedInCustomerEmail());
+        System.out.println(response);
+        assertTrue(response.contains(perkMessage));
+    }
+
+    @And("the cart does not contain the perk")
+    public void theCartDoesNotContainThePerk(String perkMessage) {
+        response = customerCommands.getCart(cliSession.getLoggedInCustomerEmail());
+        System.out.println(response);
+        assertFalse(response.contains(perkMessage));
     }
 }
 

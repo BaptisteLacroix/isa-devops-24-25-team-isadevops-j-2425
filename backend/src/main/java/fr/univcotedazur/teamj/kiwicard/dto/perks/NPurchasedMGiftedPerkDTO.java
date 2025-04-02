@@ -10,7 +10,7 @@ import fr.univcotedazur.teamj.kiwicard.mappers.PerkDTOVisitor;
 public record NPurchasedMGiftedPerkDTO(Long perkId, int nbPurchased, ItemDTO item, int nbGifted) implements IPerkDTO {
     @Override
     public String toString() {
-        return "Buy " + nbPurchased + " " + item.label() + " and get " + nbGifted + " for free";
+        return "Achetez " + nbPurchased + " " + item.label() + " et obtenez " + nbGifted + " gratuitement";
     }
 
     @Override

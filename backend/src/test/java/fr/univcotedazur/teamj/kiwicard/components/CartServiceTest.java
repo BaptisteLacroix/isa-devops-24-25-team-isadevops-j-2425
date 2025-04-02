@@ -15,6 +15,7 @@ import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import fr.univcotedazur.teamj.kiwicard.entities.Partner;
+import fr.univcotedazur.teamj.kiwicard.entities.perks.TimedDiscountInPercentPerk;
 import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyBookedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
@@ -34,6 +35,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -372,6 +374,7 @@ class CartServiceTest extends BaseUnitTest {
         CartDTO result = cartService.removeItemFromCart("customer@email.com", 1L);
 
         // Then
+
         assertNotNull(result);
         assertEquals(1, result.items().size());
         assertTrue(result.items().stream().anyMatch(ci -> ci.item().itemId() == 2L));

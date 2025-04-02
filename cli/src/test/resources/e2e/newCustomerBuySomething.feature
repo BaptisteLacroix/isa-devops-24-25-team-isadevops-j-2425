@@ -12,8 +12,19 @@ Feature: Un nouveau client fait un achat
 
   Scenario: Un nouveau client fait un achat après avoir changé son panier
     Given the client "pierre.dupont@example.com" is registered with surname "Dupont", firstname "Pierre" and address "123 rue de Paris"
+    When the client adds item with id "6" and quantity 2 to the cart
     When the client adds item with id "5" and quantity 2 to the cart
+    And the client applies perk with id "6"
+    And the cart contains the perk
+    """
+    Achetez 1 rose et obtenez 1 gratuitement
+    """
     And the client deletes item with id 5 from the cart
+    And the cart does not contain the perk
+    """
+    Achetez 1 rose et obtenez 1 gratuitement
+    """
+    And the client deletes item with id 6 from the cart
     When the client adds item with id "4" and quantity 3 to the cart
     And the client applies perk with id "3"
     And the client pays the cart

@@ -10,6 +10,7 @@ import fr.univcotedazur.teamj.kiwicard.entities.CartItem;
 import fr.univcotedazur.teamj.kiwicard.entities.Customer;
 import fr.univcotedazur.teamj.kiwicard.entities.Item;
 import fr.univcotedazur.teamj.kiwicard.entities.Partner;
+import fr.univcotedazur.teamj.kiwicard.entities.perks.AbstractPerk;
 import fr.univcotedazur.teamj.kiwicard.exceptions.AlreadyBookedTimeException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.BookingTimeNotSetException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.ClosedTimeException;
@@ -28,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -259,9 +261,20 @@ public class CartService implements ICartModifier, ICartFinder {
             customerCatalog.resetCart(cartOwnerEmail);
             return null;
         } else {
+            removeInapplicablePerks(cart, customer);
             Customer updatedCustomer = customerCatalog.setCart(cartOwnerEmail, cart);
             return new CartDTO(updatedCustomer.getCart());
         }
+    }
+
+    /**
+     * Removes inapplicable perks from the cart's perks list.
+     *
+     * @param cart The cart from which inapplicable perks will be removed.
+     * @param customer The customer whose cart is being checked.
+     */
+    private void removeInapplicablePerks(Cart cart, Customer customer) {
+        cart.getPerksToUse().removeIf(perk -> !perk.isConsumableFor(customer));
     }
 
     /**

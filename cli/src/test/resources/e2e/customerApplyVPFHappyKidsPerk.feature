@@ -18,7 +18,7 @@ Feature: Un client réserve des créneaux horaires chez happy kids et applique l
 Historique du client pierre.cailloux@cafaismal.auxpieds :
 \tDate                 | Commerçant           | Articles             | Total payé | Avantages
 \t----------------------------------------------------------------------------------------------------
-\tDATE_PLACEHOLDER   | HappyKids            | 2 Heure de garde HappyKids  20,00€ | 19,00€     | • 1 : 5.0% discount for all VFPs when booking between TIME_PLACEHOLDERh and TIME_PLACEHOLDERh
+\tDATE_PLACEHOLDER   | HappyKids            | 2 Heure de garde HappyKids  20,00€ | 19,00€     | • 1 : 5.0% de réduction pour tous les VFP lors de la réservation entre TIME_PLACEHOLDERh et TIME_PLACEHOLDERh
 \t----------------------------------------------------------------------------------------------------
 """
 

@@ -122,6 +122,8 @@ VALUES (6, 1);
 INSERT INTO public.abstract_perk (partner_id, perk_id)
 VALUES (2, 2);
 INSERT INTO public.abstract_perk (partner_id, perk_id)
+VALUES (2, 6);
+INSERT INTO public.abstract_perk (partner_id, perk_id)
 VALUES (1, 3);
 INSERT INTO public.abstract_perk (partner_id, perk_id)
 VALUES (1, 5);
@@ -141,7 +143,9 @@ INSERT INTO public.vfp_discount_in_percent_perk (discount_rate, end_hour, start_
 VALUES (5, '12:00:00', '08:00:00', 1);
 -- Data for Name: npurchasedmgifted_perk; Type: TABLE DATA; Schema: public; Owner: postgresuser
 INSERT INTO public.npurchasedmgifted_perk (nb_gifted, nb_purchased, item_item_id, perk_id)
-VALUES (1, 5, 10, 4);
+VALUES (1, 5, 10, 4);-- Data for Name: npurchasedmgifted_perk; Type: TABLE DATA; Schema: public; Owner: postgresuser
+INSERT INTO public.npurchasedmgifted_perk (nb_gifted, nb_purchased, item_item_id, perk_id)
+VALUES (1, 1, 5, 6);
 --
 -- Data for Name: cart_item; Type: TABLE DATA; Schema: public; Owner: postgresuser
 --

@@ -24,7 +24,7 @@ Feature: Un partenaire fait des ventes et consulte son historique
 Historique du partenaire Boucherie :
 \tDate                 | Articles             | Total payé | Avantages
 \t----------------------------------------------------------------------------------------------------
-\tDATE_PLACEHOLDER   | 6 saucisse  7,20€    | 6,00€      | • 4 : Buy 5 saucisse and get 1 for free
+\tDATE_PLACEHOLDER   | 6 saucisse  7,20€    | 6,00€      | • 4 : Achetez 5 saucisse et obtenez 1 gratuitement
 \t----------------------------------------------------------------------------------------------------
 \tDATE_PLACEHOLDER   | 1 jambon  1,50€      | 3,50€      |
 \t                     | 2 steak  2,00€       |            |

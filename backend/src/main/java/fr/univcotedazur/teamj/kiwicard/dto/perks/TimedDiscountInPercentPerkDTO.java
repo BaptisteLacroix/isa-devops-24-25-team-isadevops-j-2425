@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 public record TimedDiscountInPercentPerkDTO(Long perkId, LocalTime time, double discountRate) implements IPerkDTO {
     @Override
     public String toString() {
-        return "Discount of " + discountRate + "% after " + time.format(DateTimeFormatter.ofPattern("HH:mm")) + " on all items";
+        return "Remise de " + discountRate + "% après " + time.format(DateTimeFormatter.ofPattern("HH:mm")) + " sur tous les articles";
     }
 
     @Override
