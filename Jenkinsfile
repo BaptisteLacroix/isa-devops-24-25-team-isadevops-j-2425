@@ -61,12 +61,13 @@ pipeline {
             when {
                 anyOf {
                     branch 'dev'
+                    branch 'main'
                     environment name: 'CHANGE_TARGET', value: 'dev'
                 }
             }
             steps {
                 dir('backend') {
-                    echo '🐋📷 Pipeline is building the docker image of the backend project!'
+                    echo '🐋📷 Pipeline is building the docker image of the backend project for the e2e tests !'
                     sh './build.sh'
                 }
             }
