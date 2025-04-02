@@ -14,7 +14,7 @@ import fr.univcotedazur.teamj.kiwicard.dto.perks.TimedDiscountInPercentPerkDTO;
 import fr.univcotedazur.teamj.kiwicard.exceptions.NoCartException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPerkIdException;
-import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPerkManager;
+import fr.univcotedazur.teamj.kiwicard.interfaces.perks.IPerkManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,13 +39,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
-import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPerkIdException;
-import fr.univcotedazur.teamj.kiwicard.interfaces.perks.IPerkManager;
-import fr.univcotedazur.teamj.kiwicard.components.PerksService;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
