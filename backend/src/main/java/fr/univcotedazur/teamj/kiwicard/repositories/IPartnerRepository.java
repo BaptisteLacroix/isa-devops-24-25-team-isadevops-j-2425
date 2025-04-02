@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface IPartnerRepository extends JpaRepository<Partner, Long> {
+    Partner getPartnerByPartnerId(Long partnerId);
 }

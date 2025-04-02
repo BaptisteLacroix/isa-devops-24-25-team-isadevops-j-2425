@@ -29,6 +29,7 @@ import org.mockito.MockedConstruction;
 import org.mockito.MockitoAnnotations;
 
 import java.time.LocalTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -147,7 +148,7 @@ class PerksServiceTest {
 
         AbstractPerk dummyPerk = new TimedDiscountInPercentPerk(LocalTime.now().minusMinutes(10), 20);
         AbstractPerk dummyPerk1 = new TimedDiscountInPercentPerk(LocalTime.now().plusMinutes(10), 20);
-        when(partner.getPerkSet()).thenReturn(Set.of(dummyPerk, dummyPerk1));
+        when(partner.getPerkSet()).thenReturn(new HashSet<>(List.of(dummyPerk, dummyPerk1)));
         List<IPerkDTO> result =
                 perksService.findConsumablePerksForConsumerAtPartner(email);
         assertEquals(1, result.size());

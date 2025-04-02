@@ -13,6 +13,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Objects;
 
 import static fr.univcotedazur.teamj.kiwicard.configurations.Constants.MAX_DISCOUNT_RATE_OF_A_PERK;
 import static fr.univcotedazur.teamj.kiwicard.configurations.Constants.MIN_DISCOUNT_RATE_OF_A_PERK;
@@ -36,7 +37,7 @@ public class VfpDiscountInPercentPerk extends AbstractPerk {
     }
 
     public VfpDiscountInPercentPerk(double discountRate, LocalTime startHour, LocalTime endHour) {
-        if(discountRate > MAX_DISCOUNT_RATE_OF_A_PERK || discountRate < MIN_DISCOUNT_RATE_OF_A_PERK) {
+        if (discountRate > MAX_DISCOUNT_RATE_OF_A_PERK || discountRate < MIN_DISCOUNT_RATE_OF_A_PERK) {
             throw new IllegalArgumentException("Discount rate must be between 0 and 100");
         }
         this.discountRate = discountRate;
@@ -102,5 +103,18 @@ public class VfpDiscountInPercentPerk extends AbstractPerk {
             return !bookingTime.isBefore(startHour) || bookingTime.isBefore(endHour);
         }
         return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        VfpDiscountInPercentPerk that = (VfpDiscountInPercentPerk) o;
+        return Objects.equals(this.getPerkId(), that.getPerkId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getPerkId());
     }
 }

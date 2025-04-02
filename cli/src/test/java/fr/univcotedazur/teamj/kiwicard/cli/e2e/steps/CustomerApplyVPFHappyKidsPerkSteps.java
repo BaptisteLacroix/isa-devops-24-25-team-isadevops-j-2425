@@ -90,7 +90,7 @@ public class CustomerApplyVPFHappyKidsPerkSteps {
         assertNull(response);
     }
 
-    @Then("Il décide de réserver un créneau horaire grâce à l'item {string} à partir de maintenant à {string}h pour une durée de {string} heures")
+    @Then("Il décide de réserver un créneau horaire grâce à l'item {string} aujourd'hui à {string}h pour une durée de {string} heures")
     public void il_decide_de_reserver_un_creneau_horaire_grace_a_l_item_a_partir_de_maintenant_a_h_pour_une_duree_de_heures(String arg0, String arg1, String arg2) {
         try {
             customerCommands.reserveTimeSlot(

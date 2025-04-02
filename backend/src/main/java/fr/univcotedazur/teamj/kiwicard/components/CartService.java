@@ -98,10 +98,7 @@ public class CartService implements ICartModifier, ICartFinder {
         }
 
         // Filter only discount perks and add them to cart
-        customerCart.getPartner().getPerkList().stream()
-                .filter(perk -> perk.isDiscountPerk() && perk.isConsumableFor(customer))
-                .toList()
-                .forEach(customerCart::addPerkToUse);
+        addDiscountPerksToCart(customer, customerCart);
 
         // Update the customer's cart
         Customer updatedCustomer = customerCatalog.setCart(customer.getEmail(), customerCart);
@@ -201,13 +198,18 @@ public class CartService implements ICartModifier, ICartFinder {
         Cart cart = new Cart(partner, new HashSet<>(List.of(cartItem)), new HashSet<>());
         customer.setCart(cart);
         // Filter only discount perks and add them to cart
-        cart.getPartner().getPerkList().stream()
-                .filter(perk -> perk.isDiscountPerk() && perk.isConsumableFor(customer))
-                .toList()
-                .forEach(cart::addPerkToUse);
+        addDiscountPerksToCart(customer, cart);
+
         // Update the customer's cart
         Customer updatedCustomer = customerCatalog.setCart(customer.getEmail(), cart);
         return new CartDTO(updatedCustomer.getCart());
+    }
+
+    private static void addDiscountPerksToCart(Customer customer, Cart cart) {
+        cart.getPartner().getPerkSet().stream()
+                .filter(perk -> perk.isDiscountPerk() && perk.isConsumableFor(customer))
+                .toList()
+                .forEach(cart::addPerkToUse);
     }
 
 

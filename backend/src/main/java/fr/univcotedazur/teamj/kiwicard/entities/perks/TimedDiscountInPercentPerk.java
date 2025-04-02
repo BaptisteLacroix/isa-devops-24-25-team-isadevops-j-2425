@@ -8,6 +8,7 @@ import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalTime;
+import java.util.Objects;
 
 import static fr.univcotedazur.teamj.kiwicard.configurations.Constants.MAX_DISCOUNT_RATE_OF_A_PERK;
 import static fr.univcotedazur.teamj.kiwicard.configurations.Constants.MIN_DISCOUNT_RATE_OF_A_PERK;
@@ -78,5 +79,18 @@ public class TimedDiscountInPercentPerk extends AbstractPerk{
     @Override
     public <T> T accept(PerkVisitor<T> visitor) {
         return visitor.toDTO(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TimedDiscountInPercentPerk that = (TimedDiscountInPercentPerk) o;
+        return Objects.equals(this.getPerkId(), that.getPerkId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getPerkId());
     }
 }

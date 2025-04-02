@@ -224,7 +224,7 @@ INSERT INTO public.cart (cart_id, total_percentage_reduction, partner_partner_id
 --
 -- Data for Name: customer; Type: TABLE DATA; Schema: public; Owner: postgresuser
 --
-INSERT INTO public.customer (vfp, cart_id, address, card_number, email, first_name, surname) VALUES (true, 16, 'blabliblou', '1234567890', 'alice.bob@gmail.com', 'Alice', 'bob');
+INSERT INTO public.customer (vfp, cart_id, address, card_number, email, first_name, surname) VALUES (false, 16, 'blabliblou', '1234567890', 'alice.bob@gmail.com', 'Alice', 'bob');
 INSERT INTO public.customer (vfp, cart_id, address, card_number, email, first_name, surname) VALUES (false, 10, '2 avenue des militaires, Callas', '1234567891', 'clement@armeedeterre.fr', 'Clement', 'lfv');
 INSERT INTO public.customer (vfp, cart_id, address, card_number, email, first_name, surname) VALUES (false, 12, '3 rue des arcsitecte, Draguignan', '1234567892', 'antoine@fitnesspark.fr', 'Antoine', 'fadda');
 INSERT INTO public.customer (vfp, cart_id, address, card_number, email, first_name, surname) VALUES (false, 6, '4 rue des pectoraux, Nice', '1234567893', 'antoine@seancepull.fr', 'Antoine', 'maistre');
@@ -283,15 +283,13 @@ INSERT INTO public.cart_item (cart_item_id, consumed, price, quantity, cart_id, 
 INSERT INTO public.cart_item (cart_item_id, consumed, price, quantity, cart_id, item_item_id, start_time) VALUES (9, false, 1, 1, 14, 1, NULL);
 INSERT INTO public.cart_item (cart_item_id, consumed, price, quantity, cart_id, item_item_id, start_time) VALUES (10, false, 15, 1, 14, 3, NULL);
 INSERT INTO public.cart_item (cart_item_id, consumed, price, quantity, cart_id, item_item_id, start_time) VALUES (11, false, 2, 2, 15, 5, NULL);
--- INSERT INTO public.cart_item (cart_item_id, consumed, price, quantity, cart_id, item_item_id, start_time) VALUES (12, false, 0, 1, 16, 21, '2025-06-01 10:00:00');
 
 --
 -- Data for Name: payment; Type: TABLE DATA; Schema: public; Owner: postgresuser
 --
-INSERT INTO public.payment (amount, payment_id, "timestamp") VALUES (3, 1, '2025-03-19 14:00:00');
-INSERT INTO public.payment (amount, payment_id, "timestamp") VALUES (2.5, 2, '2025-03-18 10:00:00');
-INSERT INTO public.payment (amount, payment_id, "timestamp") VALUES (2, 3, '2025-03-18 10:00:00');
-
+INSERT INTO public.payment (amount, payment_id, "timestamp") VALUES (3, 1, NOW() - INTERVAL '1 day');
+INSERT INTO public.payment (amount, payment_id, "timestamp") VALUES (2.5, 2, NOW() - INTERVAL '2 days');
+INSERT INTO public.payment (amount, payment_id, "timestamp") VALUES (2, 3, NOW() - INTERVAL '3 days');
 --
 -- Data for Name: purchase; Type: TABLE DATA; Schema: public; Owner: postgresuser
 --

@@ -14,8 +14,6 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
-import java.util.Objects;
-
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class AbstractPerk {
@@ -63,17 +61,4 @@ public abstract class AbstractPerk {
     public abstract boolean isConsumableFor(Customer customer);
 
     public abstract <T> T accept(PerkVisitor<T> visitor);
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AbstractPerk that = (AbstractPerk) o;
-        return Objects.equals(perkId, that.perkId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(perkId);
-    }
 }
