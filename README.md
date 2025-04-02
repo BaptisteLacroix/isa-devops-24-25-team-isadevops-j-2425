@@ -62,8 +62,16 @@ docker compose up -d
 ```
 
 Lorsque tous les containers sont démarrés et que leurs vérifications de santé sont validées, vous pouvez vous connecter
-au container CLI avec:
+au container CLI avec :
 
 ```bash
 docker attach cli
 ```
+
+## Repartition des points :
+
+Antoine FADDA RODRIGUEZ : 103 points
+Antoine MAISTRE-RICE : 94 points
+Baptiste LACROIX : 103 points
+Clément LEFEVRE : 103 points
+Roxane BACON : 97 points
