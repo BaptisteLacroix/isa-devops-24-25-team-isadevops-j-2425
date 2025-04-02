@@ -11,7 +11,7 @@ import fr.univcotedazur.teamj.kiwicard.entities.Purchase;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownCustomerEmailException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPurchaseIdException;
-import fr.univcotedazur.teamj.kiwicard.interfaces.partner.IPerkManager;
+import fr.univcotedazur.teamj.kiwicard.interfaces.perks.IPerkManager;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseFinder;
 import fr.univcotedazur.teamj.kiwicard.interfaces.purchase.IPurchaseStats;
 import org.junit.jupiter.api.BeforeEach;
