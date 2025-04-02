@@ -1,7 +1,7 @@
 package fr.univcotedazur.teamj.kiwicard.entities;
 
-import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerDTO;
+import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
