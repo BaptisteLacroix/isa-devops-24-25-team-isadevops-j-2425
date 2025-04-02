@@ -8,7 +8,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Partner {
@@ -31,7 +33,7 @@ public class Partner {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "partner")
     @Column
-    private List<AbstractPerk> perkList;
+    private Set<AbstractPerk> perkSet;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "partner")
     @Column
@@ -44,7 +46,7 @@ public class Partner {
         this.name = name;
         this.address = address;
         this.itemList = new ArrayList<>();
-        this.perkList = new ArrayList<>();
+        this.perkSet = new HashSet<>();
         this.purchaseList = new ArrayList<>();
     }
 
@@ -80,8 +82,8 @@ public class Partner {
         return itemList;
     }
 
-    public List<AbstractPerk> getPerkList() {
-        return perkList;
+    public Set<AbstractPerk> getPerkSet() {
+        return perkSet;
     }
 
     public void addItem(Item item) {
@@ -91,7 +93,7 @@ public class Partner {
 
     public void addPerk(AbstractPerk perk) {
         perk.setPartner(this);
-        perkList.add(perk);
+        perkSet.add(perk);
     }
 
     public void addPurchase(Purchase purchase) {

@@ -1,6 +1,6 @@
 package fr.univcotedazur.teamj.kiwicard.components;
 
-import fr.univcotedazur.teamj.kiwicard.DataUtils;
+import fr.univcotedazur.teamj.kiwicard.PurchaseCreationUtils;
 import fr.univcotedazur.teamj.kiwicard.dto.CustomerSubscribeDTO;
 import fr.univcotedazur.teamj.kiwicard.entities.*;
 import fr.univcotedazur.teamj.kiwicard.exceptions.UnknownPartnerIdException;
@@ -52,7 +52,7 @@ public class PurchaseStatsTest {
         partner = new Partner("Boulange", "14 rue du trottoir, Draguignan");
         entityManager.persist(partner);
         baseDate = LocalDate.of(2025, 3, 16);
-        this.expectedDay1Aggregation = new DataUtils(entityManager).createDummyPurchasesForDate(baseDate, getLocalDateTimes(baseDate, Duration.ofHours(1)), partner);
+        this.expectedDay1Aggregation = new PurchaseCreationUtils(entityManager, 150).createDummyPurchasesForDate(baseDate, getLocalDateTimes(baseDate, Duration.ofHours(1)), partner);
         entityManager.flush();
         entityManager.clear();
     }

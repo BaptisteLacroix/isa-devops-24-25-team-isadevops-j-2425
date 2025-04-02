@@ -23,6 +23,4 @@ public interface IPerkDTO {
     }
 
     <T> T accept(PerkDTOVisitor<T> visitor);
-
 }
-
